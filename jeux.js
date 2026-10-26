@@ -42,4 +42,12 @@ const JEUX = [
     couleur: "#a78bfa",
     commentaire: "3000 ans d'histoire en trois minutes. Si un empire s'effondre, c'est la faute des dés. Pas la tienne. Enfin, un peu.",
   },
+  {
+    dossier: "irie-bay",
+    titre: "Irie Bay",
+    emoji: "🌴",
+    genre: "Ferme chill · île reggae",
+    couleur: "#2fa84f",
+    commentaire: "Cultive ton yard, élève des poules, pêche au bout de la jetée. Le sound system du village ne s'arrête jamais, et personne ne s'en plaint.",
+  },
 ];
