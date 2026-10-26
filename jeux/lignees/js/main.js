@@ -9,9 +9,6 @@
   function boot() {
     const saved = G.state.load();
     G.meta = saved && saved.meta ? Object.assign(G.state.newMeta(), saved.meta) : G.state.newMeta();
-    // Thème graphique : celui de la sauvegarde (import compris) s'il diffère de celui du navigateur.
-    if (G.meta.settings && G.meta.settings.theme && G.meta.settings.theme !== G.theme.id) G.theme.apply(G.meta.settings.theme);
-    else G.meta.settings.theme = G.theme.id;
     // V1.4 : les difficultés ont changé de sens (Paisible = sans ennemis, + à +++ à débloquer).
     if (!G.meta.metaV || G.meta.metaV < 2) { G.meta.maxRigueur = G.meta.stats.bestEra >= 2 ? 1 : 0; G.meta.metaV = 2; }
     // V1.5 : une ère (Préhistoire) s'insère au début, les ères existantes sont décalées d'un cran.
@@ -26,6 +23,8 @@
 
     if (saved && saved.run && !saved.run.over) {
       G.run = saved.run;
+      // V1.8 : la gloire n'est versée qu'à la fin de la partie ; ce qui a déjà été versé reste acquis.
+      if (!G.run.gloryV2) { G.run.gloryV2 = true; G.run.gloryPaid = G.run.gloryEarned || 0; }
       if (G.map.migrate(G.run)) setTimeout(() => G.ui.toast("🗺️ La carte s'est agrandie : de nouvelles terres vous entourent.", 'info'), 400);
       G.logistics.migrate(G.run);
       G.map.addRares(G.run);

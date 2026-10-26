@@ -335,6 +335,7 @@ G.logic = (function () {
     const t = G.TECHS[id], run = G.run;
     if (!t.repeat && run.techs[id]) return 'done';
     if (t.era > run.era) return 'future';
+    if (t.post && !run.launched) return 'locked';
     if (!t.req.every(r => run.techs[r])) return 'locked';
     return run.res.savoir >= techCost(id) ? 'ready' : 'available';
   }
@@ -348,6 +349,11 @@ G.logic = (function () {
       .forEach(b => G.render.visual(b, G.run.buildings[0], 'savoir', techCost(id) / 4));
     recomputeMods();
     const t = G.TECHS[id];
+    if (t.glory) { // recherche infinie : un peu de gloire à chaque niveau (une toutes les ~3 recherches)
+      G.run.gloryFrac = (G.run.gloryFrac || 0) + t.glory;
+      const n = Math.floor(G.run.gloryFrac + 1e-9);
+      if (n >= 1) { G.run.gloryFrac -= n; gainGlory(n, t.name); G.lore && G.lore.say('launchBack', {}); }
+    }
     const unl = t.effects.filter(e => e.t === 'unlock').map(e => B[e.b].name);
     G.ui && G.ui.toast('🔬 ' + t.name + (unl.length ? ' — débloque : ' + unl.join(', ') : ''), 'info');
     G.lore && G.lore.say(Object.keys(G.run.techs).length === 1 ? 'firstResearch' : 'research', { tech: t.name });
@@ -423,9 +429,10 @@ G.logic = (function () {
     const run = G.run, meta = G.meta;
     if (!n || G.botSim) return;
     if ((run.botRun || (G.bot && G.bot.active)) && !meta.settings.botGlory) return;
-    meta.glory = (meta.glory || 0) + n;
+    // La gloire s'accumule pendant la partie et n'est versée qu'à la transmission de l'héritage (fin de partie).
+    if (!run.gloryV2) meta.glory = (meta.glory || 0) + n;
     run.gloryEarned = (run.gloryEarned || 0) + n;
-    G.ui && G.ui.toast('✨ +' + n + ' gloire — ' + why, 'good');
+    G.ui && G.ui.toast('✨ +' + n + ' gloire — ' + why + (run.gloryV2 ? ' (versée à la fin de la partie)' : ''), 'good');
   }
 
   function cardTypes() {
@@ -435,6 +442,22 @@ G.logic = (function () {
   function masteryCost(type) {
     const lvl = (G.meta.mastery || {})[type] || 1;
     return lvl >= G.GLORY.maxMastery ? null : Math.pow(2, lvl - 1);
+  }
+
+  // Nombre de cartes qu'on peut acheter d'un coup : la gloire disponible, sans dépasser ce qu'il faut pour atteindre la maîtrise maximale.
+  function cardMaxBuy(type) {
+    const meta = G.meta, c = G.GLORY.cardCost(B[type].era), lvl = (meta.mastery || {})[type] || 1, have = (meta.cards || {})[type] || 0;
+    const left = Math.max(0, Math.pow(2, G.GLORY.maxMastery - 1) - Math.pow(2, lvl - 1) - have);
+    return Math.min(Math.floor((meta.glory || 0) / c), left);
+  }
+
+  function buyCardMax(type) {
+    const n = cardMaxBuy(type), meta = G.meta;
+    if (n < 1) return 0;
+    meta.glory -= n * G.GLORY.cardCost(B[type].era);
+    meta.cards = meta.cards || {};
+    meta.cards[type] = (meta.cards[type] || 0) + n;
+    return n;
   }
 
   function buyCard(type) {
@@ -491,14 +514,17 @@ G.logic = (function () {
   }
 
   // ---------- Lancement du vaisseau ----------
-  function launchReady() { return G.run.buildings.some(b => B[b.type].wonder && B[b.type].wonder.launch && b.done && !b.ruined); }
+  function launchReady() { return !G.run.launched && G.run.buildings.some(b => B[b.type].wonder && B[b.type].wonder.launch && b.done && !b.ruined); }
 
   function launch() {
     if (!launchReady() || G.run.over) return false;
+    // Le décollage n'est plus la fin : la lignée continue, les recherches interstellaires infinies s'ouvrent.
     G.run.launched = true;
+    G.run.launchedAt = G.run.time;
     gainGlory(G.GLORY.launch, 'le vaisseau a quitté la planète');
+    recomputeMods();
     G.lore && G.lore.say('launch', {});
-    endRun('launch');
+    G.ui && G.ui.launched && G.ui.launched();
     return true;
   }
 
@@ -516,8 +542,11 @@ G.logic = (function () {
   function endRun(reason) {
     const run = G.run, meta = G.meta;
     if (run.over) return;
+    if (run.launched && reason !== 'fall') reason = 'launch'; // une lignée qui a décollé transmet toujours « en triomphe »
     run.over = true;
     const gain = heritageGain();
+    if (run.gloryV2) meta.glory = (meta.glory || 0) + Math.max(0, (run.gloryEarned || 0) - (run.gloryPaid || 0));
+    run.gloryPaid = run.gloryEarned || 0;
     meta.heritage += gain;
     meta.heritageTotal += gain;
     meta.stats.runs++;
@@ -599,7 +628,7 @@ G.logic = (function () {
 
   return {
     recomputeMods, buildCost, canAfford, tileCost, isUnlocked, canPlace, footprint, build, demolish, repairCost, repair, repairAll,
-    upgradeTarget, upgrade, maxLevel, levelCost, levelState, levelUp, levelAllInfo, levelUpAll, maxSpeed, setRecipe, launchReady, launch, gainGlory, cardTypes, masteryCost, buyCard, buyPack, masteryUp, masteryPlan, masteryUpAll, market, refreshTrades, trade, setSpec, canBuyTile, annexPath, annexTo, buyTile, techCost, techState, research, makeChoice, chooseDecree, reroll,
+    upgradeTarget, upgrade, maxLevel, levelCost, levelState, levelUp, levelAllInfo, levelUpAll, maxSpeed, setRecipe, launchReady, launch, gainGlory, cardTypes, masteryCost, buyCard, cardMaxBuy, buyCardMax, buyPack, masteryUp, masteryPlan, masteryUpAll, market, refreshTrades, trade, setSpec, canBuyTile, annexPath, annexTo, buyTile, techCost, techState, research, makeChoice, chooseDecree, reroll,
     eraRequirements, advanceEra, heritageGain, endRun, buyHeritage, unlockOrigin, startRun, hint, countOf,
   };
 })();

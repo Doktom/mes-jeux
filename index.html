@@ -3,27 +3,36 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mes petits jeux</title>
+  <title>La Salle d'Arcade de Doktom</title>
+  <meta name="description" content="Les petits jeux de Doktom, jouables dans le navigateur.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Décor : soleil couchant, sol en grille qui défile, objets qui flottent -->
+  <div class="decor" aria-hidden="true">
+    <div class="soleil"></div>
+    <div class="horizon"><div class="sol"></div></div>
+    <div class="flotteurs"></div>
+  </div>
+
   <header>
-    <h1>🎮 Mes petits jeux</h1>
-    <p>Clique sur un jeu pour y jouer.</p>
+    <p class="surtitre">Bienvenue dans</p>
+    <h1 class="titre3d" data-texte="La Salle d'Arcade">La Salle d'Arcade</h1>
+    <p class="accroche">de <strong>Doktom</strong> · jeux faits maison, testés par une loutre<sup>*</sup></p>
+    <button id="hasard" class="bouton-hasard" type="button"><span class="de">🎲</span> Je me sens chanceux</button>
   </header>
+
   <main id="grille" class="grille"></main>
-  <footer>V1</footer>
+
+  <footer>
+    <p><sup>*</sup> La loutre n'a pas signé de décharge.</p>
+    <p class="compteur"></p>
+  </footer>
+
   <script src="jeux.js"></script>
-  <script>
-    const grille = document.getElementById("grille");
-    for (const jeu of JEUX) {
-      const carte = document.createElement("a");
-      carte.className = "carte";
-      carte.href = "jeux/" + jeu.dossier + "/";
-      carte.innerHTML = `<span class="emoji">${jeu.emoji || "🕹️"}</span>
-        <h2>${jeu.titre}</h2><p>${jeu.description || ""}</p>`;
-      grille.appendChild(carte);
-    }
-  </script>
+  <script src="site.js"></script>
 </body>
 </html>

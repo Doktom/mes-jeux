@@ -422,7 +422,7 @@ G.bot = (function () {
     G.meta.settings.lore = false; // pas de bavardage pendant une simulation éclair
     const run = G.run, log = [];
     let t = 0, nextAct = 0, minForum = Infinity, fled = 0, lastIdx = 0, rateAcc = 0;
-    while (t < simSeconds && !run.over) {
+    while (t < simSeconds && !run.over && !run.launched) { // la simulation s'arrête au décollage
       while (run.pending.length) L().chooseDecree(run.pending[0].options[0]);
       answerModals();
       G.paused = true;

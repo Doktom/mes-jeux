@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Royaumes en Pagaille</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <canvas id="map"></canvas>
+    <div id="banner" class="hidden"></div>
+    <div id="news" class="hidden"></div>
+    <div id="toast" class="hidden"></div>
+    <div id="pausetag" class="hidden">⏸ PAUSE</div>
+  </div>
+
+  <aside id="panel">
+    <header>
+      <div class="brand">Royaumes <em>en Pagaille</em></div>
+      <div class="clock"><span id="time">10:00</span></div>
+    </header>
+    <div class="controls">
+      <button id="bPause" title="Pause (Espace)">⏸</button>
+      <button id="b1" title="Vitesse normale">×1</button>
+      <button id="b2" title="Vitesse ×2 (F)">×2</button>
+      <button id="b4" class="hidden" title="Vitesse ×4 (mode spectateur)">×4</button>
+      <button id="bMute" title="Son (M)">🔊</button>
+      <span id="doctrine" class="doctrine"></span>
+    </div>
+    <section id="board"></section>
+    <section id="res"></section>
+    <section id="hand"></section>
+    <section id="log"></section>
+    <div id="tileinfo"></div>
+    <div id="seedbar"><span id="seedTxt"></span><button id="bCopy" title="Copier un lien vers cette carte">Copier le lien</button></div>
+  </aside>
+</div>
+
+<div id="menu" class="overlay">
+  <div class="sheet">
+    <h1>Royaumes <em>en Pagaille</em></h1>
+    <p class="sub">Une petite guerre de territoire que vous regardez... et que vous influencez à coups de cartes absurdes.</p>
+    <h3>Mode</h3>
+    <div id="modePick" class="seg wide">
+      <button data-m="play" class="on">Jouer (cartes)</button><button data-m="spec">Spectateur (IA contre IA)</button>
+    </div>
+    <h3 id="pickTitle">Choisissez votre civilisation</h3>
+    <div id="civPick"></div>
+    <div class="opts">
+      <div>
+        <h3>Rivaux</h3>
+        <div id="rivalPick" class="seg">
+          <button data-n="1">1</button><button data-n="2" class="on">2</button><button data-n="3">3</button>
+        </div>
+      </div>
+      <div>
+        <h3>Graine de la carte</h3>
+        <div class="seedrow"><input id="seedIn" inputmode="numeric" placeholder="au hasard" maxlength="9"><button id="seedRnd" title="Tirer une graine">🎲</button></div>
+      </div>
+    </div>
+    <button id="bStart" class="big">Lancer la partie</button>
+    <p class="hint">Toutes les 30 à 45 s, vous recevez 3 cartes : jouez-en une, ou mettez-en une de côté (📌) pour le prochain tirage. Enchaînez les bonnes cartes pour déclencher des combos.<br>
+      Raccourcis : <kbd>1</kbd>–<kbd>4</kbd> cartes · <kbd>Espace</kbd> pause · <kbd>F</kbd> vitesse ×2 · <kbd>M</kbd> son · <kbd>Échap</kbd> annuler</p>
+  </div>
+</div>
+
+<div id="end" class="overlay hidden">
+  <div class="sheet">
+    <h1 id="endTitle">Fin de partie</h1>
+    <p id="endSub" class="sub"></p>
+    <div id="endRank"></div>
+    <h4 class="chartT">Territoire au fil du temps</h4>
+    <canvas id="endChart" width="640" height="170"></canvas>
+    <div id="endChron"></div>
+    <p class="hint"><span id="endSeed"></span></p>
+    <div class="row">
+      <button id="bAgain" class="big">Même carte</button>
+      <button id="bNew" class="big">Nouvelle carte</button>
+      <button id="bCopyEnd" class="big alt">Copier le lien</button>
+      <button id="bMenu" class="big alt">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/render.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

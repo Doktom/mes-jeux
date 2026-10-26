@@ -4,7 +4,7 @@ G.lore = (function () {
   const GAP = 25;          // secondes minimum entre deux répliques ordinaires
   const EVENT_GAP = 120;   // et entre deux répliques du même événement ordinaire
   const queue = [], lastLine = {}, lastEvent = {};
-  let el = null, current = false, lastAt = -1e9, hideTimer = null, checkAt = 0;
+  let el = null, current = false, lastAt = -1e9, hideTimer = null, checkAt = 0, ambientAt = performance.now() / 1000 + 150;
 
   function enabled() { return !(G.meta && G.meta.settings && G.meta.settings.lore === false); }
   function now() { return performance.now() / 1000; }
@@ -55,6 +55,7 @@ G.lore = (function () {
     const t = now();
     if (!G.run || G.run.over || t < checkAt) return;
     checkAt = t + 15;
+    if (t >= ambientAt) { ambientAt = t + 200 + Math.random() * 140; say(G.run.launched ? 'ambient5' : 'ambient' + G.run.era, {}); }
     const full = G.RESOURCE_ORDER.find(r => !G.RESOURCES[r].uncapped && G.capR && G.capR[r] > 0 && G.run.res[r] >= G.capR[r] - 1);
     if (full) return say('stockFull', {});
     const w = G.run.buildings.find(b => b._waiting && !b.ruined && !b.paused);

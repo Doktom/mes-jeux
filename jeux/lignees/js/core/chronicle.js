@@ -138,6 +138,8 @@ G.chronicle = (function () {
     if (!ch || !canChoose(ch)) return null;
     if (ch.cost) G.logistics.take(ch.cost, run.buildings[0]);
     const e = ch.effects || {};
+    if (e.flag) (run.flags || (run.flags = {}))[e.flag] = true;
+    if (e.glory) G.logic.gainGlory(e.glory, 'la Chronique');
     if (e.res) for (const r in e.res) G.logistics.add(r, e.res[r]);
     if (e.savoir) run.res.savoir += e.savoir;
     if (e.heritage) run.bonusHeritage += e.heritage;
@@ -191,7 +193,7 @@ G.chronicle = (function () {
       }
     }
 
-    if (!offline) { checkAchievements(dt); sampleHistory(dt); }
+    if (!offline) { checkAchievements(dt); sampleHistory(dt); checkGlory(dt); checkChapter(dt); }
 
     // Marché : offres renouvelées périodiquement.
     if (G.logic.market()) {
@@ -208,6 +210,44 @@ G.chronicle = (function () {
         if (ev) G.ui.eventModal(ev);
       }
     }
+  }
+
+  // ---------- Paliers de gloire ----------
+  // La gloire arrive peu à peu : chaque palier atteint (population, bâtiments, recherches, vagues…) en rapporte un peu.
+  let gloAcc = 0;
+  function checkGlory(dt) {
+    gloAcc += dt;
+    if (gloAcc < 5 || G.botSim) return;
+    gloAcc = 0;
+    const run = G.run, seen = run.glorySeen || (run.glorySeen = {});
+    G.GLORY.milestones.forEach(m => {
+      if (seen[m.id] || !m.check(run)) return;
+      seen[m.id] = true;
+      G.logic.gainGlory(m.n, 'palier : ' + m.text);
+      G.lore && G.lore.say('milestone', { what: m.text });
+    });
+  }
+
+  // ---------- Chapitres du récit ----------
+  // Les chapitres (G.CHAPTERS) se jouent dans l'ordre, au plus un toutes les 2 minutes, jamais pendant une vague.
+  let chapAcc = 0;
+  function checkChapter(dt) {
+    chapAcc += dt;
+    if (chapAcc < 4 || G.botSim) return;
+    chapAcc = 0;
+    const run = G.run;
+    if (run.wave.active || !G.ui || G.ui.modal || run.pending.length) return;
+    if (run.time - (run.lastChapterAt === undefined ? -1e9 : run.lastChapterAt) < 120) return;
+    const done = run.chapters || (run.chapters = {});
+    const ch = G.CHAPTERS.find(c => !done[c.id]);
+    if (!ch || !ch.when(run)) return;
+    const ev = ch.event(run, ctx());
+    if (!ev) return;
+    ev.id = ch.id;
+    done[ch.id] = true;
+    run.lastChapterAt = run.time;
+    G.lore && G.lore.say('chapter', {});
+    G.ui.eventModal(ev);
   }
 
   // ---------- Succès ----------

@@ -1,16 +1,15 @@
-# Mes petits jeux (V1)
+# La Salle d'Arcade de Doktom
 
-Site statique : aucune installation, aucun serveur.
+Les petits jeux de Doktom, jouables dans le navigateur : https://doktom.github.io/mes-jeux/
 
-- `index.html` : page d'accueil avec la grille des jeux
-- `jeux.js` : la liste des jeux (une ligne par jeu)
-- `jeux/<nom>/index.html` : chaque jeu dans son dossier
+Site statique (HTML/CSS/JS, aucune installation), publié avec GitHub Pages (branche `main`, racine).
 
-## Ajouter un jeu
-1. Copier le jeu dans `jeux/mon-jeu/` (avec un `index.html`).
-2. Ajouter une ligne dans `jeux.js`.
+- `index.html`, `style.css`, `site.js` : la page d'accueil (cartes 3D, bouton « Je me sens chanceux »)
+- `jeux.js` : la liste des jeux (titre, emoji, genre, couleur, commentaire)
+- `jeux/<nom>/` : une copie de chaque jeu, prise dans son propre dépôt
+- `apercus/<nom>.jpg` : la capture affichée sur la carte
 
-## Mettre en ligne (GitHub Pages, gratuit)
-1. Créer un dépôt public sur GitHub (ex. `mes-jeux`) et y mettre ces fichiers.
-2. Settings → Pages → Source : branche `main`, dossier `/ (root)`.
-3. Le site est disponible sur `https://<pseudo>.github.io/mes-jeux/`.
+## Ajouter ou mettre à jour un jeu
+1. Copier les fichiers du jeu (pas la doc de dev) dans `jeux/<nom>/`.
+2. Mettre une capture 800×500 dans `apercus/<nom>.jpg`.
+3. Ajouter un bloc dans `jeux.js`.

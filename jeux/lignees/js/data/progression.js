@@ -40,6 +40,9 @@ G.ERAS = [
   },
 ];
 
+// Bande de l'arbre des technologies ouverte par le décollage du vaisseau.
+G.POST_ERA = { name: 'Au-delà des étoiles', color: '#b9a8f0' };
+
 // Multiplicateur appliqué au coût en savoir de toutes les technologies.
 G.TECH_COST_MULT = 1.35;
 
@@ -98,6 +101,14 @@ G.TECHS = {
   t_fusees:      { era: 4, name: 'Fusées', cost: 20000, req: ['t_materiaux', 't_raffinage'], effects: [{ t: 'prod', target: 'res:carburant', v: 0.25 }], desc: 'Carburant +25 %. Première étape vers l\'espace.' },
   t_survie:      { era: 4, name: 'Systèmes de survie', cost: 20000, req: ['t_informatique', 't_solaire'], effects: [{ t: 'prod', target: 'res:electronique', v: 0.25 }], desc: 'Électronique +25 %. Il faudra respirer, là-haut.' },
   t_vaisseau:    { era: 4, name: 'Vaisseau interstellaire', cost: 40000, req: ['t_fusees', 't_survie'], effects: [{ t: 'unlock', b: 'pas_de_tir' }], desc: 'Débloque le pas de tir : construisez le vaisseau et quittez la planète.' },
+
+  // Après le décollage : recherches interstellaires infinies. Chaque niveau renforce la lignée et rapporte un peu de gloire.
+  p_expansion: { era: 4, post: true, name: 'Expansion stellaire', cost: 45000, repeat: 1.3, glory: 0.34, req: [], effects: [{ t: 'prod', target: 'all', v: 0.06 }], desc: 'Production +6 % par niveau (infini), un peu de gloire ✨.' },
+  p_archives:  { era: 4, post: true, name: 'Archives interstellaires', cost: 42000, repeat: 1.3, glory: 0.34, req: [], effects: [{ t: 'prod', target: 'res:savoir', v: 0.1 }], desc: 'Savoir +10 % par niveau (infini), un peu de gloire ✨.' },
+  p_bouclier:  { era: 4, post: true, name: 'Boucliers orbitaux', cost: 48000, repeat: 1.3, glory: 0.34, req: [], effects: [{ t: 'towerDmg', v: 0.08 }, { t: 'hp', v: 0.08 }], desc: 'Tours +8 %, PV +8 % par niveau (infini), un peu de gloire ✨.' },
+  p_entrepots: { era: 4, post: true, name: 'Entrepôts orbitaux', cost: 46000, repeat: 1.3, glory: 0.34, req: [], effects: [{ t: 'storage', v: 0.1 }], desc: 'Stockage +10 % par niveau (infini), un peu de gloire ✨.' },
+  p_cites:     { era: 4, post: true, name: 'Cités-jardins', cost: 50000, repeat: 1.3, glory: 0.34, req: [], effects: [{ t: 'pop', v: 0.05 }], desc: 'Population +5 % par niveau (infini), un peu de gloire ✨.' },
+  p_reseaux:   { era: 4, post: true, name: 'Réseaux quantiques', cost: 44000, repeat: 1.3, glory: 0.34, req: [], effects: [{ t: 'logi', v: 0.06 }], desc: 'Porteurs +6 % par niveau (infini), un peu de gloire ✨.' },
 
   // Technologies répétables (progression sans limite)
   r_rationalisation: { era: 3, name: 'Rationalisation', cost: 6000, req: ['t_meca'], repeat: 1.6, effects: [{ t: 'prod', target: 'all', v: 0.1 }], desc: 'Production +10 % (répétable).' },
@@ -291,9 +302,36 @@ G.SQUAD_ORDERS = {
 // Elle achète des cartes de bâtiment ; les cartes montent la maîtrise d'un type de bâtiment.
 // Maîtrise : niveau n = production et stocks ×n. Passer au niveau n+1 coûte 2^(n-1) cartes (1, 2, 4, 8…).
 G.GLORY = {
-  era: [0, 2, 3, 4, 6],   // gloire gagnée en atteignant chaque ère (index = ère atteinte)
-  wonder: 5,              // par merveille achevée
-  launch: 15,             // en lançant le vaisseau
+  era: [0, 1, 2, 3, 4],   // gloire gagnée en atteignant chaque ère (index = ère atteinte)
+  wonder: 3,              // par merveille achevée
+  launch: 6,              // en lançant le vaisseau (la partie continue : recherches infinies)
+  // Paliers : la gloire arrive peu à peu pendant la partie (versée à la fin), même une partie courte en rapporte un peu.
+  milestones: [
+    { id: 'time5', n: 1, text: '5 minutes de survie', check: r => r.time >= 300 },
+    { id: 'pop25', n: 1, text: '25 habitants', check: () => ((G.stats || {}).pop || 0) >= 25 },
+    { id: 'pop100', n: 1, text: '100 habitants', check: () => ((G.stats || {}).pop || 0) >= 100 },
+    { id: 'pop250', n: 2, text: '250 habitants', check: () => ((G.stats || {}).pop || 0) >= 250 },
+    { id: 'pop500', n: 2, text: '500 habitants', check: () => ((G.stats || {}).pop || 0) >= 500 },
+    { id: 'pop1000', n: 2, text: '1000 habitants', check: () => ((G.stats || {}).pop || 0) >= 1000 },
+    { id: 'b30', n: 1, text: '30 bâtiments', check: r => r.buildings.length >= 30 },
+    { id: 'b80', n: 2, text: '80 bâtiments', check: r => r.buildings.length >= 80 },
+    { id: 'b160', n: 2, text: '160 bâtiments', check: r => r.buildings.length >= 160 },
+    { id: 'tech6', n: 1, text: '6 recherches', check: r => Object.keys(r.techs).length >= 6 },
+    { id: 'tech15', n: 1, text: '15 recherches', check: r => Object.keys(r.techs).length >= 15 },
+    { id: 'tech30', n: 2, text: '30 recherches', check: r => Object.keys(r.techs).length >= 30 },
+    { id: 'tech45', n: 2, text: '45 recherches', check: r => Object.keys(r.techs).length >= 45 },
+    { id: 'wave3', n: 1, text: '3 vagues repoussées', check: r => r.stats.wavesWon >= 3 },
+    { id: 'wave10', n: 2, text: '10 vagues repoussées', check: r => r.stats.wavesWon >= 10 },
+    { id: 'wave25', n: 2, text: '25 vagues repoussées', check: r => r.stats.wavesWon >= 25 },
+    { id: 'lvl3', n: 1, text: 'un bâtiment niveau 3', check: r => r.buildings.some(b => (b.level || 1) >= 3) },
+    { id: 'lvl5', n: 2, text: 'un bâtiment niveau 5', check: r => r.buildings.some(b => (b.level || 1) >= 5) },
+    { id: 'ct3', n: 1, text: '3 contrats remplis', check: r => (r.stats.contracts || 0) >= 3 },
+    { id: 'ct10', n: 2, text: '10 contrats remplis', check: r => (r.stats.contracts || 0) >= 10 },
+    { id: 'time30', n: 1, text: '30 minutes de jeu', check: r => r.time >= 1800 },
+    { id: 'time90', n: 2, text: '1 h 30 de jeu', check: r => r.time >= 5400 },
+    { id: 'time180', n: 2, text: '3 h de jeu', check: r => r.time >= 10800 },
+    { id: 'rares', n: 2, text: 'les trois ressources rares', check: r => ['marbre', 'or', 'gemmes'].every(x => (r.prodTotal || {})[x] > 0) },
+  ],
   cardCost: era => 1 + era, // prix d'une carte précise, selon l'ère du bâtiment
   packCost: 5,            // paquet de 3 cartes au hasard
   packSize: 3,

@@ -6,11 +6,24 @@ G.ui = (function () {
   const ui = { hover: null, placing: null, selected: null, tab: 'build', modal: null, pointerDown: false };
 
   // ---------- Helpers HTML ----------
+  // Infobulle d'une ressource demandée : besoin, stock, bilan et bâtiments qui la produisent.
+  function costTip(r, need) {
+    const d = G.RESOURCES[r], have = G.run.res[r] || 0, rate = (G.rates || {})[r] || 0;
+    const makers = Object.keys(G.BUILDINGS).filter(id => {
+      const b = G.BUILDINGS[id];
+      return !b.road && !b.upgradeFrom && G.logic.isUnlocked(id) && ((b.out && b.out[r]) || (b.recipes || []).some(x => x.out && x.out[r]));
+    }).map(id => G.BUILDINGS[id].icon + ' ' + G.BUILDINGS[id].name);
+    return '<b>' + d.icon + ' ' + d.name + '</b><br>' + (need ? 'Nécessaire : ' + U.fmt(need) + '<br>' : '') +
+      'En stock : ' + U.fmt(have) + (need ? (have >= need ? ' ✔' : ' — il manque ' + U.fmt(need - have)) : '') +
+      (Math.abs(rate) > 0.005 ? '<br>Bilan : ' + U.fmtRate(rate) : '') +
+      '<br>' + (d.uncapped ? 'Produit par les bâtiments savants.' : makers.length ? 'Produit par : ' + makers.slice(0, 6).join(', ') + (makers.length > 6 ? '…' : '') : 'Ressource de base (gisement, forêt, eau…).');
+  }
+
   function costHtml(cost, opts) {
     opts = opts || {};
     return Object.keys(cost).map(r => {
       const ok = (G.run.res[r] || 0) >= cost[r];
-      return '<span class="chip ' + (ok ? '' : 'lack') + '">' + G.RESOURCES[r].icon + ' ' + U.fmt(cost[r]) + '</span>';
+      return '<span class="chip ' + (ok ? '' : 'lack') + '" data-tip="' + costTip(r, cost[r]) + '">' + G.RESOURCES[r].icon + ' ' + U.fmt(cost[r]) + '</span>';
     }).join('');
   }
 
@@ -47,7 +60,7 @@ G.ui = (function () {
     const energy = S.energyNeed > 0 || S.energyProd > 0
       ? '<span class="pill ' + (S.energyRatio < 0.99 || S.unpowered ? 'warn' : '') + '" data-tip="Électricité produite / demandée, sur ' + (S.networks || 0) + ' réseau(x). Un bâtiment électrique doit toucher une centrale ou un relais 🗼.' + (S.unpowered ? ' ' + S.unpowered + ' bâtiment(s) non raccordé(s) !' : '') + '">⚡ ' + U.fmt(S.energyProd, 1) + ' / ' + U.fmt(S.energyNeed, 1) + (S.unpowered ? ' · 🔌 ' + S.unpowered : '') + '</span>' : '';
     const html =
-      '<div class="brand">Lignées <small>' + G.theme.tagline + '</small></div>' +
+      '<div class="brand">Lignées <small>V1</small></div>' +
       '<span class="pill era" style="--c:' + era.color + '">' + era.name + '</span>' +
       '<span class="pill ' + (S.workRatio < 0.98 ? 'warn' : '') + '" data-tip="Population / emplois. Si les emplois dépassent la population, tous les bâtiments ralentissent.">👥 ' + U.fmt(S.pop || 0) + ' / ' + U.fmt(S.jobs || 0) + ' emplois</span>' +
       energy + seasonHtml() + waveTxt + timedHtml() +
@@ -140,6 +153,36 @@ G.ui = (function () {
     }
     setHTML($('#resources'), html);
     setHTML($('#hint'), '<b>Conseil</b><p>' + G.logic.hint() + '</p>');
+  }
+
+  // Bâtiments liés au bâtiment sélectionné : même type, fournisseurs (produisent ce qu'il consomme) et clients (consomment ce qu'il produit).
+  function relations(b) {
+    const c = ui._rel, now = performance.now();
+    if (c && c.b === b && c.ver === G.buildVer && now - c.t < 1000) return c;
+    const d = G.economy.def(b), need = Object.keys(G.economy.needs(b)), outs = Object.keys(d.out || {}).filter(r => !G.RESOURCES[r].uncapped);
+    const rel = { b, ver: G.buildVer, t: now, same: [], sup: [], cli: [] };
+    G.run.buildings.forEach(o => {
+      if (o === b || o.ruined) return;
+      if (o.type === b.type) rel.same.push(o);
+      const od = G.economy.def(o);
+      if (od.road || od.relay) return;
+      const give = Object.keys(od.out || {}).filter(r => need.includes(r));
+      if (give.length) rel.sup.push({ b: o, rs: give });
+      if (outs.length) { const on = Object.keys(G.economy.needs(o)).filter(r => outs.includes(r)); if (on.length) rel.cli.push({ b: o, rs: on }); }
+    });
+    ui._rel = rel;
+    return rel;
+  }
+
+  // Bloc « chaîne de production » du panneau de sélection : bouton et résumé.
+  function chainBox(b) {
+    let h = '<button class="btn ' + (ui.chainView ? 'primary' : '') + '" data-action="chainView" data-tip="Met en évidence sur la carte les fournisseurs (bleu) et les clients (orange) de ce bâtiment, reliés par des flèches. Les bâtiments du même type sont toujours entourés d\'or.">🔗 Chaîne de production</button>';
+    if (ui.chainView) {
+      const R = relations(b), line = (list, label) => '<div class="chain-line"><b>' + label + ' (' + list.length + ')</b>' +
+        (list.length ? ' ' + list.slice(0, 12).map(x => '<span class="chip" data-tip="' + G.BUILDINGS[x.b.type].name + ' — ' + x.rs.map(r => G.RESOURCES[r].name).join(', ') + '">' + G.BUILDINGS[x.b.type].icon + x.rs.map(r => G.RESOURCES[r].icon).join('') + '</span>').join('') + (list.length > 12 ? ' …' : '') : ' <span class="muted">aucun</span>') + '</div>';
+      h += '<div class="chain-box">' + line(R.sup, '⬅ Fournisseurs') + line(R.cli, '➡ Clients') + '<div class="chain-line"><b>Même type (' + R.same.length + ')</b></div></div>';
+    }
+    return h;
   }
 
   // Où se trouve une ressource : réserves (forum, entrepôts), stocks de sortie des producteurs, transit.
@@ -241,13 +284,15 @@ G.ui = (function () {
   const TREE = { w: 214, h: 96, gx: 62, gy: 14, head: 40, gap: 22 };
 
   function techTreeLayout() {
-    const run = G.run, last = Math.min(run.era + 1, G.ERAS.length - 1), pos = {}, bands = [];
+    const run = G.run, last = Math.min(run.era + 1, G.ERAS.length - 1), pos = {}, bands = [], groups = [];
     let y0 = 0, width = 0;
-    for (let e = 0; e <= last; e++) {
-      const ids = Object.keys(G.TECHS).filter(id => G.TECHS[id].era === e);
+    for (let e = 0; e <= last; e++) groups.push({ key: e, ids: Object.keys(G.TECHS).filter(id => G.TECHS[id].era === e && !G.TECHS[id].post) });
+    if (run.launched || run.techs.t_vaisseau) groups.push({ key: 'post', ids: Object.keys(G.TECHS).filter(id => G.TECHS[id].post) });
+    for (const g of groups) {
+      const e = g.key, ids = g.ids;
       if (!ids.length) continue;
       const depth = {};
-      const dep = id => depth[id] !== undefined ? depth[id] : (depth[id] = G.TECHS[id].req.filter(r => G.TECHS[r] && G.TECHS[r].era === e).reduce((m, r) => Math.max(m, dep(r) + 1), 0));
+      const dep = id => depth[id] !== undefined ? depth[id] : (depth[id] = G.TECHS[id].req.filter(r => ids.includes(r)).reduce((m, r) => Math.max(m, dep(r) + 1), 0));
       ids.forEach(dep);
       const cols = [], row = {};
       ids.forEach(id => (cols[depth[id]] = cols[depth[id]] || []).push(id));
@@ -259,6 +304,7 @@ G.ui = (function () {
         col.forEach(id => { const bv = bary(id), r = Math.max(cur, bv === 99 ? 0 : Math.round(bv)); row[id] = r; cur = r + 1; });
         rows = Math.max(rows, cur);
       });
+      if (e === 'post') { ids.forEach((id, i) => { depth[id] = i % 3; row[id] = Math.floor(i / 3); }); rows = Math.ceil(ids.length / 3); cols.length = 3; } // recherches infinies : grille de 3 colonnes
       ids.forEach(id => { pos[id] = { x: depth[id] * (TREE.w + TREE.gx), y: y0 + TREE.head + row[id] * (TREE.h + TREE.gy) }; });
       const h = TREE.head + rows * (TREE.h + TREE.gy) - TREE.gy + 14;
       bands.push({ era: e, y: y0, h });
@@ -275,7 +321,7 @@ G.ui = (function () {
     const ic = unl.slice(0, 6).map(b => '<i title="' + b.name + '">' + b.icon + '</i>').join('') + (unl.length > 6 ? '<i>+' + (unl.length - 6) + '</i>' : '');
     let foot;
     if (st === 'done') foot = '<span class="ok">✔ Découverte</span>';
-    else if (st === 'locked') foot = '<span class="req">🔒 Requiert : ' + reqs.join(', ') + '</span>';
+    else if (st === 'locked') foot = '<span class="req">' + (t.post && !run.launched ? '🔒 Après le décollage du vaisseau' : '🔒 Requiert : ' + reqs.join(', ')) + '</span>';
     else if (st === 'future') foot = '<span class="req">Ère future</span>';
     else foot = '<span class="chip ' + (st === 'ready' ? 'good' : 'lack') + '">📜 ' + U.fmt(cost) + '</span>' +
       (st === 'available' ? '<span class="miss">manque ' + U.fmt(cost - run.res.savoir) + '</span>' : '<span class="go">Rechercher ▸</span>');
@@ -295,7 +341,7 @@ G.ui = (function () {
       edges += '<path class="' + (run.techs[r] ? 'on' : '') + (G.logic.techState(id) === 'ready' ? ' go' : '') + '" d="M' + x1 + ' ' + y1 + ' C' + (x1 + k) + ' ' + y1 + ' ' + (x2 - k) + ' ' + y2 + ' ' + x2 + ' ' + y2 + '"/>';
     }));
     L.bands.forEach(b => {
-      const E = G.ERAS[b.era], all = Object.keys(G.TECHS).filter(id => G.TECHS[id].era === b.era);
+      const E = b.era === 'post' ? G.POST_ERA : G.ERAS[b.era], all = Object.keys(G.TECHS).filter(id => b.era === 'post' ? G.TECHS[id].post : (G.TECHS[id].era === b.era && !G.TECHS[id].post));
       const n = all.filter(id => G.logic.techState(id) === 'done').length;
       bg += '<div class="tb ' + (b.era > run.era ? 'future' : '') + '" style="top:' + b.y + 'px;height:' + b.h + 'px;--c:' + E.color + '"><span>' + E.name + (b.era > run.era ? ' · ère future' : '') + ' <small>' + n + ' / ' + all.length + '</small></span></div>';
     });
@@ -317,10 +363,10 @@ G.ui = (function () {
     const el = $('#tree-scroll');
     if (!el) return;
     if (keepScroll && !first) { el.scrollLeft = sl; el.scrollTop = st; }
-    else { const b = (ui._treeBands || []).find(x => x.era === G.run.era); el.scrollTop = b ? Math.max(0, b.y - 6) : 0; }
+    else { const b = (ui._treeBands || []).find(x => x.era === (G.run.launched ? 'post' : G.run.era)); el.scrollTop = b ? Math.max(0, b.y - 6) : 0; }
   }
 
-  function techTreeSig() { return Object.keys(G.TECHS).map(id => G.logic.techState(id)[0] + (G.run.techs[id] || 0)).join('') + G.run.era; }
+  function techTreeSig() { return Object.keys(G.TECHS).map(id => G.logic.techState(id)[0] + (G.run.techs[id] || 0)).join('') + G.run.era + (G.run.launched ? 'L' : ''); }
 
   // Liste lisible d'exigences : une ligne par ressource, avec le stock actuel, la quantité demandée et une jauge.
   // `have` donne ce qui est déjà livré (merveille en chantier) ; sinon on compare au stock.
@@ -332,12 +378,23 @@ G.ui = (function () {
       const ok = cur >= need;
       if (ok) okCount++;
       const f = Math.min(1, cur / need);
-      return '<div class="rq ' + (ok ? 'ok' : 'lack') + '"><span class="ic">' + G.RESOURCES[r].icon + '</span><span class="nm">' + G.RESOURCES[r].name + '</span>' +
+      return '<div class="rq ' + (ok ? 'ok' : 'lack') + '" data-tip="' + costTip(r, need) + '"><span class="ic">' + G.RESOURCES[r].icon + '</span><span class="nm">' + G.RESOURCES[r].name + '</span>' +
         '<span class="qty"><b>' + U.fmt(cur) + '</b> / ' + U.fmt(need) + '</span><span class="mk">' + (ok ? '✔' : '✖') + '</span>' +
         '<span class="rbar"><i style="width:' + (f * 100).toFixed(0) + '%"></i></span>' +
         '<small>' + (ok ? (have ? 'Livré' : 'En stock') : (have ? 'Reste ' + U.fmt(need - cur) + ' à livrer' + (stock > 0 ? ' · ' + U.fmt(stock) + ' en stock' : ' · aucun en stock') : 'Manque ' + U.fmt(need - cur))) + '</small></div>';
     }).join('');
     return '<div class="reqs"><div class="rq-sum ' + (okCount === Object.keys(cost).length ? 'ok' : '') + '">' + okCount + ' / ' + Object.keys(cost).length + ' ressources réunies</div>' + rows + '</div>';
+  }
+
+  // Après le décollage : la partie continue, des recherches infinies rapportent un peu de gloire.
+  function postLaunchHtml() {
+    const run = G.run, ids = Object.keys(G.TECHS).filter(id => G.TECHS[id].post);
+    const lv = ids.reduce((a, id) => a + (run.techs[id] || 0), 0), ready = ids.filter(id => G.logic.techState(id) === 'ready').length;
+    return '<div class="box era-box" style="--c:' + G.POST_ERA.color + '"><h3>🌌 Au-delà des étoiles</h3>' +
+      '<p class="muted">Le vaisseau a décollé, la lignée continue. Les recherches interstellaires sont <b>infinies</b> : chaque niveau renforce votre civilisation et rapporte un peu de gloire ✨ (versée à la fin de la partie).</p>' +
+      '<div class="kv"><span>Niveaux interstellaires</span><b>' + lv + '</b></div><div class="kv"><span>Gloire de cette partie</span><b>✨ ' + (run.gloryEarned || 0) + '</b></div>' +
+      '<button class="btn primary" data-action="techTree">🌳 Ouvrir l\'arbre' + (ready ? ' (' + ready + ' prête' + (ready > 1 ? 's' : '') + ')' : '') + '</button>' +
+      '<small class="muted">Quand vous le voulez, transmettez l\'héritage : il est majoré (×1,5 et +50) grâce au décollage.</small></div>';
   }
 
   // Marché : offres d'échange en cours.
@@ -383,6 +440,8 @@ G.ui = (function () {
         reqRowsHtml(req.cost) +
         '<button class="btn primary" ' + (req.techOk && req.costOk ? 'data-action="advance"' : 'disabled') + '>Entrer dans le ' + next.name + '</button>' +
         '<small class="muted">Récompenses : un anneau de territoire gratuit, un nouveau décret, de nouveaux bâtiments.</small></div>';
+    } else if (run.launched) {
+      html += postLaunchHtml();
     } else {
       const pad = run.buildings.find(b => G.BUILDINGS[b.type].wonder && G.BUILDINGS[b.type].wonder.launch);
       html += '<div class="box era-box" style="--c:' + G.ERAS[run.era].color + '"><h3>🚀 Objectif final : quitter la planète</h3>' +
@@ -418,6 +477,7 @@ G.ui = (function () {
       '<div class="kv"><span>Durée</span><b>' + U.fmtTime(run.time) + '</b></div>' +
       '<div class="kv"><span>Vagues repoussées</span><b>' + run.stats.wavesWon + '</b></div>' +
       '<div class="kv"><span>Ennemis vaincus</span><b>' + run.stats.kills + '</b></div>' +
+      '<div class="kv"><span data-tip="La gloire s\'accumule pendant la partie et n\'est versée qu\'à la transmission de l\'héritage (fin de partie).">Gloire accumulée ⓘ</span><b>✨ ' + (run.gloryEarned || 0) + '</b></div>' +
       '<div class="kv"><span>Héritage si la partie s\'arrêtait</span><b>🌳 ' + G.logic.heritageGain() + '</b></div>' +
       '<button class="btn ghost" data-action="abdicate">🏳️ Transmettre l\'héritage (finir la partie)</button></div>';
     setHTML($('#panel'), html);
@@ -508,7 +568,7 @@ G.ui = (function () {
       if (G.logistics.srcStock(b)) html += carrierHtml(b);
       if (d.energyOut || d.relay || d.energyIn) html += gridHtml(b);
       if (d.wonder) html += wonderHtml(b, d);
-      if (d.wonder && d.wonder.launch && b.done && !b.ruined) html += '<button class="btn primary big" data-action="launch">🚀 Lancer le vaisseau</button>';
+      if (d.wonder && d.wonder.launch && b.done && !b.ruined && !G.run.launched) html += '<button class="btn primary big" data-action="launch">🚀 Lancer le vaisseau</button>';
       if (d.tower && (b.level || 1) >= 3 && b.type !== 'forum') {
         if (b.spec) html += '<div class="kv"><span>Spécialisation</span><b>' + G.TOWER_SPECS[b.spec].icon + ' ' + G.TOWER_SPECS[b.spec].name + '</b></div>';
         else html += '<div class="upbox lvlbox"><b>🎯 Choisir une spécialisation</b><small>Définitive. Une seule par tour.</small><div class="ev-choices">' +
@@ -538,6 +598,7 @@ G.ui = (function () {
       } else if (b.type !== 'forum' && (d.workers || d.in)) {
         html += '<button class="btn" data-action="pause">' + (b.paused ? '▶️ Reprendre' : '⏸ Pause') + '</button>';
       }
+      if (!b.ruined) html += chainBox(b);
       html += levelBox(b, d);
       const up = G.logic.upgradeTarget(b);
       if (up && !b.ruined) {
@@ -731,7 +792,7 @@ G.ui = (function () {
   // Événement : Maître Hulotte présente un dilemme ; chaque choix peut avoir un coût.
   function eventModal(ev) {
     ui.event = ev;
-    let html = '<div class="event"><div class="ev-head"><span class="lore-face">' + G.LORE.icon + '</span><div><small>' + G.LORE.name + ' rapporte…</small><h2>' + ev.icon + ' ' + ev.title + '</h2></div></div>' +
+    let html = '<div class="event"><div class="ev-head"><span class="lore-face">' + G.LORE.icon + '</span><div><small>' + G.LORE.name + (ev.chapter ? ' · ' + ev.chapter : ' rapporte…') + '</small><h2>' + ev.icon + ' ' + ev.title + '</h2></div></div>' +
       '<p>' + ev.text + '</p><div class="ev-choices">';
     ev.choices.forEach((ch, i) => {
       const ok = G.chronicle.canChoose(ch);
@@ -762,7 +823,23 @@ G.ui = (function () {
     openModal('decree', html, { cls: 'soft' });
   }
 
+  // Cinématique de changement d'ère (désactivable, jamais en mode Bot) puis fenêtre des récompenses.
+  function cinemaOn() { return G.meta.settings.cine !== false && !(G.bot && G.bot.active) && !G.botSim && !G.offlineSim && G.cinematic; }
+
   function eraTransition(era, tiles) {
+    G.render.invalidate();
+    document.body.style.setProperty('--era', G.ERAS[era].color);
+    if (cinemaOn()) G.cinematic.play(era, () => eraModal(era, tiles));
+    else eraModal(era, tiles);
+  }
+
+  // Le vaisseau décolle : cinématique, puis la partie reprend.
+  function launched() {
+    if (cinemaOn()) G.cinematic.play('launch', () => toast('🚀 Le vaisseau a décollé ! Les recherches interstellaires infinies sont ouvertes.', 'good'));
+    else toast('🚀 Le vaisseau a décollé ! Les recherches interstellaires infinies sont ouvertes.', 'good');
+  }
+
+  function eraModal(era, tiles) {
     const e = G.ERAS[era];
     G.render.invalidate();
     document.body.style.setProperty('--era', e.color);
@@ -773,7 +850,7 @@ G.ui = (function () {
 
   function runEnded(reason, gain, unlockedRig) {
     const run = G.run;
-    const title = reason === 'fall' ? 'Votre civilisation est tombée' : reason === 'launch' ? 'Votre peuple a quitté la planète !' : 'Votre lignée transmet son héritage';
+    const title = reason === 'fall' ? 'Votre civilisation est tombée' : reason === 'launch' ? 'Votre peuple a conquis les étoiles : la lignée transmet son héritage' : 'Votre lignée transmet son héritage';
     openModal('end', (reason === 'launch' ? '<div class="launch-anim"><span>🚀</span></div>' : '') + '<h2>' + title + '</h2>' +
       '<div class="kv"><span>Ère atteinte</span><b>' + G.ERAS[run.era].name + '</b></div>' +
       '<div class="kv"><span>Vagues repoussées</span><b>' + run.stats.wavesWon + '</b></div>' +
@@ -786,7 +863,7 @@ G.ui = (function () {
   // Maîtrise : gloire → cartes → multiplicateur permanent par type de bâtiment.
   function cardsHtml() {
     const meta = G.meta, glory = meta.glory || 0, best = meta.stats.bestEra || 0, cards = meta.cards || {}, mast = meta.mastery || {};
-    let h = '<p class="muted">La <b>gloire ✨</b> se gagne en atteignant de nouvelles ères (' + G.GLORY.era.slice(1).join(', ') + '), en achevant des merveilles (' + G.GLORY.wonder + ') et en lançant le vaisseau (' + G.GLORY.launch + '). ' +
+    let h = '<p class="muted">La <b>gloire ✨</b> s\'accumule <b>peu à peu</b> pendant la partie (paliers de population, de bâtiments, de recherches, de vagues, de durée…), avec les nouvelles ères (' + G.GLORY.era.slice(1).join(', ') + '), les merveilles (' + G.GLORY.wonder + '), le décollage du vaisseau (' + G.GLORY.launch + ') puis les recherches infinies. Elle n\'est versée qu\'à la fin de la partie. ' +
       'Elle achète des <b>cartes de bâtiment</b>. Avec assez de cartes, la <b>maîtrise</b> d\'un bâtiment monte : niveau 2 = production et stocks ×2, niveau 3 = ×3… Il faut 1 carte pour le niveau 2, puis 2, 4, 8… Ces bonus sont permanents.</p>' +
       '<div class="pack"><button class="btn primary" ' + (glory >= G.GLORY.packCost ? 'data-action="buyPack"' : 'disabled') + '>🎴 Paquet de ' + G.GLORY.packSize + ' cartes au hasard — ✨ ' + G.GLORY.packCost + '</button><small class="muted">Parmi les bâtiments des ères que vous avez déjà atteintes.</small></div>' +
       (() => { const pl = G.logic.masteryPlan(), n = pl.reduce((a, p) => a + p.to - p.from, 0);
@@ -802,6 +879,7 @@ G.ui = (function () {
           '<span class="mx">×' + lvl + '</span>' +
           (need === null ? '<small>Maîtrise maximale</small>' : '<small>🎴 ' + have + ' / ' + need + ' pour ×' + (lvl + 1) + '</small><span class="sbar"><i style="width:' + Math.min(100, have / need * 100).toFixed(0) + '%"></i></span>') +
           '<div class="row">' + (locked ? '' : '<button class="btn" ' + (glory >= price ? 'data-action="buyCard:' + id + '"' : 'disabled') + '>🎴 ✨ ' + price + '</button>') +
+          (!locked && G.logic.cardMaxBuy(id) >= 2 ? '<button class="btn" data-action="buyCardMax:' + id + '" data-tip="Achète autant de cartes que votre gloire le permet (sans dépasser la maîtrise maximale).">Max ×' + G.logic.cardMaxBuy(id) + '</button>' : '') +
           (need !== null && have >= need ? '<button class="btn primary" data-action="mastery:' + id + '">⬆️ ×' + (lvl + 1) + '</button>' : '') + '</div></div>';
       }
       h += '</div>';
@@ -891,7 +969,6 @@ G.ui = (function () {
   function settingsModal() {
     const on = G.bot && G.bot.active;
     openModal('settings', '<h2>Paramètres</h2>' +
-      '<h3>Apparence</h3><p class="muted">Le thème graphique change l\'interface et la carte, jamais les règles du jeu.</p>' + themesHtml() +
       '<h3>Mode Bot</h3><p class="muted">Le bot joue votre partie en cours à votre place. Un petit panneau sur la carte permet de choisir la vitesse (×1 à ×20) et de reprendre la main.</p>' +
       '<div class="rig"><button class="rig-btn ' + (on ? 'on' : '') + '" data-action="botStart">🤖 Activer</button>' +
       '<button class="rig-btn ' + (on ? '' : 'on') + '" data-action="botStop">✋ Désactivé</button></div>' +
@@ -899,20 +976,15 @@ G.ui = (function () {
       '<h3>Chroniqueur</h3><div class="rig">' +
       '<button class="rig-btn ' + (G.meta.settings.lore !== false ? 'on' : '') + '" data-action="lore:on">🦉 Activé</button>' +
       '<button class="rig-btn ' + (G.meta.settings.lore === false ? 'on' : '') + '" data-action="lore:off">Silencieux</button></div>' +
+      '<h3>Cinématiques</h3><p class="muted">Une courte scène illustrée à chaque nouvelle ère et au décollage du vaisseau.</p><div class="rig">' +
+      '<button class="rig-btn ' + (G.meta.settings.cine !== false ? 'on' : '') + '" data-action="cine:on">🎬 Activées</button>' +
+      '<button class="rig-btn ' + (G.meta.settings.cine === false ? 'on' : '') + '" data-action="cine:off">Désactivées</button></div>' +
       '<h3>Emplacements de sauvegarde</h3><p class="muted">Chaque emplacement garde une copie complète (héritage, gloire, cartes et partie en cours). Charger un emplacement remplace la partie active.</p>' + slotsHtml() +
       '<button class="btn ghost" data-action="blankGame">✨ Nouvelle lignée vierge (repartir de zéro)</button>' +
       '<h3>Sauvegarde active</h3><p class="muted">Sauvegarde automatique toutes les 10 secondes dans ce navigateur.</p>' +
       '<textarea id="save-box" placeholder="Collez une sauvegarde ici pour l\'importer"></textarea>' +
       '<div class="row"><button class="btn" data-action="export">📤 Exporter</button><button class="btn" data-action="import">📥 Importer</button><button class="btn ghost danger" data-action="wipe">🗑️ Tout effacer</button></div>' +
       '<button class="btn primary" data-action="closeModal">Fermer</button>');
-  }
-
-  // Choix du thème graphique : une carte par thème, avec ses couleurs.
-  function themesHtml() {
-    return '<div class="themes">' + G.theme.list().map(t =>
-      '<button class="theme-card ' + (G.theme.id === t.id ? 'on' : '') + '" data-action="theme:' + t.id + '">' +
-      '<span class="swatches">' + t.swatch.map(c => '<i style="background:' + c + '"></i>').join('') + '</span>' +
-      '<b>' + t.name + '</b><small>' + t.desc + '</small>' + (G.theme.id === t.id ? '<em>✔ Thème actuel</em>' : '') + '</button>').join('') + '</div>';
   }
 
   function slotsHtml() {
@@ -1005,7 +1077,7 @@ G.ui = (function () {
       '<div><small>Porteurs occupés</small><b>🚚 ' + carriersBusy + ' / ' + carriersTot + '</b><em>' + cells + ' cellules en transit</em></div>' +
       '<div><small>Savoir</small><b>📜 ' + U.fmt(run.res.savoir) + '</b><em>' + fl(prod.savoir || 0) + '</em></div>' +
       '<div><small>Population (15 min)</small>' + spark((G.hist || []).map(h => h.pop), '#3d6fb6', 150, 34) + '</div>' +
-      '</div><h3>Ressources</h3><div class="dash-table"><table><thead><tr><th>Ressource</th><th>Stock</th><th>Capacité</th><th>Production</th><th>Conso. bâtiments</th><th>Conso. habitants</th><th>Bilan</th><th>En transit</th><th>Réserves / producteurs</th><th>Tendance</th></tr></thead><tbody>';
+      '</div><h3>Ressources</h3><div class="dash-table"><table><thead><tr><th>Ressource</th><th>Stock</th><th>Capacité</th><th>Production</th><th>Conso. bâtiments</th><th>Conso. habitants</th><th>Bilan</th><th>En transit</th><th>Réserves / producteurs</th><th>15 dernières min</th></tr></thead><tbody>';
     for (const r of G.RESOURCE_ORDER) {
       const d = G.RESOURCES[r];
       if (d.uncapped) continue;
@@ -1051,6 +1123,8 @@ G.ui = (function () {
     switch (name) {
       case 'tab': ui.tab = arg; break;
       case 'techTree': techTreeModal(false); break;
+      case 'chainView': ui.chainView = !ui.chainView; ui._rel = null; break;
+      case 'buyCardMax': { const n = G.logic.buyCardMax(arg); if (n) { G.state.save(); toast('🎴 ' + n + ' cartes ' + G.BUILDINGS[arg].name, 'good'); } metaScreen(); break; }
       case 'masteryAll': { const plan = G.logic.masteryUpAll(); if (plan.length) { G.state.save(); metaScreen(); masteryRecap(plan); } break; }
       case 'closeRecap': { const r = document.querySelector('.overlay.recap'); if (r) r.remove(); break; }
       case 'place': {
@@ -1089,7 +1163,7 @@ G.ui = (function () {
         confirmModal('Nouvelle lignée vierge ?', 'La sauvegarde active (héritage, gloire, cartes, partie) sera effacée pour repartir de zéro. Les emplacements ne sont pas touchés : sauvegardez d’abord votre partie si vous voulez la garder.', 'Repartir de zéro', () => G.state.blank(), settingsModal, true);
         break;
       case 'launch':
-        confirmModal('Lancer le vaisseau ?', 'Votre peuple quitte la planète : la partie se termine et transmet un héritage majoré (<b>🌳 ' + Math.floor(G.logic.heritageGain() * 1.5 + 50 * G.RIGUEUR[G.run.rigueur].heritage * 1.5) + '</b> environ).', '🚀 Décollage !', () => G.logic.launch());
+        confirmModal('Lancer le vaisseau ?', 'Le vaisseau décolle ! La partie continue : de nouvelles <b>recherches infinies</b> s\'ouvrent et rapportent un peu de gloire ✨. Quand vous transmettrez l\'héritage, il sera majoré (×1,5 et +50).', '🚀 Décollage !', () => G.logic.launch());
         break;
       case 'logiView': ui.logiView = !ui.logiView; break;
       case 'recipe': G.logic.setRecipe(ui.selected.b, +arg); break;
@@ -1115,7 +1189,7 @@ G.ui = (function () {
       case 'acceptNone': ui.selected.b.accept = []; break;
       case 'evChoice': { const res = ui.event && G.chronicle.choose(ui.event, +arg); if (res) eventResult(res); break; }
       case 'deliver': G.chronicle.deliver(+arg); break;
-      case 'theme': G.theme.apply(arg); settingsModal(); break;
+      case 'cine': G.meta.settings.cine = arg === 'on'; settingsModal(); break;
       case 'lore': G.meta.settings.lore = arg === 'on'; if (arg !== 'on') G.lore.hide(); settingsModal(); break;
       case 'research': G.logic.research(arg); break;
       case 'decree': G.logic.chooseDecree(arg); closeModal(); break;
@@ -1286,6 +1360,6 @@ G.ui = (function () {
     bindCanvas($('#map'));
   }
 
-  Object.assign(ui, { init, refresh, toast, eraTransition, runEnded, metaScreen, offlineModal, helpModal, closeModal, speed, eventModal });
+  Object.assign(ui, { relations, launched, init, refresh, toast, eraTransition, runEnded, metaScreen, offlineModal, helpModal, closeModal, speed, eventModal });
   return ui;
 })();

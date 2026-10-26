@@ -1,0 +1,1838 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dieu Joue aux Dés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0f17;--panel:rgba(16,20,30,.86);--panel2:rgba(26,32,46,.95);--line:#2b3550;
+  --text:#e7eaf2;--dim:#8f98ad;--acc:#f2c14e;--acc2:#4fb3e8;--bad:#e5534b;--good:#57c785;
+  --px:'Pixelify Sans',monospace;--sans:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font:13px/1.4 var(--sans)}
+button{font:inherit;color:inherit;cursor:pointer}
+#map{position:fixed;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated;cursor:grab}
+#map.dragging{cursor:grabbing}
+#map.power{cursor:crosshair}
+.pnl{position:fixed;background:var(--panel);border:2px solid var(--line);border-radius:4px;backdrop-filter:blur(6px);box-shadow:0 6px 0 rgba(0,0,0,.35)}
+h1,h2,h3,.pxf{font-family:var(--px);font-weight:600;letter-spacing:.5px}
+/* top bar */
+#top{top:8px;left:8px;right:8px;height:48px;display:flex;align-items:center;gap:10px;padding:0 10px}
+#top .logo{font-family:var(--px);font-size:20px;color:var(--acc);white-space:nowrap}
+#top .year{font-family:var(--px);font-size:22px;min-width:110px;text-align:right}
+#top .era{color:var(--dim);font-size:12px;min-width:110px}
+.sp{flex:1}
+.btn{background:var(--panel2);border:2px solid var(--line);border-radius:3px;padding:5px 9px;font-family:var(--px);font-size:14px;transition:transform .05s}
+.btn:hover{border-color:#4a5a80;background:#2a3450}
+.btn:active{transform:translateY(1px)}
+.btn.on{background:var(--acc);color:#1b1b1b;border-color:#ffe08a}
+.speeds{display:flex;gap:3px}
+.speeds .btn{padding:4px 7px;min-width:36px}
+/* side panels */
+#left{top:64px;left:8px;bottom:118px;width:300px;display:flex;flex-direction:column}
+#right{top:64px;right:8px;bottom:118px;width:320px;display:flex;flex-direction:column}
+.phead{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:2px solid var(--line)}
+.phead h2{margin:0;font-size:16px;flex:1}
+.scroll{overflow-y:auto;flex:1;scrollbar-width:thin;scrollbar-color:#3a4664 transparent}
+#chron{padding:4px 8px 8px}
+.ev{padding:4px 2px 4px 8px;border-left:3px solid #3a4664;margin:3px 0;font-size:12.5px;animation:fadein .5s}
+.ev .y{font-family:var(--px);color:var(--dim);margin-right:4px}
+.ev.m{background:rgba(255,255,255,.04)}
+.ev.war{border-color:#e5534b}.ev.peace{border-color:#57c785}.ev.rel{border-color:#b07cd8}.ev.tech{border-color:#4fb3e8}
+.ev.gov{border-color:#f2c14e}.ev.dis{border-color:#ef8a3c}.ev.fauna{border-color:#a8794a}.ev.civ{border-color:#e7eaf2}.ev.god{border-color:#3cc6c0}
+@keyframes fadein{from{opacity:0;transform:translateX(-6px)}to{opacity:1}}
+.tgl{font-size:11px;color:var(--dim);display:flex;align-items:center;gap:4px;cursor:pointer}
+#civlist{max-height:42%;overflow-y:auto;border-bottom:2px solid var(--line);scrollbar-width:thin}
+.crow{display:flex;align-items:center;gap:7px;padding:5px 10px;cursor:pointer;border-left:3px solid transparent}
+.crow:hover{background:rgba(255,255,255,.05)}
+.crow.sel{background:rgba(242,193,78,.12);border-left-color:var(--acc)}
+.crow.dead{opacity:.4}
+.sw{width:12px;height:12px;border:2px solid rgba(0,0,0,.5);flex:none}
+.crow .nm{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crow .pp{font-family:var(--px);color:var(--dim);font-size:12px}
+#detail{padding:10px 12px}
+#detail h3{margin:0 0 2px;font-size:18px}
+.sub{color:var(--dim);font-size:12px;margin-bottom:8px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12.5px;margin:6px 0}
+.kv span:nth-child(odd){color:var(--dim)}
+.bar{height:7px;background:#232a3c;border-radius:2px;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 8px}
+.tag{font-size:11px;padding:2px 6px;border-radius:2px;background:#232a3c;border:1px solid var(--line)}
+.sec{font-family:var(--px);color:var(--acc);margin:10px 0 2px;font-size:13px}
+.empty{color:var(--dim);padding:14px;text-align:center}
+/* bottom */
+#bottom{left:8px;right:8px;bottom:8px;height:102px;display:flex;flex-direction:column;padding:6px 10px;gap:6px}
+#powers{display:flex;gap:4px;align-items:center;overflow-x:auto;scrollbar-width:none}
+#powers .btn{font-size:13px;white-space:nowrap;padding:4px 8px}
+#powers .lbl{font-family:var(--px);color:var(--acc);margin-right:4px;white-space:nowrap}
+#faunaSel{background:var(--panel2);color:var(--text);border:2px solid var(--line);font:12px var(--sans);padding:4px}
+#timeline{width:100%;height:44px;display:block;cursor:default}
+#tileinfo{left:320px;bottom:118px;padding:6px 10px;font-size:12px;pointer-events:none;max-width:340px;display:none}
+#hint{position:fixed;left:50%;top:66px;transform:translateX(-50%);background:var(--acc);color:#1b1b1b;font-family:var(--px);padding:5px 12px;border-radius:3px;display:none;z-index:5}
+/* modals */
+.modal{position:fixed;inset:0;background:rgba(5,8,14,.72);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
+.modal.show{display:flex}
+.box{background:var(--panel2);border:2px solid var(--line);border-radius:4px;box-shadow:0 8px 0 rgba(0,0,0,.4);max-width:760px;width:100%;max-height:92vh;overflow-y:auto;padding:22px 24px}
+.box h1{margin:0;color:var(--acc);font-size:34px}
+.box h2{margin:16px 0 8px;font-size:18px}
+.quote{color:var(--dim);font-style:italic;margin:2px 0 14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px}
+.fld label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--dim);margin-bottom:3px}
+.fld label b{color:var(--text);font-family:var(--px);font-weight:400}
+input[type=range]{width:100%;accent-color:var(--acc)}
+input[type=text],select{background:#121725;color:var(--text);border:2px solid var(--line);padding:6px 8px;font:13px var(--sans);border-radius:3px;width:100%}
+.row{display:flex;gap:8px;align-items:center}
+.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.btn.big{font-size:17px;padding:8px 16px}
+.btn.primary{background:var(--acc);color:#1b1b1b;border-color:#ffe08a}
+#laws{top:64px;left:50%;transform:translateX(-50%);width:380px;padding:12px 16px;display:none;z-index:6}
+#laws.show{display:block}
+#laws .fld{margin:8px 0}
+table.rk{width:100%;border-collapse:collapse;font-size:12.5px}
+table.rk td,table.rk th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+table.rk th{color:var(--dim);font-weight:500}
+.stabs{display:flex;gap:4px;margin-bottom:8px}
+#chart{width:100%;height:340px;display:block;background:#0f1420;border:2px solid var(--line)}
+.records{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:13px}
+.records div span{color:var(--dim)}
+.collapsed #left,.collapsed #right{display:none}
+.collapsed #tileinfo{left:8px}
+@media (max-width:900px){
+  #left{display:none}#right{width:260px}
+  #tileinfo{left:8px}
+  .grid2{grid-template-columns:1fr}
+  #top .era{display:none}
+}
+</style>
+</head>
+<body>
+<canvas id="map"></canvas>
+
+<div id="top" class="pnl">
+  <div class="logo">🎲 Dieu Joue aux Dés</div>
+  <div class="sp"></div>
+  <div class="year" id="year">An 1</div>
+  <div class="era" id="era">Ère tribale</div>
+  <div class="speeds" id="speeds"></div>
+  <div class="sp"></div>
+  <button class="btn" id="bMode" title="Changer de vue (Politique / Religions)">🗺 Politique</button>
+  <button class="btn" id="bLaws" title="Lois du monde">⚖ Lois</button>
+  <button class="btn" id="bStats" title="Statistiques">📈</button>
+  <button class="btn" id="bSave" title="Sauvegarder (fichier JSON)">💾</button>
+  <button class="btn" id="bLoad" title="Charger une sauvegarde">📂</button>
+  <button class="btn" id="bPanels" title="Masquer / afficher les panneaux">▣</button>
+  <button class="btn" id="bNew" title="Nouveau monde">🌍</button>
+</div>
+
+<div id="left" class="pnl">
+  <div class="phead"><h2>📜 Chronique</h2><label class="tgl"><input type="checkbox" id="majorOnly"> majeurs</label></div>
+  <div class="scroll" id="chron"></div>
+</div>
+
+<div id="right" class="pnl">
+  <div class="phead"><h2>👑 Civilisations</h2><span class="tgl" id="civCount"></span></div>
+  <div id="civlist"></div>
+  <div class="scroll" id="detail"><div class="empty">Clique sur une civilisation ou sur la carte.</div></div>
+</div>
+
+<div id="bottom" class="pnl">
+  <div id="powers"></div>
+  <canvas id="timeline"></canvas>
+</div>
+<div id="tileinfo" class="pnl"></div>
+<div id="hint"></div>
+
+<div id="laws" class="pnl">
+  <div class="row" style="justify-content:space-between"><h2 style="margin:0;font-size:17px">⚖ Lois du monde</h2><button class="btn" id="lawsClose">✕</button></div>
+  <div id="lawsBody"></div>
+</div>
+
+<!-- SETUP -->
+<div class="modal show" id="mSetup"><div class="box">
+  <h1>🎲 Dieu Joue aux Dés</h1>
+  <div class="quote">« Dieu ne joue pas aux dés », disait Einstein. Ici, tu es le démiurge, et les dés roulent de l'An 1 à l'An 3000.</div>
+  <h2>🌍 Le monde</h2>
+  <div class="grid2">
+    <div class="fld"><label>Graine du monde</label><div class="row"><input type="text" id="sSeed"><button class="btn" id="sReroll" title="Graine aléatoire">🎲</button></div></div>
+    <div class="fld"><label>Taille</label><select id="sSize"><option value="0">Petit</option><option value="1" selected>Moyen</option><option value="2">Grand</option></select></div>
+    <div class="fld"><label>Part d'océans <b id="vWater"></b></label><input type="range" id="sWater" min="0.3" max="0.75" step="0.05" value="0.5"></div>
+    <div class="fld"><label>Civilisations <b id="vCivs"></b></label><input type="range" id="sCivs" min="4" max="12" step="1" value="8"></div>
+  </div>
+  <h2>⚖ Lois du monde <span style="font-size:12px;color:var(--dim);font-family:var(--sans)">(modifiables en cours de partie)</span></h2>
+  <div class="grid2" id="setupLaws"></div>
+  <div class="actions">
+    <button class="btn big" id="sResume" style="display:none">↺ Reprendre la partie auto</button>
+    <button class="btn big" id="sLoad">📂 Charger</button>
+    <button class="btn big primary" id="sGo">✨ Que la lumière soit</button>
+  </div>
+</div></div>
+
+<!-- STATS -->
+<div class="modal" id="mStats"><div class="box" style="max-width:900px">
+  <div class="row" style="justify-content:space-between"><h2 style="margin:0">📈 Statistiques</h2><button class="btn" data-close="mStats">✕</button></div>
+  <div class="stabs" id="statTabs" style="margin-top:12px"></div>
+  <canvas id="chart"></canvas>
+  <div id="chartLegend" class="tags" style="margin-top:8px"></div>
+</div></div>
+
+<!-- END -->
+<div class="modal" id="mEnd"><div class="box">
+  <h1>⌛ La fin des temps</h1>
+  <div class="quote">L'An 3000 est venu. Voici ce que les dés ont décidé.</div>
+  <div id="endBody"></div>
+  <div class="actions">
+    <button class="btn" id="eTxt">📜 Télécharger la chronique</button>
+    <button class="btn" id="eSave">💾 Sauvegarder</button>
+    <button class="btn" data-close="mEnd">👁 Contempler le monde</button>
+    <button class="btn primary" id="eNew">🌍 Nouveau monde</button>
+  </div>
+</div></div>
+
+<input type="file" id="fileIn" accept=".json,application/json" style="display:none">
+
+<script type="application/json" id="gamedata">
+{
+  "endYear": 3000,
+  "popK": 55,
+  "techCost": [800, 3200, 8000, 16000, 28000, 42000, 70000],
+  "ages": ["Ère tribale","Antiquité","Âge médiéval","Renaissance","Ère industrielle","Ère moderne","Futur"],
+  "biomes": [
+    {"n":"Abysses","land":0,"f":0,"p":0,"w":0,"claim":0,"settle":0},
+    {"n":"Océan","land":0,"f":0,"p":0,"w":0,"claim":0,"settle":0},
+    {"n":"Haut-fond","land":0,"f":1.2,"p":0,"w":0.4,"claim":0.5,"settle":0},
+    {"n":"Plage","land":1,"f":1.2,"p":0.5,"w":1.2,"claim":0.9,"settle":1},
+    {"n":"Plaine","land":1,"f":3,"p":1,"w":1,"claim":1,"settle":1},
+    {"n":"Forêt","land":1,"f":1.5,"p":2,"w":0.8,"claim":0.8,"settle":1},
+    {"n":"Jungle","land":1,"f":2,"p":1,"w":1,"claim":0.5,"settle":1},
+    {"n":"Désert","land":1,"f":0.3,"p":0.5,"w":0.5,"claim":0.4,"settle":1},
+    {"n":"Steppe","land":1,"f":1.6,"p":1,"w":0.8,"claim":0.9,"settle":1},
+    {"n":"Collines","land":1,"f":1.2,"p":2.5,"w":1,"claim":0.8,"settle":1},
+    {"n":"Montagne","land":1,"f":0.2,"p":1.5,"w":1,"claim":0.3,"settle":0},
+    {"n":"Toundra","land":1,"f":0.6,"p":0.8,"w":0.4,"claim":0.5,"settle":1},
+    {"n":"Neige","land":1,"f":0,"p":0.2,"w":0,"claim":0.15,"settle":0}
+  ],
+  "resources": [
+    {"id":"fer","n":"Fer","b":[9,10],"p":2,"ic":"#aab3bf"},
+    {"id":"or","n":"Or","b":[10,9,7],"w":4,"ic":"#ffd34d"},
+    {"id":"chevaux","n":"Chevaux","b":[8,4],"f":0.5,"p":1,"ic":"#b07a40"},
+    {"id":"epices","n":"Épices","b":[6,7],"w":3,"ic":"#ff7a3c"},
+    {"id":"bois","n":"Bois précieux","b":[5,6],"p":1.5,"w":1.5,"ic":"#b0413e"},
+    {"id":"poisson","n":"Bancs de poissons","b":[2],"f":2,"ic":"#e8f4ff"},
+    {"id":"ble","n":"Terres fertiles","b":[4],"f":2,"ic":"#f5e27a"}
+  ],
+  "techs": [
+    {"id":"agriculture","n":"Agriculture","a":0,"fx":{"food":0.25}},
+    {"id":"chasse","n":"Chasse organisée","a":0,"fx":{"hunt":0.6,"food":0.05}},
+    {"id":"poterie","n":"Poterie","a":0,"fx":{"food":0.08,"wealth":0.08}},
+    {"id":"mysticisme","n":"Mysticisme","a":0,"fx":{"faith":0.3,"stab":0.03}},
+    {"id":"elevage","n":"Élevage","a":0,"fx":{"food":0.1}},
+    {"id":"bronze","n":"Travail du bronze","a":0,"fx":{"mil":0.25,"prod":0.1}},
+    {"id":"ecriture","n":"Écriture","a":1,"fx":{"research":0.25}},
+    {"id":"monnaie","n":"Monnaie","a":1,"fx":{"wealth":0.3}},
+    {"id":"navigation","n":"Navigation","a":1,"fx":{"trade":0.25,"expand":0.15}},
+    {"id":"philosophie","n":"Philosophie","a":1,"fx":{"research":0.15,"stab":0.05}},
+    {"id":"fer","n":"Métallurgie du fer","a":1,"fx":{"mil":0.3,"prod":0.1}},
+    {"id":"maconnerie","n":"Maçonnerie","a":1,"fx":{"def":0.3,"prod":0.1}},
+    {"id":"moulins","n":"Moulins","a":2,"fx":{"food":0.2,"prod":0.1}},
+    {"id":"fortifications","n":"Fortifications","a":2,"fx":{"def":0.4}},
+    {"id":"theologie","n":"Théologie","a":2,"fx":{"faith":0.3,"stab":0.05}},
+    {"id":"guildes","n":"Guildes","a":2,"fx":{"prod":0.15,"wealth":0.15}},
+    {"id":"chevalerie","n":"Chevalerie","a":2,"fx":{"mil":0.25}},
+    {"id":"irrigation","n":"Irrigation","a":2,"fx":{"food":0.2}},
+    {"id":"imprimerie","n":"Imprimerie","a":3,"fx":{"research":0.35}},
+    {"id":"banque","n":"Banque","a":3,"fx":{"wealth":0.35}},
+    {"id":"poudre","n":"Poudre à canon","a":3,"fx":{"mil":0.4}},
+    {"id":"cartographie","n":"Cartographie","a":3,"fx":{"trade":0.25,"expand":0.2}},
+    {"id":"humanisme","n":"Humanisme","a":3,"fx":{"stab":0.08,"research":0.1}},
+    {"id":"anatomie","n":"Anatomie","a":3,"fx":{"plague":0.3,"growth":0.1}},
+    {"id":"vapeur","n":"Machine à vapeur","a":4,"fx":{"prod":0.4}},
+    {"id":"rail","n":"Chemin de fer","a":4,"fx":{"trade":0.25,"expand":0.15}},
+    {"id":"medecine","n":"Médecine moderne","a":4,"fx":{"plague":0.5,"growth":0.2}},
+    {"id":"engrais","n":"Engrais","a":4,"fx":{"food":0.35}},
+    {"id":"industrie","n":"Industrie lourde","a":4,"fx":{"mil":0.3,"prod":0.25}},
+    {"id":"electricite","n":"Électricité","a":5,"fx":{"prod":0.3,"research":0.2}},
+    {"id":"antibiotiques","n":"Antibiotiques","a":5,"fx":{"plague":0.4,"growth":0.2}},
+    {"id":"aviation","n":"Aviation","a":5,"fx":{"mil":0.35}},
+    {"id":"informatique","n":"Informatique","a":5,"fx":{"research":0.4,"wealth":0.2}},
+    {"id":"atome","n":"Énergie atomique","a":5,"fx":{"prod":0.25,"mil":0.5}},
+    {"id":"ia","n":"Intelligence artificielle","a":6,"fx":{"research":0.5}},
+    {"id":"fusion","n":"Fusion nucléaire","a":6,"fx":{"prod":0.6}},
+    {"id":"genetique","n":"Génie génétique","a":6,"fx":{"food":0.5,"growth":0.2}},
+    {"id":"espace","n":"Conquête spatiale","a":6,"fx":{"stab":0.1,"research":0.2}},
+    {"id":"nanotech","n":"Nanotechnologies","a":6,"fx":{"prod":0.3,"wealth":0.3}}
+  ],
+  "govs": [
+    {"id":"tribu","n":"Tribu","t":"Tribu","a":0,"fx":{}},
+    {"id":"chefferie","n":"Chefferie","t":"Chefferie","a":0,"fx":{"stab":0.05,"mil":0.05}},
+    {"id":"monarchie","n":"Monarchie","t":"Royaume","a":1,"fx":{"stab":0.1,"mil":0.1}},
+    {"id":"theocratie","n":"Théocratie","t":"Théocratie","a":1,"fx":{"faith":0.5,"stab":0.1,"research":-0.1},"req":"religion"},
+    {"id":"republique","n":"République","t":"République","a":1,"fx":{"wealth":0.2,"research":0.1,"stab":-0.05}},
+    {"id":"empire","n":"Empire","t":"Empire","a":1,"fx":{"mil":0.2,"expand":0.2,"stab":-0.05},"req":"cities7"},
+    {"id":"feodalite","n":"Féodalité","t":"Seigneurie","a":2,"fx":{"mil":0.15,"def":0.3,"wealth":-0.1}},
+    {"id":"dictature","n":"Dictature","t":"Dictature","a":3,"fx":{"mil":0.3,"stab":0.05,"research":-0.15,"wealth":-0.1},"revo":true},
+    {"id":"democratie","n":"Démocratie","t":"Fédération","a":4,"fx":{"wealth":0.25,"research":0.2,"growth":0.1}},
+    {"id":"technocratie","n":"Technocratie","t":"Technocratie","a":6,"fx":{"research":0.4,"prod":0.2}}
+  ],
+  "traits": [
+    {"id":"guerriere","n":"Guerrière","fx":{"mil":0.3,"war":0.5},"govs":["empire","dictature","monarchie"]},
+    {"id":"marchande","n":"Marchande","fx":{"wealth":0.3,"trade":0.4},"govs":["republique","democratie"]},
+    {"id":"mystique","n":"Mystique","fx":{"faith":0.6,"stab":0.05},"govs":["theocratie"]},
+    {"id":"batisseuse","n":"Bâtisseuse","fx":{"prod":0.25,"growth":0.1},"govs":["monarchie","empire"]},
+    {"id":"savante","n":"Savante","fx":{"research":0.3},"govs":["republique","technocratie","democratie"]},
+    {"id":"expansionniste","n":"Expansionniste","fx":{"expand":0.5,"war":0.15},"govs":["empire"]},
+    {"id":"isolationniste","n":"Isolationniste","fx":{"def":0.4,"trade":-0.5,"expand":-0.2,"stab":0.05},"govs":["feodalite","theocratie"]}
+  ],
+  "dogmas": [
+    {"id":"pacifisme","n":"Pacifisme","fx":{"war":-0.6,"stab":0.05}},
+    {"id":"proselytisme","n":"Prosélytisme","fx":{"spread":1}},
+    {"id":"guerre_sainte","n":"Guerre sainte","fx":{"war":0.4,"mil":0.1,"holy":1}},
+    {"id":"ascetisme","n":"Ascétisme","fx":{"stab":0.1,"wealth":-0.1}},
+    {"id":"animal_sacre","n":"Animal sacré","fx":{"faith":0.1}},
+    {"id":"savoir_sacre","n":"Savoir sacré","fx":{"research":0.15}},
+    {"id":"prosperite","n":"Prospérité","fx":{"wealth":0.15}},
+    {"id":"fertilite","n":"Fertilité","fx":{"growth":0.15}},
+    {"id":"martyre","n":"Martyre","fx":{"def":0.25}}
+  ],
+  "species": [
+    {"id":"cerf","n":"Cerf","cat":"gibier","b":[4,5],"pow":1,"agr":0,"rep":0.25,"food":2,"max":12,"col":"#c08550"},
+    {"id":"bison","n":"Bison","cat":"gibier","b":[4,8],"pow":3,"agr":0.1,"rep":0.18,"food":4,"max":14,"col":"#6b4a32"},
+    {"id":"sanglier","n":"Sanglier","cat":"gibier","b":[5,6,9],"pow":2,"agr":0.25,"rep":0.3,"food":2,"max":10,"col":"#5a4636"},
+    {"id":"cheval","n":"Cheval sauvage","cat":"gibier","b":[8,4],"pow":2,"agr":0,"rep":0.2,"food":2,"max":12,"col":"#d6b48a","dom":{"mil":0.2,"expand":0.1},"domN":"la cavalerie"},
+    {"id":"aurochs","n":"Aurochs","cat":"gibier","b":[4,5],"pow":4,"agr":0.2,"rep":0.15,"food":5,"max":10,"col":"#3e3a36","dom":{"food":0.15,"prod":0.05},"domN":"l'élevage bovin"},
+    {"id":"loup","n":"Loup","cat":"predateur","b":[5,11,9],"pow":3,"agr":0.5,"rep":0.2,"food":1,"max":8,"col":"#9aa0aa"},
+    {"id":"ours","n":"Ours","cat":"predateur","b":[5,10,9],"pow":6,"agr":0.35,"rep":0.1,"food":3,"max":4,"col":"#6a4428"},
+    {"id":"lion","n":"Lion","cat":"predateur","b":[8,7,4],"pow":6,"agr":0.5,"rep":0.12,"food":2,"max":6,"col":"#e0aa45"},
+    {"id":"tigre","n":"Tigre","cat":"predateur","b":[6,5],"pow":7,"agr":0.55,"rep":0.1,"food":2,"max":4,"col":"#f07f25"},
+    {"id":"mammouth","n":"Mammouth laineux","cat":"legendaire","b":[11,12,8],"pow":9,"agr":0.15,"rep":0.06,"food":25,"max":6,"col":"#8a5a38"},
+    {"id":"smilodon","n":"Smilodon","cat":"legendaire","b":[4,8,5],"pow":9,"agr":0.75,"rep":0.05,"food":4,"max":3,"col":"#d1913c"},
+    {"id":"ours_caverne","n":"Ours des cavernes","cat":"legendaire","b":[10,9,11],"pow":10,"agr":0.5,"rep":0.05,"food":6,"max":2,"col":"#4a2e1a"}
+  ],
+  "laws": [
+    {"id":"fert","n":"Fertilité des terres","min":0.4,"max":2,"step":0.05,"v":1},
+    {"id":"aggr","n":"Agressivité des peuples","min":0,"max":3,"step":0.1,"v":1},
+    {"id":"cata","n":"Fréquence des catastrophes","min":0,"max":4,"step":0.1,"v":1},
+    {"id":"prog","n":"Rythme du progrès","min":0.3,"max":4,"step":0.1,"v":1},
+    {"id":"fauna","n":"Densité de la faune","min":0,"max":3,"step":0.1,"v":1},
+    {"id":"faunaAggr","n":"Agressivité de la faune","min":0,"max":3,"step":0.1,"v":1},
+    {"id":"faunaPow","n":"Puissance de la faune","min":0.3,"max":3,"step":0.1,"v":1}
+  ]
+}
+</script>
+
+<script>
+'use strict';
+// ============================================================
+//  DONNÉES
+// ============================================================
+const D = JSON.parse(document.getElementById('gamedata').textContent);
+const B = D.biomes;
+const TECH = {}; D.techs.forEach(t => TECH[t.id] = t);
+const GOV = {}; D.govs.forEach(g => GOV[g.id] = g);
+const TRAIT = {}; D.traits.forEach(t => TRAIT[t.id] = t);
+const DOGMA = {}; D.dogmas.forEach(d => DOGMA[d.id] = d);
+const SPEC = {}; D.species.forEach(s => SPEC[s.id] = s);
+const TECH_BY_AGE = D.ages.map((_, a) => D.techs.filter(t => t.a === a));
+const SIZES = [[120, 76], [160, 100], [210, 130]];
+const TS = 8, OV = 4;
+const END = D.endYear;
+const SPEEDS = [0, 1, 4, 16, 60, 200];
+const CIV_COLORS = ['#e5534b','#4f9dde','#f2c14e','#57c785','#b07cd8','#ef8a3c','#3cc6c0','#e86fa6','#9bc53d','#d9b38c','#7d8cf0','#e0e0e0','#ff8f8f','#2bb3a3','#ffcf70','#a77bd1','#7fd1ff','#c46b3c'];
+const REL_COLORS = ['#ffd75e','#b07cd8','#ff7a7a','#7fd1ff','#8be08b','#ff9f43','#f78fb3','#c0c0ff','#5ee6c9','#e8e8a0','#d98cff','#ffb3a7'];
+
+// ============================================================
+//  OUTILS
+// ============================================================
+let RS = 1;
+function rnd() { RS = RS + 0x6D2B79F5 | 0; let t = Math.imul(RS ^ RS >>> 15, 1 | RS); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+function mulberry(a) { return function () { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hashStr(s) { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+function h2(x, y, s) { let h = Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263) + Math.imul(s | 0, 1442695041) | 0; h = Math.imul(h ^ h >>> 13, 1274126177); h ^= h >>> 16; return (h >>> 0) / 4294967296; }
+function vnoise(x, y, s) { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi; const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf); const a = h2(xi, yi, s), b = h2(xi + 1, yi, s), c = h2(xi, yi + 1, s), d = h2(xi + 1, yi + 1, s); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; }
+function fbm(x, y, s, o) { let t = 0, a = 1, f = 1, n = 0; for (let i = 0; i < o; i++) { t += vnoise(x * f, y * f, s + i * 101) * a; n += a; a *= 0.5; f *= 2; } return t / n; }
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const rint = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+const pick = a => a[Math.floor(rnd() * a.length)];
+function wpick(items, wfn) { let t = 0; const w = items.map(x => { const v = Math.max(0, wfn(x)); t += v; return v; }); if (t <= 0) return null; let r = rnd() * t; for (let i = 0; i < items.length; i++) { r -= w[i]; if (r <= 0) return items[i]; } return items[items.length - 1]; }
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function hex2rgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function fmt(n) { n = Math.max(0, n); if (n >= 1e9) return (n / 1e9).toFixed(1) + ' G'; if (n >= 1e6) return (n / 1e6).toFixed(1) + ' M'; if (n >= 1e4) return Math.round(n / 1e3) + ' k'; if (n >= 1e3) return (n / 1e3).toFixed(1) + ' k'; return Math.round(n) + ''; }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const de = n => /^[aeiouyéèâêîôûh]/i.test(n) ? "d'" + n : 'de ' + n;
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+
+// ---------- Noms ----------
+const SYL_C = ['b','c','d','f','g','k','l','m','n','p','r','s','t','v','z','th','dr','kr','br','tr','sh','ch','gr','h','j','x','qu','ph','st','gw','sk','vl'];
+const SYL_V = ['a','e','i','o','u','ae','ai','ou','y','ia','eo','au','é','ô','ei'];
+const SYL_E = ['or','ar','is','on','an','ia','um','en','eth','ur','os','ka','ra','ne','ys','ath','ond','el','ax','ir'];
+function makeLang() { return { c: shuffle(SYL_C).slice(0, 7 + rint(0, 5)), v: shuffle(SYL_V).slice(0, 3 + rint(0, 3)), e: shuffle(SYL_E).slice(0, 4) }; }
+function nameFrom(L, a = 1, b = 2) {
+  let s = ''; const n = rint(a, b);
+  for (let i = 0; i < n; i++) s += pick(L.c) + pick(L.v);
+  if (rnd() < 0.65) s += pick(L.e);
+  if (s.length > 11) s = s.slice(0, 9 + rint(0, 2));
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+const EPITHETS = ['le Grand','le Sage','le Terrible','l\'Illuminé','le Conquérant','la Lumineuse','le Juste','la Sanglante','le Bâtisseur','l\'Ancien','la Visionnaire','le Pieux','le Hardi','la Grande'];
+const REL_FORMS = ['Culte de {N}','Voie de {N}','Église de {N}','Ordre de {N}','Foi de {N}','Temple de {N}','Mystères de {N}','Lumière de {N}','Sagesse de {N}'];
+const SCHISM_FORMS = ['{R} réformé(e)','Nouvelle {R}','{R} orthodoxe','{R} du Renouveau','Haute {R}'];
+
+// ============================================================
+//  ÉTAT
+// ============================================================
+let WD = null;           // monde (régénéré depuis la graine)
+let S = null;            // état sauvegardable
+let owner = null;        // Int16Array propriétaire de chaque tuile
+let CIV = new Map(), CITY = new Map(), REL = new Map();
+let CBY = null;          // cache villes par civ
+let CONTACT = new Set();
+const UI = { speed: 1, sel: null, power: null, mode: 'pol', pending: [], majorOnly: false, overlayDirty: true, lastOv: 0, frac: 0, collapsed: false, statTab: 0, hoverTile: -1 };
+const FX = [];
+
+function civsAlive() { return S.civs.filter(c => c.alive); }
+function cbyAll() { if (!CBY) { CBY = new Map(); for (const ct of S.cities) { if (!CBY.has(ct.civ)) CBY.set(ct.civ, []); CBY.get(ct.civ).push(ct); } } return CBY; }
+function citiesOf(c) { return cbyAll().get(c.id) || []; }
+function civPop(c) { let p = 0; for (const ct of citiesOf(c)) p += ct.pop; return p; }
+function dn(c) { return GOV[c.gov].t + ' ' + de(c.name); }
+function tag(c) { return c ? `<b style="color:${c.color}">${esc(dn(c))}</b>` : '?'; }
+function rtag(r) { return r ? `<b style="color:${r.color}">${esc(r.name)}</b>` : 'croyances ancestrales'; }
+function key(a, b) { return a < b ? a + '-' + b : b + '-' + a; }
+function getRel(a, b) { return a.rel[b.id] || 0; }
+function setRel(a, b, v) { v = clamp(v, -100, 100); a.rel[b.id] = v; b.rel[a.id] = v; }
+function warBetween(a, b) { return S.wars.find(w => (w.a === a.id && w.b === b.id) || (w.a === b.id && w.b === a.id)); }
+function warsOf(c) { return S.wars.filter(w => w.a === c.id || w.b === c.id); }
+function allied(a, b) { return a.allies.includes(b.id); }
+function hasTech(c, id) { return c.techs.includes(id); }
+function relOf(c) { return c.religion != null ? REL.get(c.religion) : null; }
+
+function log(type, html, major = false) {
+  const e = { y: S.year, t: type, h: html, m: major };
+  S.chron.push(e); UI.pending.push(e);
+  if (S.chron.length > 8000) S.chron.splice(0, 1000);
+}
+
+// ============================================================
+//  GÉNÉRATION DU MONDE
+// ============================================================
+function genWorld(seed, size, water) {
+  const [W, H] = SIZES[size], N = W * H, s = hashStr(seed), g = mulberry(s ^ 0x9e3779b9);
+  const h = new Float32Array(N), t = new Float32Array(N), m = new Float32Array(N);
+  let mmin = 9, mmax = -9;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x;
+    let e = fbm(x / 34, y / 34, s, 5) * 0.8 + fbm(x / 11, y / 11, s + 55, 3) * 0.2;
+    const dx = Math.min(x, W - 1 - x) / (W * 0.13), dy = Math.min(y, H - 1 - y) / (H * 0.13);
+    const edge = Math.min(1, Math.min(dx, dy));
+    e = e * (0.6 + 0.4 * edge) - (1 - edge) * 0.18;
+    h[i] = e;
+    m[i] = fbm(x / 26 + 100, y / 26, s + 7, 4);
+    if (m[i] < mmin) mmin = m[i]; if (m[i] > mmax) mmax = m[i];
+  }
+  const sorted = Array.from(h).sort((a, b) => a - b);
+  const sea = sorted[Math.floor(N * water)], minH = sorted[0], maxH = sorted[N - 1];
+  const biome = new Uint8Array(N);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x;
+    m[i] = (m[i] - mmin) / (mmax - mmin);
+    const lat = 1 - Math.abs(y / (H - 1) - 0.5) * 2;
+    const hn = h[i] >= sea ? (h[i] - sea) / (maxH - sea) : 0;
+    t[i] = lat * 1.05 - hn * 0.55 + (fbm(x / 22, y / 22, s + 13, 3) - 0.5) * 0.35;
+    let b;
+    if (h[i] < sea) { const d = (sea - h[i]) / (sea - minH); b = d < 0.1 ? 2 : d < 0.4 ? 1 : 0; }
+    else {
+      const T = t[i], M = m[i];
+      if (hn > 0.6) b = T < 0.38 ? 12 : 10;
+      else if (T < 0.1) b = 12;
+      else if (T < 0.24) b = 11;
+      else if (hn > 0.4) b = 9;
+      else if (T > 0.66) b = M < 0.36 ? 7 : M < 0.48 ? 8 : M > 0.62 ? 6 : 4;
+      else if (T > 0.42) b = M < 0.32 ? 8 : M < 0.58 ? 4 : 5;
+      else b = M < 0.42 ? 8 : 5;
+    }
+    biome[i] = b;
+  }
+  const nb4 = i => { const x = i % W, y = (i / W) | 0, r = []; if (x > 0) r.push(i - 1); if (x < W - 1) r.push(i + 1); if (y > 0) r.push(i - W); if (y < H - 1) r.push(i + W); return r; };
+  // côtes : plages et hauts-fonds
+  const b2 = biome.slice();
+  for (let i = 0; i < N; i++) {
+    const land = B[biome[i]].land;
+    const ns = nb4(i);
+    if (land && [4, 5, 7, 8].includes(biome[i]) && (h[i] - sea) / (maxH - sea) < 0.05 && ns.some(j => !B[biome[j]].land)) b2[i] = 3;
+    if (!land && ns.some(j => B[biome[j]].land)) b2[i] = 2;
+  }
+  biome.set(b2);
+  // rivières
+  const river = new Uint8Array(N), rto = new Int32Array(N).fill(-1);
+  const want = Math.round(N / 600); let made = 0;
+  for (let k = 0; k < want * 6 && made < want; k++) {
+    const i0 = Math.floor(g() * N);
+    if (!B[biome[i0]].land || (h[i0] - sea) / (maxH - sea) < 0.4 || river[i0]) continue;
+    const path = [i0]; let cur = i0, ok = false;
+    for (let st = 0; st < 400; st++) {
+      const x = cur % W, y = (cur / W) | 0; let best = -1, bh = h[cur];
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy || (dx && dy)) continue;
+        const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+        const j = ny * W + nx; if (h[j] < bh) { bh = h[j]; best = j; }
+      }
+      if (best < 0) break;
+      path.push(best); cur = best;
+      if (!B[biome[cur]].land || river[cur]) { ok = true; break; }
+    }
+    if (ok && path.length >= 7) {
+      for (let j = 0; j < path.length - 1; j++) { river[path[j]] = 1; rto[path[j]] = path[j + 1]; }
+      made++;
+    }
+  }
+  // ressources
+  const res = new Int8Array(N).fill(-1);
+  for (let i = 0; i < N; i++) {
+    if (g() > 0.03) continue;
+    const opts = D.resources.map((r, k) => k).filter(k => D.resources[k].b.includes(biome[i]));
+    if (opts.length) res[i] = opts[Math.floor(g() * opts.length)];
+  }
+  // rendements
+  const yf = new Float32Array(N), yp = new Float32Array(N), yw = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    const bb = B[biome[i]], r = res[i] >= 0 ? D.resources[res[i]] : {};
+    yf[i] = bb.f + (river[i] ? 1.4 : 0) + (r.f || 0);
+    yp[i] = bb.p + (r.p || 0);
+    yw[i] = bb.w + (river[i] ? 0.4 : 0) + (r.w || 0);
+  }
+  return { W, H, N, h, t, m, sea, maxH, biome, river, rto, res, yf, yp, yw, nb4, landCount: biome.reduce((a, b) => a + B[b].land, 0) };
+}
+
+// ============================================================
+//  RENDU DU TERRAIN (pixel art)
+// ============================================================
+const PAL = [
+  [[16, 36, 76], [18, 40, 82], [15, 33, 70]],
+  [[26, 60, 112], [28, 64, 118], [24, 56, 106]],
+  [[44, 100, 156], [48, 106, 162], [42, 95, 150]],
+  [[226, 206, 150], [218, 197, 140], [232, 214, 162]],
+  [[112, 168, 80], [104, 160, 74], [122, 176, 88]],
+  [[72, 132, 64], [66, 124, 58], [78, 140, 70]],
+  [[50, 122, 62], [44, 114, 56], [56, 130, 66]],
+  [[230, 198, 122], [222, 188, 112], [236, 206, 134]],
+  [[178, 172, 98], [170, 164, 92], [186, 180, 106]],
+  [[132, 152, 86], [124, 144, 80], [140, 160, 92]],
+  [[126, 116, 106], [116, 106, 98], [136, 126, 116]],
+  [[150, 162, 142], [142, 154, 134], [158, 170, 150]],
+  [[232, 238, 244], [222, 230, 238], [242, 246, 250]],
+];
+let terrainCv = null, ovCv = null, ovCtx = null, ovImg = null;
+function renderTerrain() {
+  const { W, H, biome, h, rto, river, res, sea, maxH } = WD;
+  const IW = W * TS, IH = H * TS;
+  terrainCv = document.createElement('canvas'); terrainCv.width = IW; terrainCv.height = IH;
+  const tctx = terrainCv.getContext('2d');
+  const img = tctx.createImageData(IW, IH), px = img.data;
+  const sp = (x, y, c, mul = 1) => { if (x < 0 || y < 0 || x >= IW || y >= IH) return; const o = (y * IW + x) * 4; px[o] = clamp(c[0] * mul, 0, 255); px[o + 1] = clamp(c[1] * mul, 0, 255); px[o + 2] = clamp(c[2] * mul, 0, 255); px[o + 3] = 255; };
+  const isLand = i => B[biome[i]].land;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, b = biome[i], pal = PAL[b];
+    let shade = 1;
+    if (isLand(i)) { const j = (y > 0 && x > 0) ? i - W - 1 : i; shade = 1 + clamp((h[i] - h[j]) * 9, -0.16, 0.16); }
+    const X = x * TS, Y = y * TS;
+    for (let py = 0; py < TS; py++) for (let qx = 0; qx < TS; qx++) {
+      const v = h2(X + qx, Y + py, 99);
+      sp(X + qx, Y + py, pal[v < 0.6 ? 0 : v < 0.85 ? 1 : 2], shade);
+    }
+    const r = (k) => h2(x, y, k);
+    if (b <= 2) {
+      // vagues et écume
+      if (b < 2 && r(1) < 0.25) { const wx = X + 1 + Math.floor(r(2) * 5), wy = Y + 1 + Math.floor(r(3) * 6); sp(wx, wy, pal[0], 1.35); sp(wx + 1, wy, pal[0], 1.35); }
+      if (b === 2) {
+        const foam = [150, 196, 226];
+        if (x > 0 && isLand(i - 1)) for (let k = 0; k < TS; k += 2) sp(X, Y + k, foam);
+        if (x < W - 1 && isLand(i + 1)) for (let k = 1; k < TS; k += 2) sp(X + TS - 1, Y + k, foam);
+        if (y > 0 && isLand(i - W)) for (let k = 0; k < TS; k += 2) sp(X + k, Y, foam);
+        if (y < H - 1 && isLand(i + W)) for (let k = 1; k < TS; k += 2) sp(X + k, Y + TS - 1, foam);
+      }
+    } else if (b === 5 || b === 6) {
+      const n = b === 6 ? 3 : 2, dark = b === 6 ? [22, 76, 38] : [36, 88, 46], light = b === 6 ? [40, 104, 54] : [62, 120, 56];
+      for (let k = 0; k < n; k++) {
+        const tx = X + 1 + Math.floor(r(10 + k) * 5), ty = Y + 1 + Math.floor(r(20 + k) * 4);
+        sp(tx + 1, ty, light); sp(tx, ty + 1, dark); sp(tx + 1, ty + 1, light); sp(tx + 2, ty + 1, dark);
+        sp(tx, ty + 2, dark); sp(tx + 1, ty + 2, dark); sp(tx + 2, ty + 2, dark); sp(tx + 1, ty + 3, [92, 64, 40]);
+      }
+    } else if (b === 10 || b === 12 && (h[i] - sea) / (maxH - sea) > 0.55) {
+      const snowy = b === 12 || WD.t[i] < 0.5;
+      const cx = X + 3 + Math.floor(r(5) * 2);
+      for (let row = 0; row < 6; row++) {
+        const yy = Y + 1 + row;
+        for (let k = -row; k <= row; k++) {
+          const col = row < 2 && snowy ? [244, 246, 250] : k < 0 ? [168, 158, 146] : [92, 84, 78];
+          sp(cx + k, yy, col);
+        }
+      }
+    } else if (b === 9) {
+      const cx = X + 2 + Math.floor(r(6) * 3), cy = Y + 3 + Math.floor(r(7) * 2);
+      for (let k = -2; k <= 2; k++) sp(cx + k, cy + 1, [104, 124, 66]);
+      for (let k = -1; k <= 1; k++) sp(cx + k, cy, [160, 180, 104]);
+    } else if (b === 7) {
+      if (r(8) < 0.6) { const cx = X + 1 + Math.floor(r(9) * 3), cy = Y + 2 + Math.floor(r(4) * 4); for (let k = 0; k < 4; k++) sp(cx + k, cy - (k === 1 || k === 2 ? 1 : 0), [206, 168, 96]); }
+    } else if (b === 4 || b === 8) {
+      if (r(11) < 0.5) { const cx = X + Math.floor(r(12) * 7), cy = Y + Math.floor(r(13) * 7); sp(cx, cy, b === 4 ? [150, 196, 98] : [200, 190, 116]); sp(cx, cy + 1, b === 4 ? [86, 140, 62] : [150, 142, 80]); }
+    } else if (b === 11) {
+      if (r(14) < 0.4) sp(X + Math.floor(r(15) * 7), Y + Math.floor(r(16) * 7), [210, 222, 230]);
+    }
+  }
+  // rivières
+  const RIV = [70, 138, 204], RIV2 = [104, 170, 226];
+  for (let i = 0; i < WD.N; i++) {
+    if (!river[i] || rto[i] < 0) continue;
+    let x0 = (i % W) * TS + 3, y0 = ((i / W) | 0) * TS + 3;
+    const x1 = (rto[i] % W) * TS + 3, y1 = ((rto[i] / W) | 0) * TS + 3;
+    const steps = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+    for (let s = 0; s <= steps; s++) {
+      const xx = Math.round(x0 + (x1 - x0) * s / steps), yy = Math.round(y0 + (y1 - y0) * s / steps);
+      sp(xx, yy, RIV); sp(xx + 1, yy, RIV); sp(xx, yy + 1, RIV); sp(xx + 1, yy + 1, RIV2);
+    }
+  }
+  // ressources
+  for (let i = 0; i < WD.N; i++) {
+    if (res[i] < 0) continue;
+    const c = hex2rgb(D.resources[res[i]].ic), X = (i % W) * TS + 5, Y = ((i / W) | 0) * TS + 1;
+    sp(X, Y, [20, 20, 24]); sp(X + 1, Y, [20, 20, 24]); sp(X, Y + 1, c); sp(X + 1, Y + 1, c); sp(X - 1, Y + 1, [20, 20, 24]); sp(X + 2, Y + 1, [20, 20, 24]); sp(X, Y + 2, [20, 20, 24]); sp(X + 1, Y + 2, [20, 20, 24]);
+  }
+  tctx.putImageData(img, 0, 0);
+  ovCv = document.createElement('canvas'); ovCv.width = W * OV; ovCv.height = H * OV;
+  ovCtx = ovCv.getContext('2d'); ovImg = ovCtx.createImageData(W * OV, H * OV);
+  // tuiles d'eau pour les reflets animés
+  WD.sparkle = [];
+  const gg = mulberry(7);
+  for (let k = 0; k < 600; k++) { const i = Math.floor(gg() * WD.N); if (!B[biome[i]].land) WD.sparkle.push([i, gg()]); }
+  UI.overlayDirty = true;
+}
+
+// ============================================================
+//  TERRITOIRE
+// ============================================================
+function tileYield(i) { return [WD.yf[i], WD.yp[i], WD.yw[i]]; }
+function setOwner(i, cid) {
+  const old = owner[i]; if (old === cid) return;
+  if (old >= 0) { const c = CIV.get(old); if (c) { c.base.f -= WD.yf[i]; c.base.p -= WD.yp[i]; c.base.w -= WD.yw[i]; c.base.t--; } }
+  owner[i] = cid;
+  if (cid >= 0) { const c = CIV.get(cid); c.base.f += WD.yf[i]; c.base.p += WD.yp[i]; c.base.w += WD.yw[i]; c.base.t++; }
+  UI.overlayDirty = true;
+}
+function recomputeBases() {
+  for (const c of S.civs) c.base = { f: 0, p: 0, w: 0, t: 0 };
+  for (let i = 0; i < WD.N; i++) { const o = owner[i]; if (o >= 0) { const c = CIV.get(o); c.base.f += WD.yf[i]; c.base.p += WD.yp[i]; c.base.w += WD.yw[i]; c.base.t++; } }
+}
+function claimable(i) {
+  const b = WD.biome[i];
+  if (!B[b].claim) return false;
+  if (b === 2) return WD.nb4(i).some(j => B[WD.biome[j]].land);
+  return true;
+}
+function adjOwned(i, cid) { return WD.nb4(i).some(j => owner[j] === cid); }
+function cityRadius(ct, c) { return clamp(2 + Math.floor(Math.max(0, Math.log10(ct.pop + 1) - 2.6)) + Math.floor(c.age / 2), 2, 8); }
+function nearestCityDist(x, y) { let m = 1e9; for (const ct of S.cities) { const d = Math.hypot(ct.x - x, ct.y - y); if (d < m) m = d; } return m; }
+// redistribue les tuiles d'une civ selon la ville la plus proche
+function reassignTiles(fromCiv, cityList, decide) {
+  const W = WD.W;
+  for (let i = 0; i < WD.N; i++) {
+    if (owner[i] !== fromCiv.id) continue;
+    const x = i % W, y = (i / W) | 0; let best = null, bd = 1e9;
+    for (const ct of cityList) { const d = (ct.x - x) ** 2 + (ct.y - y) ** 2; if (d < bd) { bd = d; best = ct; } }
+    const to = best ? decide(best) : null;
+    if (to != null && to !== fromCiv.id) setOwner(i, to);
+  }
+}
+
+// ============================================================
+//  CRÉATION
+// ============================================================
+function freeColor() {
+  const used = new Set(civsAlive().map(c => c.color));
+  const free = CIV_COLORS.filter(c => !used.has(c));
+  if (free.length) return pick(free);
+  return '#' + [0, 0, 0].map(() => (60 + rint(0, 180)).toString(16).padStart(2, '0')).join('');
+}
+function pickTraits() { const t = shuffle(D.traits.map(t => t.id)); return t.slice(0, 2); }
+function newCiv(o = {}) {
+  const lang = o.lang || makeLang();
+  const c = {
+    id: S.ids.civ++, name: o.name || nameFrom(lang, 1, 2), lang, color: o.color || freeColor(), traits: o.traits || pickTraits(),
+    gov: o.gov || 'tribu', age: o.age || 0, techs: o.techs ? o.techs.slice() : [], research: 0, treasury: o.treasury || 20, prodStock: 20,
+    stab: o.stab ?? 65, rel: {}, allies: [], overlord: null, religion: o.religion ?? null, founded: S.year, alive: true, capital: null,
+    base: { f: 0, p: 0, w: 0, t: 0 }, mods: [], domestic: o.domestic ? o.domestic.slice() : [], prestige: 0, lastFamine: -999,
+    foundedRel: false, pop: 0, mil: 1, cap: 1, wealth: 0, prod: 0, rp: 0, tradeInc: 0, tradeNext: 0, huntFood: 0,
+    peakTiles: 0, peakPop: 0, fx: {}, died: null, parent: o.parent ?? null
+  };
+  S.civs.push(c); CIV.set(c.id, c); return c;
+}
+function newCity(c, x, y, pop) {
+  const ct = { id: S.ids.city++, civ: c.id, name: nameFrom(c.lang, 1, 2), x, y, pop, founded: S.year, rel: c.religion };
+  S.cities.push(ct); CITY.set(ct.id, ct); CBY = null;
+  if (c.capital == null) c.capital = ct.id;
+  const W = WD.W;
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+    const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= WD.H) continue;
+    const i = ny * W + nx; if ((owner[i] === -1 || (!dx && !dy)) && claimable(i)) setOwner(i, c.id);
+  }
+  S.stats.cities++;
+  return ct;
+}
+function newGame(seed, size, water, ncivs, laws) {
+  RS = hashStr(seed + '#sim') || 1;
+  S = {
+    v: 1, seed, params: { size, water, civs: ncivs }, laws: Object.assign({}, laws), year: 1, rngS: 0,
+    owner: null, civs: [], cities: [], herds: [], armies: [], wars: [], religions: [], chron: [], hist: [], contacts: [],
+    ids: { civ: 0, city: 0, herd: 0, army: 0, rel: 0, war: 0 },
+    stats: { wars: 0, captures: 0, religions: 0, schisms: 0, revolutions: 0, cities: 0, secessions: 0, deadCivs: 0, hunts: 0 },
+    extinct: [], ended: false, peak: { tiles: 0, tilesCiv: '', pop: 0, popCiv: '' }
+  };
+  CIV = new Map(); CITY = new Map(); REL = new Map(); CBY = null; CONTACT = new Set();
+  WD = genWorld(seed, size, water);
+  owner = new Int16Array(WD.N).fill(-1);
+  renderTerrain();
+  // positions de départ
+  const W = WD.W, cand = [];
+  for (let i = 0; i < WD.N; i++) {
+    const b = WD.biome[i]; if (!B[b].settle || b === 3) continue;
+    const x = i % W, y = (i / W) | 0; if (x < 3 || y < 3 || x > W - 4 || y > WD.H - 4) continue;
+    let sc = 0; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) sc += WD.yf[(y + dy) * W + x + dx];
+    cand.push({ x, y, sc: sc + (WD.river[i] ? 6 : 0) + rnd() * 6 });
+  }
+  cand.sort((a, b) => b.sc - a.sc);
+  const top = cand.slice(0, Math.max(ncivs * 30, Math.floor(cand.length * 0.35)));
+  let minD = Math.sqrt(WD.landCount / ncivs) * 0.75; const starts = [];
+  while (starts.length < ncivs && minD > 3) {
+    for (const p of shuffle(top)) { if (starts.length >= ncivs) break; if (starts.every(s => Math.hypot(s.x - p.x, s.y - p.y) >= minD)) starts.push(p); }
+    minD *= 0.85;
+  }
+  for (const p of starts) {
+    const c = newCiv();
+    newCity(c, p.x, p.y, 500 + rint(0, 300));
+    const PLACE = { 3: 'sur la côte', 4: 'dans les plaines fertiles', 5: 'au cœur des forêts', 6: 'dans la jungle', 7: 'aux portes du désert', 8: 'dans la steppe', 9: 'sur les collines', 11: 'dans la toundra glacée' };
+    log('civ', `${tag(c)} naît ${WD.river[p.y * W + p.x] ? 'au bord d\'un grand fleuve' : PLACE[WD.biome[p.y * W + p.x]] || 'dans un pays rude'}.`, false);
+  }
+  log('god', 'Le démiurge façonne le monde. Les dés sont jetés.', true);
+  // faune initiale
+  const cap = herdCap();
+  for (let k = 0; k < cap * 0.85; k++) {
+    const sp = wpick(D.species, s => s.cat === 'gibier' ? 5 : s.cat === 'predateur' ? 2 : 0.45);
+    spawnHerdRandom(sp);
+  }
+  recordHist();
+  updateContacts();
+}
+
+// ============================================================
+//  BONUS
+// ============================================================
+function fxOf(c) {
+  const fx = {}; const add = o => { if (o) for (const k in o) fx[k] = (fx[k] || 0) + o[k]; };
+  for (const id of c.techs) add(TECH[id].fx);
+  add(GOV[c.gov].fx);
+  for (const t of c.traits) add(TRAIT[t].fx);
+  const r = relOf(c); if (r) for (const d of r.dogmas) add(DOGMA[d].fx);
+  for (const s of c.domestic) add(SPEC[s].dom);
+  for (const m of c.mods) add(m.fx);
+  return fx;
+}
+function addMod(c, id, name, years, fx, extra = {}) {
+  c.mods = c.mods.filter(m => m.id !== id);
+  c.mods.push(Object.assign({ id, name, until: S.year + years, fx }, extra));
+}
+
+// ============================================================
+//  SIMULATION — boucle annuelle
+// ============================================================
+function tick() {
+  S.year++;
+  CBY = null;
+  if (S.year % 5 === 0) updateContacts();
+  const alive = civsAlive();
+  for (const c of alive) c.tradeInc = c.tradeNext, c.tradeNext = 0;
+  for (const c of alive) economy(c);
+  for (const c of alive) { if (!c.alive) continue; expand(c); foundCity(c); research(c); government(c); maybeFoundReligion(c); politics(c); }
+  religionSpread();
+  if (S.year % 10 === 0) religionsUpdate();
+  diplomacy();
+  warsUpdate();
+  armiesUpdate();
+  faunaUpdate();
+  randomEvents();
+  checkDeaths();
+  if (S.year % 10 === 0) recordHist();
+  if (S.year % 100 === 0) autosave();
+  if (S.year >= END && !S.ended) endGame();
+}
+
+function economy(c) {
+  const L = S.laws;
+  c.mods = c.mods.filter(m => { if (m.until <= S.year) return false; return true; });
+  const fx = c.fx = fxOf(c);
+  const cities = citiesOf(c);
+  const food = Math.max(0.5, c.base.f * Math.max(0.1, 1 + (fx.food || 0)) * L.fert + c.huntFood);
+  c.huntFood = 0;
+  c.cap = food * D.popK * (1 + c.age * 0.9) ** 2;
+  let pop = civPop(c), famine = false;
+  if (pop < c.cap) {
+    const g = 0.018 * Math.max(0.2, 1 + (fx.growth || 0)) * Math.sqrt(L.fert) * (1 - pop / c.cap);
+    for (const ct of cities) ct.pop *= 1 + g;
+  } else {
+    const over = (pop - c.cap) / pop, loss = Math.min(0.25, over * 0.3);
+    for (const ct of cities) ct.pop *= 1 - loss;
+    if (over > 0.12) famine = true;
+  }
+  for (const m of c.mods) if (m.plague) { const l = m.sev * clamp(1 - (fx.plague || 0), 0.1, 1); for (const ct of cities) ct.pop *= 1 - l; }
+  c.pop = pop = civPop(c);
+  c.prod = Math.max(0.1, c.base.p * Math.max(0.1, 1 + (fx.prod || 0)));
+  c.prodStock = Math.min(c.prodStock + c.prod, c.prod * 40 + 50);
+  c.wealth = Math.max(0, c.base.w * Math.max(0.1, 1 + (fx.wealth || 0)) + c.tradeInc + Math.sqrt(pop) * 0.02);
+  if (c.overlord != null) { const o = CIV.get(c.overlord); if (o && o.alive) { const t = c.wealth * 0.15; c.wealth -= t; o.treasury += t; } else c.overlord = null; }
+  const armies = S.armies.filter(a => a.civ === c.id).length;
+  c.treasury = Math.max(0, c.treasury + c.wealth * 0.5 - armies * (1 + c.age));
+  const strain = clamp(1.25 - cities.length / 60, 0.45, 1);
+  c.mil = (Math.sqrt(pop) * Math.max(0.2, 1 + (fx.mil || 0)) * (1 + c.age * 0.4) * (0.6 + 0.4 * c.stab / 100) + Math.sqrt(c.treasury) * 0.3) * strain;
+  c.rp = (Math.pow(pop, 0.38) * 0.22 + Math.sqrt(c.wealth) * 0.3) * Math.max(0.2, 1 + (fx.research || 0)) * L.prog;
+  const wars = warsOf(c).length;
+  const target = 58 + (fx.stab || 0) * 100 - Math.max(0, cities.length - 6 - c.age * 1.5) * 2.2 - (famine ? 18 : 0) - wars * 6 - (c.overlord != null ? 6 : 0) + Math.min(10, c.prestige * 0.5);
+  c.stab = clamp(c.stab + (target - c.stab) * 0.06 + (rnd() - 0.5) * 3, 0, 100);
+  c.prestige *= 0.99;
+  if (famine && S.year - c.lastFamine > 50) { c.lastFamine = S.year; log('dis', `Grande famine en ${tag(c)} : les greniers sont vides.`, false); }
+  // propagation de la peste
+  if (c.mods.some(m => m.plague)) {
+    for (const k of CONTACT) {
+      if (rnd() > 0.12) continue;
+      const [a, b] = k.split('-').map(Number); if (a !== c.id && b !== c.id) continue;
+      const o = CIV.get(a === c.id ? b : a); if (!o || !o.alive || o.mods.some(m => m.plague) || o.mods.some(m => m.id === 'immun')) continue;
+      addMod(o, 'peste', 'Peste', rint(3, 7), { growth: -0.5, stab: -0.1 }, { plague: true, sev: 0.03 + rnd() * 0.03 });
+      addMod(o, 'immun', 'Immunité', 40, {});
+      log('dis', `La peste se propage de ${tag(c)} à ${tag(o)}.`);
+    }
+  }
+  if (c.base.t > c.peakTiles) c.peakTiles = c.base.t;
+  if (pop > c.peakPop) c.peakPop = pop;
+  if (c.base.t > S.peak.tiles) { S.peak.tiles = c.base.t; S.peak.tilesCiv = dn(c); S.peak.tilesYear = S.year; }
+  if (pop > S.peak.pop) { S.peak.pop = pop; S.peak.popCiv = dn(c); S.peak.popYear = S.year; }
+}
+
+function expand(c) {
+  const fx = c.fx, W = WD.W, H = WD.H;
+  const tries = (0.45 + 0.22 * c.age) * Math.max(0.1, 1 + (fx.expand || 0));
+  for (const ct of citiesOf(c)) {
+    const R = cityRadius(ct, c);
+    let n = Math.floor(tries + rnd());
+    for (let k = 0; k < n * 2 && n > 0; k++) {
+      const dx = rint(-R, R), dy = rint(-R, R);
+      if (dx * dx + dy * dy > R * R) continue;
+      const x = ct.x + dx, y = ct.y + dy; if (x < 0 || y < 0 || x >= W || y >= H) continue;
+      const i = y * W + x;
+      if (owner[i] !== -1 || !claimable(i) || rnd() > B[WD.biome[i]].claim || !adjOwned(i, c.id)) continue;
+      setOwner(i, c.id); n--;
+    }
+  }
+}
+
+function foundCity(c) {
+  const fx = c.fx, cities = citiesOf(c); if (!cities.length) return;
+  const maxC = 2 + c.age * 2.5 + c.base.t / 35;
+  const cost = 25 * (1 + c.age);
+  if (cities.length >= maxC || c.prodStock < cost || rnd() > 0.05 * Math.max(0.1, 1 + (fx.expand || 0))) return;
+  const W = WD.W, H = WD.H; let best = null, bs = -1;
+  const reach = hasTech(c, 'navigation') ? 12 : 9;
+  for (let k = 0; k < 25; k++) {
+    const src = pick(cities), a = rnd() * Math.PI * 2, d = 4 + rnd() * (reach - 4);
+    const x = Math.round(src.x + Math.cos(a) * d), y = Math.round(src.y + Math.sin(a) * d);
+    if (x < 1 || y < 1 || x >= W - 1 || y >= H - 1) continue;
+    const i = y * W + x, b = WD.biome[i];
+    if (!B[b].settle) continue;
+    if (owner[i] !== -1 && owner[i] !== c.id) continue;
+    if (nearestCityDist(x, y) < 4) continue;
+    let sc = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) sc += WD.yf[i + dy * W + dx] + WD.yp[i + dy * W + dx] * 0.5;
+    sc += (WD.river[i] ? 5 : 0) + (owner[i] === c.id ? 3 : 0) + rnd() * 3;
+    if (sc > bs) { bs = sc; best = { x, y, src }; }
+  }
+  if (!best || bs < 8) return;
+  c.prodStock -= cost;
+  const p = best.src.pop * 0.12; best.src.pop -= p;
+  const ct = newCity(c, best.x, best.y, Math.max(150, p));
+  if (cities.length < 4 || rnd() < 0.15) log('civ', `${tag(c)} fonde la cité de <b>${esc(ct.name)}</b>.`);
+}
+
+function research(c) {
+  c.research += c.rp;
+  const cost = D.techCost[c.age];
+  if (c.research >= cost) { c.research -= cost; gainTech(c); }
+}
+function gainTech(c, quiet = false) {
+  const opts = D.techs.filter(t => t.a <= c.age && !c.techs.includes(t.id));
+  if (!opts.length) return null;
+  const t = wpick(opts, t => t.a === c.age ? 1 : 3);
+  c.techs.push(t.id);
+  if (!quiet) log('tech', `${tag(c)} découvre : <b>${t.n}</b>.`);
+  const own = TECH_BY_AGE[c.age].filter(x => c.techs.includes(x.id)).length;
+  if (c.age < D.ages.length - 1 && own >= Math.ceil(TECH_BY_AGE[c.age].length * 0.7)) {
+    c.age++;
+    const first = !S.civs.some(o => o !== c && o.age >= c.age);
+    log('tech', `${tag(c)} entre dans l'<b>${D.ages[c.age].replace(/^Ère /, 'ère ').replace(/^Âge /, 'âge ')}</b>${first ? ', premier peuple à y parvenir' : ''} !`.replace("l'<b>Antiquité", "l'<b>Antiquité").replace("l'<b>Renaissance", "la <b>Renaissance").replace("l'<b>Futur", "le <b>Futur"), first);
+  }
+  return t;
+}
+
+function govOptions(c, revo) {
+  return D.govs.filter(g => g.id !== c.gov && g.a <= c.age && (revo || !g.revo) && g.id !== 'tribu' &&
+    (!g.req || (g.req === 'religion' && c.religion != null) || (g.req === 'cities7' && citiesOf(c).length >= 7)));
+}
+function govWeight(c, g) {
+  let w = 1 + (g.a >= c.age - 1 ? 2 : 0);
+  for (const t of c.traits) if (TRAIT[t].govs.includes(g.id)) w += 3;
+  if (g.id === 'chefferie' && c.age > 0) w *= 0.2;
+  if (g.a < GOV[c.gov].a) w *= 0.3;
+  return w;
+}
+function government(c) {
+  if (c.gov === 'tribu') { if (c.pop > 2500 && rnd() < 0.02) { c.gov = 'chefferie'; log('gov', `Les clans de ${esc(c.name)} s'unissent : naissance de ${tag(c)}.`); } return; }
+  if (rnd() > 0.008 * S.laws.prog) return;
+  const g = wpick(govOptions(c, false), x => govWeight(c, x));
+  if (!g || GOV[c.gov].a > g.a + 1) return;
+  const old = dn(c); c.gov = g.id;
+  log('gov', `Réforme : <s>${esc(old)}</s> devient ${tag(c)} (${g.n}).`, g.a >= 3);
+}
+function politics(c) {
+  const cities = citiesOf(c);
+  if (c.stab < 18 && rnd() < 0.04) {
+    const g = wpick(govOptions(c, true), x => govWeight(c, x) + (x.revo ? 3 : 0));
+    if (g) { const old = dn(c); c.gov = g.id; c.stab = 45; S.stats.revolutions++; log('gov', `<b>Révolution !</b> ${esc(old)} est renversé(e). Place à ${tag(c)}.`, true); }
+  }
+  if (c.stab < 25 && cities.length >= 5 && rnd() < 0.02) secession(c);
+}
+
+function secession(c, quiet) {
+  const cities = citiesOf(c), cap = CITY.get(c.capital) || cities[0];
+  let far = null, fd = -1; for (const ct of cities) { const d = dist(ct, cap); if (ct !== cap && d > fd) { fd = d; far = ct; } }
+  if (!far) return null;
+  const group = cities.filter(ct => ct !== cap && dist(ct, far) < dist(ct, cap) * 0.9);
+  const n = newCiv({ traits: [pick(c.traits), pick(D.traits.filter(t => !c.traits.includes(t.id))).id], age: c.age, techs: c.techs, religion: far.rel ?? c.religion, domestic: c.domestic, stab: 60, treasury: c.treasury * 0.3, parent: c.id });
+  n.gov = (wpick(govOptions(n, true), x => govWeight(n, x)) || GOV.chefferie).id;
+  c.treasury *= 0.7;
+  const before = cities.slice();
+  for (const ct of group) ct.civ = n.id;
+  CBY = null;
+  n.capital = group.reduce((a, b) => a.pop > b.pop ? a : b).id;
+  reassignTiles(c, before, ct => ct.civ);
+  c.stab = Math.min(100, c.stab + 15);
+  S.stats.secessions++;
+  setRel(c, n, -70);
+  log('war', `<b>Guerre civile !</b> ${tag(n)} fait sécession de ${tag(c)} autour de ${esc(far.name)}.`, true);
+  declareWar(n, c, 'indépendance', true);
+  return n;
+}
+
+// ---------- Religions ----------
+function maybeFoundReligion(c) {
+  if (c.foundedRel || !hasTech(c, 'mysticisme')) return;
+  if (S.religions.filter(r => r.alive).length >= 10) return;
+  if (rnd() < 0.0035 * Math.max(0.1, 1 + (c.fx.faith || 0))) foundReligion(c);
+}
+function foundReligion(c, prophet) {
+  const cap = CITY.get(c.capital); if (!cap) return null;
+  const used = new Set(S.religions.filter(r => r.alive).map(r => r.color));
+  const near = S.herds.filter(h => Math.hypot(h.x - cap.x, h.y - cap.y) < 15);
+  const totem = (near.length ? pick(near).sp : pick(D.species).id);
+  const N = nameFrom(makeLang(), 1, 2);
+  const r = {
+    id: S.ids.rel++, name: pick(REL_FORMS).replace('{N}', N), color: REL_COLORS.find(x => !used.has(x)) || pick(REL_COLORS),
+    dogmas: shuffle(D.dogmas.map(d => d.id)).slice(0, 2), totem, founder: c.id, year: S.year, parent: null, alive: true
+  };
+  S.religions.push(r); REL.set(r.id, r); S.stats.religions++;
+  c.foundedRel = true;
+  cap.rel = r.id;
+  if (c.religion == null) c.religion = r.id;
+  const p = prophet || `${nameFrom(c.lang, 1, 2)} ${pick(EPITHETS)}`;
+  log('rel', `Le prophète <b>${esc(p)}</b> se lève à ${esc(cap.name)} (${tag(c)}) et fonde ${rtag(r)} — dogmes : ${r.dogmas.map(d => DOGMA[d].n).join(', ')}${r.dogmas.includes('animal_sacre') ? ' (animal sacré : ' + SPEC[r.totem].n.toLowerCase() + ')' : ''}.`, true);
+  return r;
+}
+function religionSpread() {
+  const cs = S.cities; if (cs.length < 2) return;
+  for (const ct of cs) {
+    if (rnd() > 0.1) continue;
+    const src = cs[Math.floor(rnd() * cs.length)];
+    if (src === ct || src.rel == null || src.rel === ct.rel) continue;
+    const d = dist(src, ct); if (d > 13) continue;
+    const r = REL.get(src.rel); if (!r || !r.alive) continue;
+    const sc = CIV.get(src.civ), tc = CIV.get(ct.civ);
+    let p = 0.22 * (1 + (r.dogmas.includes('proselytisme') ? 1 : 0)) * (src.civ === ct.civ ? 2 : 0.6) * (ct.rel == null ? 1.6 : 0.35);
+    if (sc && sc.gov === 'theocratie') p *= 1.3;
+    if (tc && tc.religion === ct.rel && tc.gov === 'theocratie') p *= 0.4;
+    if (tc && tc.traits.includes('isolationniste') && src.civ !== ct.civ) p *= 0.4;
+    if (rnd() < p) ct.rel = src.rel;
+  }
+}
+function religionsUpdate() {
+  const count = new Map(), civsOfRel = new Map();
+  for (const ct of S.cities) if (ct.rel != null) { count.set(ct.rel, (count.get(ct.rel) || 0) + 1); if (!civsOfRel.has(ct.rel)) civsOfRel.set(ct.rel, new Set()); civsOfRel.get(ct.rel).add(ct.civ); }
+  for (const c of civsAlive()) {
+    const m = new Map(); for (const ct of citiesOf(c)) if (ct.rel != null) m.set(ct.rel, (m.get(ct.rel) || 0) + ct.pop);
+    let best = null, bv = 0; for (const [k, v] of m) if (v > bv) { bv = v; best = k; }
+    if (best != null && best !== c.religion && bv > c.pop * 0.45) {
+      const r = REL.get(best);
+      if (c.gov === 'theocratie') { c.gov = 'monarchie'; c.stab -= 10; }
+      c.religion = best;
+      log('rel', `${tag(c)} adopte ${rtag(r)} comme religion d'État.`);
+    }
+  }
+  for (const r of S.religions) {
+    if (!r.alive) continue;
+    const n = count.get(r.id) || 0;
+    if (n === 0) { r.alive = false; log('rel', `${rtag(r)} s'éteint : plus aucun fidèle ne l'honore.`); for (const c of S.civs) if (c.religion === r.id) c.religion = null; continue; }
+    const cv = civsOfRel.get(r.id);
+    if (n >= 10 && cv && cv.size >= 3 && rnd() < 0.04 && S.religions.filter(x => x.alive).length < 12) {
+      const cand = [...cv].map(id => CIV.get(id)).filter(c => c && c.alive && c.id !== r.founder && citiesOf(c).filter(ct => ct.rel === r.id).length >= 2);
+      if (!cand.length) continue;
+      const c = pick(cand);
+      const used = new Set(S.religions.filter(x => x.alive).map(x => x.color));
+      const nr = { id: S.ids.rel++, name: pick(SCHISM_FORMS).replace('{R}', r.name.split(' ').slice(-1)[0] === r.name ? r.name : r.name.replace(/^(\S+)/, '$1')), color: REL_COLORS.find(x => !used.has(x)) || pick(REL_COLORS), dogmas: [pick(r.dogmas), pick(D.dogmas.filter(d => !r.dogmas.includes(d.id))).id], totem: r.totem, founder: c.id, year: S.year, parent: r.id, alive: true };
+      S.religions.push(nr); REL.set(nr.id, nr); S.stats.schisms++; S.stats.religions++;
+      for (const ct of citiesOf(c)) if (ct.rel === r.id) ct.rel = nr.id;
+      c.religion = nr.id;
+      const f = CIV.get(r.founder); if (f && f.alive) setRel(c, f, getRel(c, f) - 30);
+      log('rel', `<b>Schisme !</b> En ${tag(c)}, ${rtag(nr)} se sépare de ${rtag(r)}.`, true);
+    }
+  }
+}
+
+// ---------- Diplomatie ----------
+function updateContacts() {
+  const set = new Set(), W = WD.W, N = WD.N;
+  for (let i = 0; i < N; i++) {
+    const o = owner[i]; if (o < 0) continue;
+    if (i % W < W - 1) { const p = owner[i + 1]; if (p >= 0 && p !== o) set.add(key(o, p)); }
+    if (i + W < N) { const p = owner[i + W]; if (p >= 0 && p !== o) set.add(key(o, p)); }
+  }
+  const nav = S.cities.filter(ct => { const c = CIV.get(ct.civ); return c && hasTech(c, 'navigation'); });
+  for (let a = 0; a < nav.length; a++) for (let b = a + 1; b < nav.length; b++)
+    if (nav[a].civ !== nav[b].civ && dist(nav[a], nav[b]) < 16) set.add(key(nav[a].civ, nav[b].civ));
+  CONTACT = set;
+}
+function diplomacy() {
+  const L = S.laws;
+  for (const k of CONTACT) {
+    const [ia, ib] = k.split('-').map(Number); const a = CIV.get(ia), b = CIV.get(ib);
+    if (!a || !b || !a.alive || !b.alive) continue;
+    const war = warBetween(a, b);
+    let r = getRel(a, b);
+    if (!war) {
+      const tf = Math.max(0, 1 + (a.fx.trade || 0) + (b.fx.trade || 0));
+      const tv = 0.05 * Math.min(a.base.w, b.base.w) * tf * (1 + Math.min(a.age, b.age) * 0.3);
+      a.tradeNext += tv; b.tradeNext += tv;
+      r += 0.35 * Math.min(1.5, tf);
+    }
+    const ra = relOf(a), rb = relOf(b);
+    if (ra && rb) {
+      if (ra === rb) r += 0.45;
+      else { r -= 0.3; if (ra.dogmas.includes('guerre_sainte') || rb.dogmas.includes('guerre_sainte')) r -= 0.5; }
+    }
+    r -= 0.4;
+    for (const t of [...a.traits, ...b.traits]) if (t === 'guerriere') r -= 0.25;
+    r += (rnd() - 0.5) * 3;
+    r *= 0.995;
+    setRel(a, b, r); r = getRel(a, b);
+    if (war) continue;
+    if (!allied(a, b) && r > 60 && rnd() < 0.05) { a.allies.push(b.id); b.allies.push(a.id); log('peace', `Alliance scellée entre ${tag(a)} et ${tag(b)}.`); }
+    else if (allied(a, b) && r < 20) { a.allies = a.allies.filter(x => x !== b.id); b.allies = b.allies.filter(x => x !== a.id); log('peace', `L'alliance entre ${tag(a)} et ${tag(b)} est rompue.`); }
+    // vassalité et indépendance
+    if (a.overlord === b.id || b.overlord === a.id) {
+      const v = a.overlord === b.id ? a : b, o = v === a ? b : a;
+      if (v.mil > o.mil * 0.9 && rnd() < 0.03) { v.overlord = null; declareWar(v, o, 'indépendance'); }
+      continue;
+    }
+    if (allied(a, b) || r > -30) continue;
+    for (const [x, y] of [[a, b], [b, a]]) {
+      if (x.overlord != null || warsOf(x).length >= 2) continue;
+      const rx = relOf(x), ry = relOf(y);
+      let p = 0.016 * L.aggr * Math.max(0.05, 1 + (x.fx.war || 0)) * clamp(x.mil / Math.max(1, y.mil), 0.25, 2.5) * (-r / 60);
+      const holy = rx && rx.dogmas.includes('guerre_sainte') && rx !== ry;
+      if (holy) p *= 1.6;
+      if (x.mods.some(m => m.id === 'conquerant')) p *= 2;
+      if (rnd() < p) { declareWar(x, y, holy ? 'guerre sainte' : pick(['conquête', 'querelle de frontières', 'rivalité ancestrale', 'soif de terres', 'affront diplomatique'])); break; }
+    }
+  }
+}
+function declareWar(a, b, reason, quiet, noAllies) {
+  if (warBetween(a, b) || !a.alive || !b.alive) return;
+  const w = { id: S.ids.war++, a: a.id, b: b.id, start: S.year, sa: 0, sb: 0, wa: 0, wb: 0, reason };
+  S.wars.push(w); S.stats.wars++;
+  if (allied(a, b)) { a.allies = a.allies.filter(x => x !== b.id); b.allies = b.allies.filter(x => x !== a.id); }
+  setRel(a, b, Math.min(getRel(a, b), -50));
+  if (!quiet) log('war', `<b>Guerre !</b> ${tag(a)} déclare la guerre à ${tag(b)} (${reason}).`, true);
+  if (!noAllies) for (const id of b.allies.slice()) {
+    const al = CIV.get(id); if (!al || !al.alive || al === a || warBetween(al, a) || allied(al, a)) continue;
+    if (rnd() < 0.6) { declareWar(al, a, 'alliance', true, true); log('war', `${tag(al)} entre en guerre aux côtés de son allié ${tag(b)}.`); }
+  }
+}
+function warsUpdate() {
+  for (const w of S.wars.slice()) {
+    const a = CIV.get(w.a), b = CIV.get(w.b);
+    if (!a || !b || !a.alive || !b.alive) { S.wars.splice(S.wars.indexOf(w), 1); continue; }
+    const yrs = S.year - w.start;
+    for (const [x, y] of [[a, b], [b, a]]) {
+      const n = S.armies.filter(ar => ar.civ === x.id && ar.vs === y.id).length;
+      if (n < 1 + Math.floor(x.age / 2) && rnd() < 0.3) spawnArmy(x, y);
+    }
+    w.wa += 1 + (a.stab < 30 ? 1 : 0); w.wb += 1 + (b.stab < 30 ? 1 : 0);
+    const p = 0.006 * yrs + (w.wa + w.wb) / 2500 - 0.02;
+    if (yrs > 3 && rnd() < p) makePeace(w);
+  }
+}
+function makePeace(w) {
+  const a = CIV.get(w.a), b = CIV.get(w.b);
+  S.wars.splice(S.wars.indexOf(w), 1);
+  S.armies = S.armies.filter(ar => !((ar.civ === a.id && ar.vs === b.id) || (ar.civ === b.id && ar.vs === a.id)));
+  setRel(a, b, -15);
+  const win = w.sa > w.sb ? a : w.sb > w.sa ? b : null, lose = win === a ? b : win === b ? a : null;
+  const where = pick(S.cities).name;
+  const yrs = S.year - w.start;
+  if (win && Math.abs(w.sa - w.sb) >= 2 && lose.mil < win.mil * 0.5 && citiesOf(lose).length <= 5 && lose.overlord == null && win.overlord !== lose.id) {
+    lose.overlord = win.id;
+    log('peace', `Traité de ${esc(where)} : après ${yrs} ans de guerre, ${tag(lose)} devient vassal de ${tag(win)}.`, true);
+  } else if (win) {
+    log('peace', `Paix de ${esc(where)} : ${tag(win)} sort victorieux de ${yrs} ans de guerre contre ${tag(lose)}.`, true);
+    win.prestige += 4; lose.stab -= 8;
+  } else log('peace', `Paix blanche entre ${tag(a)} et ${tag(b)} après ${yrs} ans de combats.`, true);
+}
+function spawnArmy(x, y) {
+  const xs = citiesOf(x), ys = citiesOf(y); if (!xs.length || !ys.length) return;
+  let best = null, bd = 1e9, src = null;
+  for (const t of ys) for (const s of xs) { const d = dist(s, t) + rnd() * 3; if (d < bd) { bd = d; best = t; src = s; } }
+  if (!best || bd > 40) return;
+  const cost = 8 * (1 + x.age);
+  let str = x.mil * (0.5 + rnd() * 0.5);
+  if (x.prodStock >= cost) x.prodStock -= cost; else str *= 0.5;
+  S.armies.push({ id: S.ids.army++, civ: x.id, vs: y.id, x: src.x, y: src.y, px: src.x, py: src.y, tid: best.id, str });
+}
+function armiesUpdate() {
+  for (const ar of S.armies.slice()) {
+    const c = CIV.get(ar.civ), t = CITY.get(ar.tid);
+    ar.px = ar.x; ar.py = ar.y;
+    if (!c || !c.alive || !t || t.civ !== ar.vs || !warBetween(c, CIV.get(t.civ))) { S.armies.splice(S.armies.indexOf(ar), 1); continue; }
+    const sp = 1.5 + c.age * 0.6, d = Math.hypot(t.x - ar.x, t.y - ar.y);
+    if (d > sp) { ar.x += (t.x - ar.x) / d * sp; ar.y += (t.y - ar.y) / d * sp; continue; }
+    ar.x = t.x; ar.y = t.y;
+    S.armies.splice(S.armies.indexOf(ar), 1);
+    const def = CIV.get(t.civ), w = warBetween(c, def);
+    const defense = def.mil * 0.6 * Math.max(0.3, 1 + (def.fx.def || 0)) * (t.id === def.capital ? 1.4 : 1) * (0.75 + rnd() * 0.5);
+    const attack = ar.str * (0.75 + rnd() * 0.5);
+    if (attack > defense) { capture(t, c, def); if (w) { if (w.a === c.id) w.sa += 2; else w.sb += 2; } }
+    else {
+      if (w) { if (w.a === def.id) w.sa++; else w.sb++; if (w.a === c.id) w.wa += 4; else w.wb += 4; }
+      if (rnd() < 0.15) log('war', `Le siège de ${esc(t.name)} par ${tag(c)} échoue devant les murs de ${tag(def)}.`);
+    }
+  }
+}
+function capture(t, att, def) {
+  const before = citiesOf(def).slice();
+  t.pop *= 0.75; t.civ = att.id; CBY = null;
+  reassignTiles(def, before, ct => ct === t ? att.id : null);
+  S.stats.captures++;
+  addFX(t.x, t.y, att.color, 'ring');
+  const wasCap = def.capital === t.id;
+  const rest = citiesOf(def);
+  if (wasCap && rest.length) { def.capital = rest.reduce((a, b) => a.pop > b.pop ? a : b).id; def.stab -= 20; }
+  att.prestige += wasCap ? 5 : 1;
+  log('war', `${tag(att)} s'empare de ${wasCap ? 'la capitale ' : ''}<b>${esc(t.name)}</b> (${tag(def)}).`, wasCap);
+  if (!rest.length) civDies(def, att);
+}
+function civDies(c, killer) {
+  if (!c.alive) return;
+  c.alive = false; c.died = S.year; S.stats.deadCivs++;
+  for (let i = 0; i < WD.N; i++) if (owner[i] === c.id) setOwner(i, killer && killer.alive ? killer.id : -1);
+  S.wars = S.wars.filter(w => w.a !== c.id && w.b !== c.id);
+  S.armies = S.armies.filter(a => a.civ !== c.id && a.vs !== c.id);
+  for (const o of S.civs) { o.allies = o.allies.filter(x => x !== c.id); if (o.overlord === c.id) o.overlord = null; }
+  log('civ', `<b>Chute ${de(esc(dn(c)))}</b>${killer ? ', conquis(e) par ' + tag(killer) : ''}, après ${S.year - c.founded} ans d'histoire.`, true);
+  if (UI.sel === c.id) UI.sel = null;
+}
+function checkDeaths() { for (const c of civsAlive()) if (!citiesOf(c).length) civDies(c, null); }
+
+// ---------- Faune ----------
+function herdCap() { return Math.round(70 * S.laws.fauna * (WD.N / 16000)); }
+function spawnHerd(sp, x, y, n) { const h = { id: S.ids.herd++, sp: sp.id, x, y, px: x, py: y, n: n ?? sp.max * (0.5 + rnd() * 0.4) }; S.herds.push(h); S.extinct = S.extinct.filter(e => e !== sp.id); return h; }
+function spawnHerdRandom(sp) {
+  const W = WD.W;
+  for (let k = 0; k < 60; k++) { const i = Math.floor(rnd() * WD.N); if (sp.b.includes(WD.biome[i]) && owner[i] === -1) return spawnHerd(sp, i % W, (i / W) | 0); }
+  return null;
+}
+function faunaUpdate() {
+  const L = S.laws, W = WD.W, H = WD.H, cap = herdCap();
+  const perSp = new Map(); for (const h of S.herds) perSp.set(h.sp, (perSp.get(h.sp) || 0) + 1);
+  const before = new Set(perSp.keys());
+  for (const h of S.herds) {
+    const sp = SPEC[h.sp]; h.px = h.x; h.py = h.y;
+    if (rnd() < 0.7) {
+      let best = null, bw = -1;
+      for (let k = 0; k < 4; k++) {
+        const nx = h.x + rint(-1, 1), ny = h.y + rint(-1, 1); if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+        const i = ny * W + nx, b = WD.biome[i]; if (!B[b].land) continue;
+        const w = (sp.b.includes(b) ? 3 : 0.5) * (owner[i] === -1 ? 2 : 0.7) + rnd();
+        if (w > bw) { bw = w; best = [nx, ny]; }
+      }
+      if (best) { h.x = best[0]; h.y = best[1]; }
+    }
+    h.n += h.n * sp.rep * Math.max(0.2, L.fauna) * (1 - h.n / sp.max);
+    const spCap = sp.cat === 'legendaire' ? Math.ceil(3 * L.fauna) : cap;
+    if (h.n > sp.max * 0.8 && S.herds.length < cap && (perSp.get(sp.id) || 0) < spCap && rnd() < sp.rep * 0.5 * L.fauna) {
+      h.n *= 0.5; spawnHerd(sp, h.x, h.y, h.n); perSp.set(sp.id, (perSp.get(sp.id) || 0) + 1);
+    }
+    const o = owner[h.y * W + h.x];
+    if (o >= 0) { const c = CIV.get(o); if (c && c.alive) interact(h, sp, c); }
+  }
+  S.herds = S.herds.filter(h => h.n >= 0.6);
+  const after = new Set(S.herds.map(h => h.sp));
+  for (const id of before) if (!after.has(id) && !S.extinct.includes(id)) {
+    S.extinct.push(id);
+    log('fauna', `<b>Extinction :</b> le dernier ${SPEC[id].n.toLowerCase()} a disparu de la surface du monde.`, true);
+  }
+}
+function interact(h, sp, c) {
+  const L = S.laws, r = relOf(c);
+  const sacred = r && r.dogmas.includes('animal_sacre') && r.totem === sp.id;
+  if (sp.cat === 'gibier') {
+    if (sacred) return;
+    if (sp.dom && hasTech(c, 'elevage') && !c.domestic.includes(sp.id) && rnd() < 0.08) {
+      c.domestic.push(sp.id); h.n = 0;
+      log('fauna', `${tag(c)} domestique l'${sp.n.toLowerCase().replace(/^cheval sauvage$/, 'cheval sauvage')} : naissance de ${sp.domN} !`.replace("l'cheval", 'le cheval'), true);
+      return;
+    }
+    const kill = h.n * 0.025 * (1 + c.age * 0.25) * Math.max(0.2, 1 + (c.fx.hunt || 0));
+    h.n -= kill; c.huntFood += kill * sp.food * 0.5;
+    return;
+  }
+  const pw = sp.pow * L.faunaPow;
+  if (!sacred && rnd() < sp.agr * L.faunaAggr * 0.35) {
+    let city = null, bd = 6; for (const ct of citiesOf(c)) { const d = Math.hypot(ct.x - h.x, ct.y - h.y); if (d < bd) { bd = d; city = ct; } }
+    if (city) {
+      const loss = Math.min(0.2, pw * 0.004 * Math.sqrt(h.n)) * Math.max(0.12, 1 - c.age * 0.14);
+      city.pop *= 1 - loss; c.stab -= loss * 15;
+      if ((sp.cat === 'legendaire' && rnd() < 0.5) || (loss > 0.04 && rnd() < 0.25)) log('fauna', `${sp.cat === 'legendaire' ? 'Un' : 'Des'} ${sp.cat === 'legendaire' ? sp.n.toLowerCase() : sp.n.toLowerCase() + 's'} ${sp.cat === 'legendaire' ? 'ravage' : 'attaquent'} ${esc(city.name)} (${tag(c)}).`.replace('Des ours des cavernes', 'Des ours des cavernes'));
+    }
+  }
+  if (sacred) return;
+  const p = clamp(0.03 + 0.03 * c.age * Math.max(0.2, 1 + (c.fx.hunt || 0)) + c.mil / (c.mil + 60) * 0.06 - pw * 0.012, 0.01, 0.5);
+  if (rnd() < p) {
+    if (sp.cat === 'legendaire') {
+      h.n -= 1; c.huntFood += sp.food;
+      if (h.n < 0.6) { c.prestige += 4; c.stab = Math.min(100, c.stab + 5); S.stats.hunts++; log('fauna', `<b>Grande chasse :</b> les chasseurs de ${tag(c)} abattent un ${sp.n.toLowerCase()}.`, false); }
+    } else h.n *= 0.8;
+  }
+}
+
+// ---------- Événements aléatoires ----------
+function greatName(c) { return `${nameFrom(c.lang, 1, 2)} ${pick(EPITHETS)}`; }
+function randomEvents() {
+  const L = S.laws;
+  for (const c of civsAlive()) {
+    const cities = citiesOf(c); if (!cities.length) continue;
+    if (rnd() < 0.012 * L.cata) {
+      const ev = wpick(['seisme', 'secheresse', 'peste', 'inondation', 'revolte', 'sauterelles', 'incendie'], e => ({ seisme: 3, secheresse: 3, peste: c.age >= 1 && c.age <= 4 ? 2.5 : 0.6, inondation: 2, revolte: 1.2, sauterelles: 1.5, incendie: 1.5 })[e]);
+      disaster(c, ev, pick(cities), false);
+    }
+    if (rnd() < 0.007) {
+      const ev = wpick(['age_or', 'conquerant', 'savant', 'prophete', 'decouverte', 'batisseur'], e => ({ age_or: 2, conquerant: 2, savant: 2, prophete: hasTech(c, 'mysticisme') && !c.foundedRel ? 1.5 : 0, decouverte: 2, batisseur: 1.5 })[e]);
+      blessing(c, ev, false);
+    }
+  }
+}
+function disaster(c, ev, city, god) {
+  const src = god ? 'Par la colère divine, ' : '';
+  const S2 = s => god ? s.charAt(0).toLowerCase() + s.slice(1) : s;
+  switch (ev) {
+    case 'seisme': {
+      city.pop *= 0.65; for (const ct of S.cities) if (ct !== city && dist(ct, city) < 6) ct.pop *= 0.85;
+      c.stab -= 8; addFX(city.x, city.y, '#ff7a3c', 'quake');
+      log(god ? 'god' : 'dis', src + S2(`Un séisme dévaste <b>${esc(city.name)}</b> (${tag(c)}).`), true); break;
+    }
+    case 'secheresse': addMod(c, 'secheresse', 'Sécheresse', rint(6, 14), { food: -0.45, stab: -0.05 }); log(god ? 'god' : 'dis', src + S2(`Une longue sécheresse frappe ${tag(c)}.`)); break;
+    case 'sauterelles': addMod(c, 'sauterelles', 'Nuées de sauterelles', rint(2, 4), { food: -0.6 }); log(god ? 'god' : 'dis', src + S2(`Des nuées de sauterelles dévorent les récoltes de ${tag(c)}.`)); break;
+    case 'peste': {
+      if (c.mods.some(m => m.plague)) break;
+      addMod(c, 'peste', 'Peste', rint(4, 9), { growth: -0.5, stab: -0.12 }, { plague: true, sev: god ? 0.07 : 0.03 + rnd() * 0.04 });
+      addMod(c, 'immun', 'Immunité', 40, {});
+      addFX(city.x, city.y, '#9bc53d', 'ring');
+      log(god ? 'god' : 'dis', src + S2(`<b>La peste</b> éclate à ${esc(city.name)} (${tag(c)}).`), true); break;
+    }
+    case 'inondation': {
+      const hits = S.cities.filter(ct => dist(ct, city) < (god ? 7 : 3) && (WD.river[ct.y * WD.W + ct.x] || WD.nb4(ct.y * WD.W + ct.x).some(j => !B[WD.biome[j]].land)));
+      (hits.length ? hits : [city]).forEach(ct => ct.pop *= god ? 0.6 : 0.85);
+      addFX(city.x, city.y, '#4fb3e8', 'ring');
+      log(god ? 'god' : 'dis', src + S2(`${god ? 'Un déluge' : 'Une crue'} submerge ${esc(city.name)}${hits.length > 1 ? ' et ses environs' : ''} (${tag(c)}).`), god); break;
+    }
+    case 'incendie': city.pop *= 0.88; log('dis', `Un grand incendie ravage ${esc(city.name)} (${tag(c)}).`); break;
+    case 'revolte': c.stab -= 20; log('dis', `Révoltes et émeutes secouent ${tag(c)}.`); break;
+  }
+}
+function blessing(c, ev, god) {
+  const src = god ? 'Par la grâce divine, ' : '';
+  const S2 = s => god ? s.charAt(0).toLowerCase() + s.slice(1) : s;
+  switch (ev) {
+    case 'age_or': addMod(c, 'age_or', 'Âge d\'or', 25, { food: 0.2, prod: 0.2, wealth: 0.3, research: 0.25, stab: 0.1 }); log('civ', `${tag(c)} entre dans un <b>âge d'or</b>.`, true); break;
+    case 'conquerant': { const n = greatName(c); addMod(c, 'conquerant', 'Conquérant : ' + n, 30, { mil: 0.6, war: 0.6 }); log(god ? 'god' : 'civ', src + S2(`Le conquérant <b>${esc(n)}</b> prend la tête des armées de ${tag(c)}.`), true); break; }
+    case 'savant': { const n = greatName(c); const t = gainTech(c, true); addMod(c, 'savant', 'Savant : ' + n, 20, { research: 0.4 }); log('tech', `Le savant <b>${esc(n)}</b> illumine ${tag(c)}${t ? ' et découvre : <b>' + t.n + '</b>' : ''}.`); break; }
+    case 'prophete': foundReligion(c); break;
+    case 'decouverte': { const t = gainTech(c, true); if (t) log('tech', `Découverte fortuite en ${tag(c)} : <b>${t.n}</b> !`); break; }
+    case 'batisseur': { const n = greatName(c); addMod(c, 'batisseur', 'Bâtisseur : ' + n, 25, { prod: 0.4, stab: 0.05 }); log('civ', `Le grand bâtisseur <b>${esc(n)}</b> élève des merveilles en ${tag(c)}.`); break; }
+  }
+}
+
+// ---------- Pouvoirs divins ----------
+const POWERS = [
+  { id: 'seisme', ic: '🌋', n: 'Séisme', d: 'Clique près d\'une ville' },
+  { id: 'secheresse', ic: '☀️', n: 'Sécheresse', d: 'Clique sur un territoire' },
+  { id: 'peste', ic: '☠️', n: 'Peste', d: 'Clique sur un territoire' },
+  { id: 'deluge', ic: '🌊', n: 'Déluge', d: 'Clique près d\'une ville' },
+  { id: 'recolte', ic: '🌾', n: 'Récolte', d: 'Récolte miraculeuse sur un territoire' },
+  { id: 'prophete', ic: '✨', n: 'Prophète', d: 'Fait naître un prophète' },
+  { id: 'heros', ic: '⚔️', n: 'Héros', d: 'Fait naître un conquérant' },
+  { id: 'benir', ic: '🙏', n: 'Bénir', d: 'Bénit une civilisation (40 ans)' },
+  { id: 'maudire', ic: '💀', n: 'Maudire', d: 'Maudit une civilisation (40 ans)' },
+  { id: 'faune', ic: '🐾', n: 'Faune', d: 'Fait apparaître l\'espèce choisie' },
+];
+function applyPower(pid, x, y) {
+  const i = y * WD.W + x, o = owner[i], c = o >= 0 ? CIV.get(o) : null;
+  let city = null, bd = 6; for (const ct of S.cities) { const d = Math.hypot(ct.x - x, ct.y - y); if (d < bd) { bd = d; city = ct; } }
+  const cc = c || (city ? CIV.get(city.civ) : null);
+  const need = () => { if (!cc || !cc.alive) { hint('Il faut viser une civilisation.'); return false; } return true; };
+  const cityOf = () => city && city.civ === cc.id ? city : (citiesOf(cc)[0]);
+  switch (pid) {
+    case 'seisme': if (!city) return hint('Aucune ville assez proche.'); disaster(CIV.get(city.civ), 'seisme', city, true); break;
+    case 'deluge': if (!city) return hint('Aucune ville assez proche.'); disaster(CIV.get(city.civ), 'inondation', city, true); break;
+    case 'secheresse': if (!need()) return; addMod(cc, 'secheresse', 'Sécheresse divine', 15, { food: -0.55, stab: -0.08 }); addFX(x, y, '#ffcf70', 'ring'); log('god', `Le démiurge assèche les terres de ${tag(cc)}.`, true); break;
+    case 'peste': if (!need()) return; cc.mods = cc.mods.filter(m => m.id !== 'immun'); disaster(cc, 'peste', cityOf(), true); break;
+    case 'recolte': if (!need()) return; addMod(cc, 'recolte', 'Récolte miraculeuse', 20, { food: 0.6, growth: 0.3 }); for (const ct of citiesOf(cc)) ct.pop *= 1.1; cc.mods = cc.mods.filter(m => m.id !== 'secheresse' && m.id !== 'sauterelles'); addFX(x, y, '#f5e27a', 'ring'); log('god', `Une récolte miraculeuse comble ${tag(cc)}.`, true); break;
+    case 'prophete': { if (!need()) return; cc.foundedRel = false; const ct = cityOf(); const old = cc.capital; if (ct) cc.capital = ct.id; const r = foundReligion(cc); cc.capital = old; if (r) { addFX(x, y, r.color, 'ring'); log('god', `Le démiurge a parlé à travers un prophète en ${tag(cc)}.`); } break; }
+    case 'heros': if (!need()) return; blessing(cc, 'conquerant', true); addFX(x, y, '#e5534b', 'ring'); break;
+    case 'benir': if (!need()) return; addMod(cc, 'benediction', 'Bénédiction divine', 40, { food: 0.3, prod: 0.3, wealth: 0.3, research: 0.3, stab: 0.2 }); cc.mods = cc.mods.filter(m => m.id !== 'malediction'); addFX(x, y, '#ffd75e', 'ring'); log('god', `Le démiurge bénit ${tag(cc)}.`, true); break;
+    case 'maudire': if (!need()) return; addMod(cc, 'malediction', 'Malédiction divine', 40, { food: -0.3, prod: -0.3, wealth: -0.3, research: -0.3, stab: -0.25 }); cc.mods = cc.mods.filter(m => m.id !== 'benediction'); addFX(x, y, '#a77bd1', 'ring'); log('god', `Le démiurge maudit ${tag(cc)}.`, true); break;
+    case 'faune': {
+      const sp = SPEC[document.getElementById('faunaSel').value];
+      if (!B[WD.biome[i]].land) return hint('Les animaux ont besoin de terre ferme.');
+      const n = sp.cat === 'legendaire' ? 1 : 3;
+      for (let k = 0; k < n; k++) spawnHerd(sp, clamp(x + rint(-1, 1), 0, WD.W - 1), clamp(y + rint(-1, 1), 0, WD.H - 1), sp.max);
+      addFX(x, y, sp.col, 'ring');
+      log('god', `Le démiurge fait surgir ${sp.cat === 'legendaire' ? 'un ' + sp.n.toLowerCase() : 'des hardes de ' + sp.n.toLowerCase() + 's'}${cc ? ' sur les terres de ' + tag(cc) : ' dans les terres sauvages'}.`);
+      break;
+    }
+  }
+  UI.dirtyPanels = true;
+}
+
+// ---------- Historique / sauvegarde ----------
+function recordHist() {
+  const c = {};
+  for (const x of civsAlive()) c[x.id] = [Math.round(x.pop || civPop(x)), Math.round(x.mil), Math.round(x.wealth), x.base.t];
+  S.hist.push({ y: S.year, c });
+}
+function serialize() { S.rngS = RS; S.owner = Array.from(owner); S.contacts = [...CONTACT]; const s = JSON.stringify(S); S.owner = null; return s; }
+function loadState(o) {
+  if (!o || !o.seed || !o.owner) throw new Error('Fichier invalide');
+  S = o; RS = S.rngS || 1;
+  WD = genWorld(S.seed, S.params.size, S.params.water);
+  owner = Int16Array.from(S.owner); S.owner = null;
+  CIV = new Map(S.civs.map(c => [c.id, c])); CITY = new Map(S.cities.map(c => [c.id, c])); REL = new Map(S.religions.map(r => [r.id, r]));
+  CBY = null; CONTACT = new Set(S.contacts || []);
+  recomputeBases();
+  for (const c of S.civs) c.fx = fxOf(c);
+  renderTerrain();
+  UI.sel = null; UI.overlayDirty = true;
+  rebuildChron(); buildLaws(); centerCam();
+  document.getElementById('mEnd').classList.remove('show');
+}
+function autosave() { try { localStorage.setItem('djad_autosave', serialize()); } catch (e) { } }
+function download(name, text, type = 'application/json') {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+// ============================================================
+//  RENDU
+// ============================================================
+const cv = document.getElementById('map'), ctx = cv.getContext('2d');
+let VW = 0, VH = 0, DPR = 1;
+const cam = { x: 0, y: 0, z: 1 };
+function resize() {
+  DPR = Math.min(2, window.devicePixelRatio || 1); VW = innerWidth; VH = innerHeight;
+  cv.width = VW * DPR; cv.height = VH * DPR;
+  const tl = document.getElementById('timeline'); tl.width = tl.clientWidth * DPR; tl.height = tl.clientHeight * DPR;
+}
+function centerCam() {
+  if (!WD) return;
+  cam.x = WD.W * TS / 2; cam.y = WD.H * TS / 2;
+  const availW = VW - (UI.collapsed || VW < 900 ? 20 : 660), availH = VH - 190;
+  cam.z = clamp(Math.min(availW / (WD.W * TS), availH / (WD.H * TS)), 0.3, 6);
+  if (!UI.collapsed && VW >= 900) cam.x -= 10 / cam.z;
+}
+function hexA(h, a) { const [r, g, b] = hex2rgb(h); return `rgba(${r},${g},${b},${a})`; }
+
+const SPR = [
+  ['...d...', '..dwd..', '.dwwwd.', 'dwwwwwd', '.wwrww.', '.wwrww.', 'ddddddd'],
+  ['...d...', '..dwd..', '.dwwwd.', 'ddddddd', '.l.l.l.', '.l.l.l.', 'ddddddd'],
+  ['d.d.d.d', 'wwwwwww', 'wywwwyw', 'wwwwwww', 'wwdddww', 'wwdddww', 'ddddddd'],
+  ['...y...', '..ddd..', '.dwwwd.', 'dwwwwwd', 'lylylyl', 'lllllll', 'ddddddd'],
+  ['.g...g.', '.d...d.', '.d.d.d.', 'dwdwdwd', 'wywwyww', 'wwwwwww', 'ddddddd'],
+  ['..l....', '..yl.l.', 'l.ly.yl', 'y.yl.ly', 'l.ly.yl', 'lllllll', 'ddddddd'],
+  ['...y...', '..lll..', '.llwll.', 'llwwwll', 'lwwywwl', 'lwwwwwl', 'ddddddd'],
+];
+const SPR_ARMY = ['dww..', 'dwww.', 'dww..', 'd....', 'd....'];
+const SPR_GAME = ['...c.', '...cc', 'cccc.', 'c..c.'];
+const SPR_PRED = ['c..c.', 'cccce', '.ccc.', 'c..c.'];
+const SPR_LEG = ['..ccc..', '.ccccce', 'ccccccc', 'cc.c.cc', 'c..c..c'];
+function drawSpr(spr, sx, sy, ps, pal) {
+  const w = spr[0].length, h = spr.length, x0 = Math.round(sx - w * ps / 2), y0 = Math.round(sy - h * ps);
+  for (let r = 0; r < h; r++) { const row = spr[r]; for (let k = 0; k < w; k++) { const ch = row[k]; if (ch === '.') continue; ctx.fillStyle = pal[ch] || '#f0f'; ctx.fillRect(x0 + k * ps, y0 + r * ps, ps, ps); } }
+}
+function shade(h, f) { const [r, g, b] = hex2rgb(h); return `rgb(${r * f | 0},${g * f | 0},${b * f | 0})`; }
+
+function redrawOverlay() {
+  const { W, H } = WD, IW = W * OV, d = ovImg.data; d.fill(0);
+  const relMode = UI.mode === 'rel';
+  const cols = new Map(); for (const c of S.civs) cols.set(c.id, hex2rgb(c.color));
+  const relCols = new Map(); for (const r of S.religions) relCols.set(r.id, hex2rgb(r.color));
+  const cen = new Map();
+  const cby = cbyAll();
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, o = owner[i]; if (o < 0) continue;
+    const cc = cols.get(o); if (!cc) continue;
+    let fill = cc;
+    if (relMode) {
+      let best = null, bd = 1e9; for (const ct of cby.get(o) || []) { const dd = (ct.x - x) ** 2 + (ct.y - y) ** 2; if (dd < bd) { bd = dd; best = ct; } }
+      fill = best && best.rel != null ? relCols.get(best.rel) || [90, 90, 90] : [70, 70, 78];
+    }
+    let e = cen.get(o); if (!e) cen.set(o, e = [0, 0, 0]); e[0] += x; e[1] += y; e[2]++;
+    const sel = o === UI.sel, fa = relMode ? 150 : sel ? 125 : 72;
+    const l = x > 0 ? owner[i - 1] : -2, r = x < W - 1 ? owner[i + 1] : -2, u = y > 0 ? owner[i - W] : -2, dn2 = y < H - 1 ? owner[i + W] : -2;
+    for (let sy = 0; sy < OV; sy++) for (let sx = 0; sx < OV; sx++) {
+      const edge = (sx === 0 && l !== o) || (sx === OV - 1 && r !== o) || (sy === 0 && u !== o) || (sy === OV - 1 && dn2 !== o);
+      const p = ((y * OV + sy) * IW + x * OV + sx) * 4;
+      if (edge) { d[p] = cc[0]; d[p + 1] = cc[1]; d[p + 2] = cc[2]; d[p + 3] = sel ? 255 : 220; }
+      else { d[p] = fill[0]; d[p + 1] = fill[1]; d[p + 2] = fill[2]; d[p + 3] = fa; }
+    }
+  }
+  ovCtx.putImageData(ovImg, 0, 0);
+  UI.centroids = cen;
+  UI.overlayDirty = false;
+}
+
+function addFX(x, y, col, type) { if (UI.speed > 16 || UI.bulk) return; FX.push({ x, y, col, type, t0: performance.now() }); if (FX.length > 6) FX.shift(); }
+
+function draw(now) {
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = '#0a1830'; ctx.fillRect(0, 0, VW, VH);
+  if (!WD) return;
+  if (UI.overlayDirty && now - UI.lastOv > 250) { redrawOverlay(); UI.lastOv = now; }
+  const z = cam.z;
+  let ox = VW / 2 - cam.x * z, oy = VH / 2 - cam.y * z;
+  // tremblement
+  for (const f of FX) if (f.type === 'quake' && now - f.t0 < 700) { ox += (Math.random() - 0.5) * 6; oy += (Math.random() - 0.5) * 6; }
+  ctx.imageSmoothingEnabled = false;
+  ctx.setTransform(DPR * z, 0, 0, DPR * z, DPR * ox, DPR * oy);
+  ctx.drawImage(terrainCv, 0, 0);
+  // reflets
+  const t = now / 1000;
+  ctx.fillStyle = 'rgba(200,230,255,.55)';
+  for (const [i, ph] of WD.sparkle) { const v = (t * 0.35 + ph * 7) % 1; if (v < 0.12) { const X = (i % WD.W) * TS + Math.floor(ph * 6), Y = ((i / WD.W) | 0) * TS + 3 + Math.floor(v * 20) % 3; ctx.fillRect(X, Y, 2, 1); } }
+  ctx.drawImage(ovCv, 0, 0, ovCv.width, ovCv.height, 0, 0, WD.W * TS, WD.H * TS);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const tsx = wx => ox + wx * z, tsy = wy => oy + wy * z;
+  const ps = clamp(Math.round(z * 0.75), 1, 5);
+  const fr = UI.frac;
+  // faune
+  for (const h of S.herds) {
+    const sp = SPEC[h.sp];
+    const x = h.px + (h.x - h.px) * fr, y = h.py + (h.y - h.py) * fr;
+    const sx = tsx(x * TS + 4), sy = tsy(y * TS + 6);
+    if (sx < -20 || sy < -20 || sx > VW + 20 || sy > VH + 20) continue;
+    const spr = sp.cat === 'legendaire' ? SPR_LEG : sp.cat === 'predateur' ? SPR_PRED : SPR_GAME;
+    const aps = Math.max(1, ps - 1);
+    drawSpr(spr, sx, sy, aps, { c: sp.col, e: '#ff3b3b' });
+    if (sp.cat === 'gibier' && h.n > sp.max * 0.5) drawSpr(spr, sx + 4 * aps, sy + 2 * aps, aps, { c: shade(sp.col, 0.8) });
+  }
+  // villes
+  const showNames = z >= 2.2;
+  ctx.font = `${showNames ? 12 : 10}px 'Pixelify Sans', monospace`; ctx.textAlign = 'center';
+  for (const ct of S.cities) {
+    const c = CIV.get(ct.civ); if (!c) continue;
+    const sx = tsx(ct.x * TS + 4), sy = tsy(ct.y * TS + 7);
+    if (sx < -30 || sy < -30 || sx > VW + 30 || sy > VH + 30) continue;
+    const big = ct.id === c.capital || ct.pop > 50000 * (1 + c.age) ? 1 : 0;
+    const cps = ps + big;
+    drawSpr(SPR[c.age], sx, sy, cps, { w: c.color, r: shade(c.color, 0.55), d: '#14161c', l: '#ece6d6', y: '#ffd75e', g: '#9aa0aa' });
+    if (c.capital === ct.id) { ctx.fillStyle = '#ffd75e'; const s = cps; ctx.fillRect(Math.round(sx - s / 2), Math.round(sy - 7 * cps - s * 2.5), s, s); ctx.fillRect(Math.round(sx - s * 1.5), Math.round(sy - 7 * cps - s * 1.5), s * 3, s); }
+    if (showNames) {
+      ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.75)'; ctx.fillStyle = '#fff';
+      const label = ct.name + (z > 3 ? ' · ' + fmt(ct.pop) : '');
+      ctx.strokeText(label, sx, sy + 12); ctx.fillText(label, sx, sy + 12);
+    }
+  }
+  // armées
+  for (const ar of S.armies) {
+    const c = CIV.get(ar.civ); if (!c) continue;
+    const x = ar.px + (ar.x - ar.px) * fr, y = ar.py + (ar.y - ar.py) * fr;
+    const sx = tsx(x * TS + 4), sy = tsy(y * TS + 4);
+    const tg = CITY.get(ar.tid);
+    if (tg) { ctx.strokeStyle = hexA(c.color, 0.45); ctx.setLineDash([3, 4]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tsx(tg.x * TS + 4), tsy(tg.y * TS + 4)); ctx.stroke(); ctx.setLineDash([]); }
+    drawSpr(SPR_ARMY, sx + ps, sy, ps, { w: c.color, d: '#14161c' });
+  }
+  // noms des civilisations
+  if (!showNames && UI.centroids) {
+    ctx.textAlign = 'center';
+    for (const [id, e] of UI.centroids) {
+      const c = CIV.get(id); if (!c || !c.alive || e[2] < 12) continue;
+      const fs = clamp(8 + Math.sqrt(e[2]) * 0.55 * z, 11, 22);
+      ctx.font = `600 ${fs}px 'Pixelify Sans', monospace`;
+      const sx = tsx((e[0] / e[2]) * TS + 4), sy = tsy((e[1] / e[2]) * TS + 4) - 14;
+      ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.7)'; ctx.strokeText(c.name.toUpperCase(), sx, sy);
+      ctx.fillStyle = c.color; ctx.fillText(c.name.toUpperCase(), sx, sy);
+    }
+  }
+  // effets
+  for (let k = FX.length - 1; k >= 0; k--) {
+    const f = FX[k], a = (now - f.t0) / 1600; if (a > 1) { FX.splice(k, 1); continue; }
+    const sx = tsx(f.x * TS + 4), sy = tsy(f.y * TS + 4);
+    ctx.strokeStyle = hexA(f.col, 1 - a); ctx.lineWidth = 3;
+    const r = 4 + a * 26;
+    ctx.strokeRect(Math.round(sx - r), Math.round(sy - r), Math.round(r * 2), Math.round(r * 2));
+  }
+  // survol
+  if (UI.hoverTile >= 0 && UI.power) {
+    const x = UI.hoverTile % WD.W, y = (UI.hoverTile / WD.W) | 0;
+    ctx.strokeStyle = '#ffd75e'; ctx.lineWidth = 2; ctx.strokeRect(tsx(x * TS), tsy(y * TS), TS * z, TS * z);
+  }
+}
+
+// ============================================================
+//  INTERFACE
+// ============================================================
+const $ = id => document.getElementById(id);
+function hint(t) { const h = $('hint'); h.textContent = t; h.style.display = 'block'; clearTimeout(hint.t); hint.t = setTimeout(() => h.style.display = UI.power ? 'block' : 'none', 1600); if (UI.power) hint.t2 = setTimeout(() => { h.textContent = POWERS.find(p => p.id === UI.power)?.d || ''; }, 1600); }
+
+function buildSpeeds() {
+  const el = $('speeds'); el.innerHTML = '';
+  SPEEDS.forEach((s, k) => {
+    const b = document.createElement('button'); b.className = 'btn' + (UI.speed === s ? ' on' : ''); b.textContent = s === 0 ? '⏸' : '×' + s;
+    b.title = s === 0 ? 'Pause (Espace)' : s + ' an(s) par seconde (touche ' + k + ')';
+    b.onclick = () => setSpeed(s); el.appendChild(b);
+  });
+}
+function setSpeed(s) { UI.speed = s; if (s > 0) UI.lastSpeed = s; buildSpeeds(); }
+
+function buildPowers() {
+  const el = $('powers');
+  el.innerHTML = '<span class="lbl">✦ Pouvoirs</span>';
+  for (const p of POWERS) {
+    const b = document.createElement('button'); b.className = 'btn'; b.dataset.p = p.id; b.title = p.d; b.textContent = p.ic + ' ' + p.n;
+    b.onclick = () => selectPower(UI.power === p.id ? null : p.id);
+    el.appendChild(b);
+    if (p.id === 'faune') {
+      const s = document.createElement('select'); s.id = 'faunaSel';
+      const groups = { gibier: 'Gibier', predateur: 'Prédateurs', legendaire: 'Bêtes légendaires' };
+      for (const g in groups) { const og = document.createElement('optgroup'); og.label = groups[g]; D.species.filter(x => x.cat === g).forEach(x => { const o = document.createElement('option'); o.value = x.id; o.textContent = x.n; og.appendChild(o); }); s.appendChild(og); }
+      el.appendChild(s);
+    }
+  }
+}
+function selectPower(id) {
+  UI.power = id;
+  document.querySelectorAll('#powers .btn').forEach(b => b.classList.toggle('on', b.dataset.p === id));
+  cv.classList.toggle('power', !!id);
+  const h = $('hint');
+  if (id) { h.textContent = POWERS.find(p => p.id === id).d + ' — Échap pour annuler'; h.style.display = 'block'; } else h.style.display = 'none';
+}
+
+function lawsHTML(prefix) {
+  return D.laws.map(l => `<div class="fld"><label>${l.n} <b id="${prefix}v_${l.id}"></b></label><input type="range" id="${prefix}_${l.id}" min="${l.min}" max="${l.max}" step="${l.step}"></div>`).join('');
+}
+function lawLabel(v) { return '×' + (+v).toFixed(v < 10 ? (Number.isInteger(+v * 10) ? 1 : 2) : 0); }
+function buildLaws() {
+  $('lawsBody').innerHTML = lawsHTML('L');
+  for (const l of D.laws) {
+    const inp = $('L_' + l.id); inp.value = S.laws[l.id]; $('Lv_' + l.id).textContent = lawLabel(inp.value);
+    inp.oninput = () => { S.laws[l.id] = +inp.value; $('Lv_' + l.id).textContent = lawLabel(inp.value); };
+    inp.onchange = () => log('god', `Le démiurge modifie une loi du monde : ${l.n.toLowerCase()} ${lawLabel(inp.value)}.`);
+  }
+}
+
+// ---------- Chronique ----------
+function evHTML(e) { return `<div class="ev ${e.t}${e.m ? ' m' : ''}"><span class="y">An ${e.y}</span>${e.h}</div>`; }
+function rebuildChron() {
+  const list = S.chron.filter(e => !UI.majorOnly || e.m).slice(-250).reverse();
+  $('chron').innerHTML = list.map(evHTML).join('');
+  UI.pending = [];
+}
+function flushChron() {
+  if (!UI.pending.length) return;
+  const items = UI.pending.filter(e => !UI.majorOnly || e.m); UI.pending = [];
+  if (!items.length) return;
+  const el = $('chron');
+  el.insertAdjacentHTML('afterbegin', items.slice(-60).reverse().map(evHTML).join(''));
+  while (el.children.length > 250) el.lastChild.remove();
+}
+
+// ---------- Panneaux ----------
+function renderCivList() {
+  const civs = S.civs.slice().sort((a, b) => (b.alive - a.alive) || (b.pop - a.pop)).filter(c => c.alive || S.year - c.died < 300);
+  $('civCount').textContent = civsAlive().length + ' en vie';
+  $('civlist').innerHTML = civs.map(c => `<div class="crow${c.id === UI.sel ? ' sel' : ''}${c.alive ? '' : ' dead'}" data-id="${c.id}"><span class="sw" style="background:${c.color}"></span><span class="nm">${esc(dn(c))}${c.alive ? '' : ' ✝'}</span><span class="pp">${c.alive ? fmt(c.pop) : 'An ' + c.died}</span></div>`).join('');
+}
+function bar(v, col) { return `<div class="bar"><i style="width:${clamp(v, 0, 100)}%;background:${col}"></i></div>`; }
+function renderDetail() {
+  const el = $('detail'); const c = UI.sel != null ? CIV.get(UI.sel) : null;
+  if (!c) { el.innerHTML = '<div class="empty">Clique sur une civilisation ou sur la carte.<br><br>🖱 Glisser : déplacer · Molette : zoom<br>Espace : pause · 1-5 : vitesse</div>'; return; }
+  const cities = citiesOf(c), r = relOf(c), cap = CITY.get(c.capital);
+  const wars = warsOf(c).map(w => CIV.get(w.a === c.id ? w.b : w.a)).filter(Boolean);
+  const vassals = S.civs.filter(o => o.alive && o.overlord === c.id);
+  const ageT = TECH_BY_AGE[c.age], own = ageT.filter(t => c.techs.includes(t.id)).length;
+  const lastTech = c.techs.length ? TECH[c.techs[c.techs.length - 1]].n : '—';
+  const stCol = c.stab > 60 ? 'var(--good)' : c.stab > 30 ? 'var(--acc)' : 'var(--bad)';
+  el.innerHTML = `
+    <h3 style="color:${c.color}">${esc(dn(c))}</h3>
+    <div class="sub">${GOV[c.gov].n} · ${D.ages[c.age]} · ${c.alive ? 'fondée en l\'An ' + c.founded : 'disparue en l\'An ' + c.died}</div>
+    <div class="tags">${c.traits.map(t => `<span class="tag">${TRAIT[t].n}</span>`).join('')}${c.domestic.map(s => `<span class="tag">🐎 ${SPEC[s].n}</span>`).join('')}</div>
+    <div class="kv">
+      <span>Population</span><span>${fmt(c.pop)} / ${fmt(c.cap)}</span>
+      <span>Villes</span><span>${cities.length}${cap ? ' · capitale ' + esc(cap.name) : ''}</span>
+      <span>Territoire</span><span>${c.base.t} tuiles</span>
+      <span>Production</span><span>${c.prod.toFixed(0)} /an</span>
+      <span>Richesse</span><span>${c.wealth.toFixed(0)} /an · trésor ${fmt(c.treasury)}</span>
+      <span>Puissance</span><span>${fmt(c.mil)}</span>
+      <span>Religion</span><span>${rtag(r)}</span>
+    </div>
+    <div style="font-size:12px;color:var(--dim)">Stabilité ${Math.round(c.stab)}%</div>${bar(c.stab, stCol)}
+    <div style="font-size:12px;color:var(--dim);margin-top:6px">Recherche (${own}/${ageT.length} techs de l'âge) — dernière : ${lastTech}</div>${bar(c.research / D.techCost[c.age] * 100, 'var(--acc2)')}
+    ${r ? `<div class="sec">✝ Foi</div><div style="font-size:12px">${r.dogmas.map(d => DOGMA[d].n).join(' · ')}${r.dogmas.includes('animal_sacre') ? ' · animal sacré : ' + SPEC[r.totem].n : ''}</div>` : ''}
+    <div class="sec">⚔ Relations</div>
+    <div style="font-size:12px;line-height:1.7">
+      ${wars.length ? 'En guerre contre : ' + wars.map(tag).join(', ') + '<br>' : 'En paix.<br>'}
+      ${c.allies.length ? 'Alliés : ' + c.allies.map(id => tag(CIV.get(id))).join(', ') + '<br>' : ''}
+      ${c.overlord != null ? 'Vassal de ' + tag(CIV.get(c.overlord)) + '<br>' : ''}
+      ${vassals.length ? 'Vassaux : ' + vassals.map(tag).join(', ') + '<br>' : ''}
+      ${neighborsHTML(c)}
+    </div>
+    ${c.mods.filter(m => m.id !== 'immun').length ? `<div class="sec">✦ Effets en cours</div><div class="tags">${c.mods.filter(m => m.id !== 'immun').map(m => `<span class="tag">${esc(m.name)} (${m.until - S.year} ans)</span>`).join('')}</div>` : ''}
+    <div class="sec">🏛 Villes</div>
+    <div style="font-size:12px;columns:2">${cities.slice().sort((a, b) => b.pop - a.pop).map(ct => `<div>${ct.id === c.capital ? '★ ' : ''}${esc(ct.name)} <span style="color:var(--dim)">${fmt(ct.pop)}</span></div>`).join('')}</div>`;
+}
+function neighborsHTML(c) {
+  const ns = [];
+  for (const k of CONTACT) { const [a, b] = k.split('-').map(Number); if (a === c.id || b === c.id) { const o = CIV.get(a === c.id ? b : a); if (o && o.alive) ns.push(o); } }
+  if (!ns.length) return '<span style="color:var(--dim)">Aucun voisin connu.</span>';
+  return 'Voisins : ' + ns.map(o => { const v = Math.round(getRel(c, o)); return `${tag(o)} <span style="color:${v > 20 ? 'var(--good)' : v < -20 ? 'var(--bad)' : 'var(--dim)'}">(${v > 0 ? '+' : ''}${v})</span>`; }).join(', ');
+}
+function selectCiv(id, focus) {
+  UI.sel = id; UI.overlayDirty = true; renderCivList(); renderDetail();
+  if (focus) { const c = CIV.get(id), ct = c && CITY.get(c.capital); if (ct) { cam.x = ct.x * TS + 4; cam.y = ct.y * TS + 4; cam.z = Math.max(cam.z, 2); } }
+}
+
+// ---------- Frise ----------
+const TCOL = { war: '#e5534b', peace: '#57c785', rel: '#b07cd8', tech: '#4fb3e8', gov: '#f2c14e', dis: '#ef8a3c', fauna: '#a8794a', civ: '#e7eaf2', god: '#3cc6c0' };
+function drawTimeline() {
+  const tl = $('timeline'), c = tl.getContext('2d'), w = tl.width / DPR, h = tl.height / DPR;
+  c.setTransform(DPR, 0, 0, DPR, 0, 0); c.clearRect(0, 0, w, h);
+  const X = y => 4 + (y / END) * (w - 8);
+  c.fillStyle = '#151b29'; c.fillRect(0, 14, w, h - 14);
+  c.fillStyle = 'rgba(242,193,78,.18)'; c.fillRect(X(0), 14, X(S.year) - X(0), h - 14);
+  c.globalAlpha = 0.55;
+  for (const e of S.chron) { if (!e.m) continue; c.fillStyle = TCOL[e.t] || '#fff'; const row = { war: 0, peace: 0, civ: 1, gov: 1, tech: 2, rel: 2, dis: 3, fauna: 3, god: 3 }[e.t] || 0, rh = (h - 22) / 4; c.fillRect(Math.round(X(e.y)), 18 + row * rh, 1, rh - 1); }
+  c.globalAlpha = 1;
+  c.font = "11px 'Pixelify Sans', monospace"; c.fillStyle = '#8f98ad'; c.textAlign = 'center';
+  for (let y = 0; y <= END; y += 500) { c.fillText(y === 0 ? 'An 1' : 'An ' + y, clamp(X(y), 20, w - 24), 10); c.fillRect(Math.round(X(y)), 12, 1, 3); }
+  c.fillStyle = '#f2c14e'; c.fillRect(Math.round(X(S.year)) - 1, 12, 3, h - 12);
+}
+
+// ---------- Stats ----------
+const STAT_TABS = ['Population', 'Puissance', 'Richesse', 'Territoire'];
+function openStats() {
+  $('statTabs').innerHTML = STAT_TABS.map((t, k) => `<button class="btn${k === UI.statTab ? ' on' : ''}" data-k="${k}">${t}</button>`).join('');
+  $('statTabs').querySelectorAll('button').forEach(b => b.onclick = () => { UI.statTab = +b.dataset.k; openStats(); });
+  $('mStats').classList.add('show');
+  requestAnimationFrame(drawChart);
+}
+function drawChart() {
+  const el = $('chart'), w = el.clientWidth, h = el.clientHeight; el.width = w * DPR; el.height = h * DPR;
+  const c = el.getContext('2d'); c.setTransform(DPR, 0, 0, DPR, 0, 0); c.clearRect(0, 0, w, h);
+  const k = UI.statTab, H = S.hist; if (H.length < 2) { c.fillStyle = '#8f98ad'; c.fillText('Pas encore assez d\'histoire…', 20, 30); return; }
+  let max = 1; for (const s of H) for (const id in s.c) max = Math.max(max, s.c[id][k]);
+  const pad = { l: 54, r: 12, t: 12, b: 24 };
+  const X = y => pad.l + (y / Math.max(S.year, 100)) * (w - pad.l - pad.r), Y = v => h - pad.b - (v / max) * (h - pad.t - pad.b);
+  c.strokeStyle = '#232a3c'; c.fillStyle = '#8f98ad'; c.font = "11px 'Inter', sans-serif"; c.lineWidth = 1;
+  for (let g = 0; g <= 4; g++) { const v = max * g / 4, y = Y(v); c.beginPath(); c.moveTo(pad.l, y); c.lineTo(w - pad.r, y); c.stroke(); c.textAlign = 'right'; c.fillText(fmt(v), pad.l - 6, y + 4); }
+  c.textAlign = 'center'; for (let y = 0; y <= S.year; y += S.year > 1500 ? 500 : 250) c.fillText('An ' + y, X(y), h - 6);
+  const shown = [];
+  for (const civ of S.civs) {
+    c.strokeStyle = civ.color; c.lineWidth = civ.id === UI.sel ? 3 : 1.6; c.globalAlpha = civ.alive ? 1 : 0.45; c.beginPath(); let started = false;
+    for (const s of H) { const v = s.c[civ.id]; if (!v) { started = false; continue; } const px = X(s.y), py = Y(v[k]); if (!started) { c.moveTo(px, py); started = true; } else c.lineTo(px, py); }
+    c.stroke(); c.globalAlpha = 1; shown.push(civ);
+  }
+  $('chartLegend').innerHTML = shown.filter(c => c.alive).map(c => `<span class="tag"><span class="sw" style="display:inline-block;vertical-align:-1px;background:${c.color}"></span> ${esc(c.name)}</span>`).join('');
+}
+
+// ---------- Fin ----------
+function endGame() {
+  S.ended = true; setSpeed(0);
+  log('god', '<b>L\'An 3000 est venu.</b> Le démiurge contemple son œuvre.', true);
+  const alive = civsAlive().sort((a, b) => b.pop - a.pop);
+  const extinct = S.extinct.map(id => SPEC[id].n);
+  const oldest = alive.slice().sort((a, b) => a.founded - b.founded)[0];
+  $('endBody').innerHTML = `
+    <h2>🏆 Classement des civilisations</h2>
+    <table class="rk"><tr><th>#</th><th>Civilisation</th><th>Population</th><th>Villes</th><th>Âge</th><th>Religion</th></tr>
+    ${alive.map((c, k) => `<tr><td>${k + 1}</td><td>${tag(c)}</td><td>${fmt(c.pop)}</td><td>${citiesOf(c).length}</td><td>${D.ages[c.age]}</td><td>${rtag(relOf(c))}</td></tr>`).join('')}</table>
+    <h2>📊 Records</h2>
+    <div class="records">
+      <div><span>Plus vaste empire :</span> ${esc(S.peak.tilesCiv)} (${S.peak.tiles} tuiles, An ${S.peak.tilesYear})</div>
+      <div><span>Plus peuplé :</span> ${esc(S.peak.popCiv)} (${fmt(S.peak.pop)}, An ${S.peak.popYear})</div>
+      <div><span>Doyenne des survivantes :</span> ${oldest ? tag(oldest) + ' (An ' + oldest.founded + ')' : '—'}</div>
+      <div><span>Guerres :</span> ${S.stats.wars} · <span>villes conquises :</span> ${S.stats.captures}</div>
+      <div><span>Civilisations disparues :</span> ${S.stats.deadCivs} · <span>sécessions :</span> ${S.stats.secessions}</div>
+      <div><span>Religions fondées :</span> ${S.stats.religions} · <span>schismes :</span> ${S.stats.schisms}</div>
+      <div><span>Révolutions :</span> ${S.stats.revolutions} · <span>villes fondées :</span> ${S.stats.cities}</div>
+      <div><span>Espèces éteintes :</span> ${extinct.length ? extinct.join(', ') : 'aucune'}</div>
+    </div>`;
+  $('mEnd').classList.add('show');
+  autosave();
+}
+function chronText() { return `Dieu Joue aux Dés — Chronique du monde « ${S.seed} »\n\n` + S.chron.map(e => `An ${e.y} — ${e.h.replace(/<[^>]+>/g, '')}`).join('\n'); }
+
+// ---------- Tuile survolée ----------
+function tileInfo(i) {
+  const el = $('tileinfo');
+  if (i < 0) { el.style.display = 'none'; return; }
+  const x = i % WD.W, y = (i / WD.W) | 0, b = B[WD.biome[i]], o = owner[i];
+  let s = `<b>${b.n}</b>${WD.river[i] ? ' · rivière' : ''}${WD.res[i] >= 0 ? ' · ' + D.resources[WD.res[i]].n : ''}`;
+  if (o >= 0) s += `<br>${tag(CIV.get(o))}`;
+  const ct = S.cities.find(c => c.x === x && c.y === y);
+  if (ct) s += `<br>🏛 <b>${esc(ct.name)}</b> · ${fmt(ct.pop)} hab. · ${rtag(REL.get(ct.rel))}`;
+  const hs = S.herds.filter(h => Math.abs(h.x - x) <= 0 && Math.abs(h.y - y) <= 0);
+  for (const h of hs) s += `<br>🐾 ${SPEC[h.sp].n} (${Math.ceil(h.n)})`;
+  el.innerHTML = s; el.style.display = 'block';
+}
+
+// ---------- Contrôles carte ----------
+let drag = null;
+function screenToTile(mx, my) {
+  const x = Math.floor(((mx - VW / 2) / cam.z + cam.x) / TS), y = Math.floor(((my - VH / 2) / cam.z + cam.y) / TS);
+  if (!WD || x < 0 || y < 0 || x >= WD.W || y >= WD.H) return -1; return y * WD.W + x;
+}
+cv.addEventListener('mousedown', e => { drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moved: false }; });
+window.addEventListener('mousemove', e => {
+  if (drag) {
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (Math.abs(dx) + Math.abs(dy) > 4) { drag.moved = true; cv.classList.add('dragging'); }
+    if (drag.moved) { cam.x = drag.cx - dx / cam.z; cam.y = drag.cy - dy / cam.z; }
+  }
+  if (e.target === cv && S) { UI.hoverTile = screenToTile(e.clientX, e.clientY); tileInfo(UI.hoverTile); } else if (e.target !== cv) tileInfo(-1);
+});
+window.addEventListener('mouseup', e => {
+  if (drag && !drag.moved && e.target === cv && S) {
+    const i = screenToTile(e.clientX, e.clientY);
+    if (i >= 0) {
+      if (UI.power) applyPower(UI.power, i % WD.W, (i / WD.W) | 0);
+      else { const o = owner[i]; selectCiv(o >= 0 ? o : null); }
+    }
+  }
+  drag = null; cv.classList.remove('dragging');
+});
+cv.addEventListener('wheel', e => {
+  e.preventDefault();
+  const f = Math.exp(-e.deltaY * 0.0015), nz = clamp(cam.z * f, 0.3, 8);
+  const wx = (e.clientX - VW / 2) / cam.z + cam.x, wy = (e.clientY - VH / 2) / cam.z + cam.y;
+  cam.z = nz; cam.x = wx - (e.clientX - VW / 2) / nz; cam.y = wy - (e.clientY - VH / 2) / nz;
+}, { passive: false });
+// tactile basique
+let touch = null;
+cv.addEventListener('touchstart', e => { if (e.touches.length === 1) touch = { x: e.touches[0].clientX, y: e.touches[0].clientY, cx: cam.x, cy: cam.y }; else if (e.touches.length === 2) touch = { d: Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY), z: cam.z }; }, { passive: true });
+cv.addEventListener('touchmove', e => { e.preventDefault(); if (!touch) return; if (e.touches.length === 1 && touch.cx != null) { cam.x = touch.cx - (e.touches[0].clientX - touch.x) / cam.z; cam.y = touch.cy - (e.touches[0].clientY - touch.y) / cam.z; } else if (e.touches.length === 2 && touch.d) { const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); cam.z = clamp(touch.z * d / touch.d, 0.3, 8); } }, { passive: false });
+
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' && e.target.type === 'text') return;
+  if (e.code === 'Space') { e.preventDefault(); if (S && !S.ended) setSpeed(UI.speed ? 0 : (UI.lastSpeed || 1)); }
+  else if (/^Digit[0-5]$/.test(e.code) && S && !S.ended) setSpeed(SPEEDS[+e.code.slice(5)]);
+  else if (e.code === 'Escape') { selectPower(null); document.querySelectorAll('.modal.show').forEach(m => { if (m.id !== 'mSetup' || S) m.classList.remove('show'); }); $('laws').classList.remove('show'); }
+});
+
+// ---------- Boutons ----------
+$('civlist').addEventListener('click', e => { const r = e.target.closest('.crow'); if (r) selectCiv(+r.dataset.id); });
+$('civlist').addEventListener('dblclick', e => { const r = e.target.closest('.crow'); if (r) selectCiv(+r.dataset.id, true); });
+$('majorOnly').onchange = e => { UI.majorOnly = e.target.checked; rebuildChron(); };
+$('bMode').onclick = () => { UI.mode = UI.mode === 'pol' ? 'rel' : 'pol'; $('bMode').textContent = UI.mode === 'pol' ? '🗺 Politique' : '✝ Religions'; UI.overlayDirty = true; };
+$('bLaws').onclick = () => $('laws').classList.toggle('show');
+$('lawsClose').onclick = () => $('laws').classList.remove('show');
+$('bStats').onclick = openStats;
+$('bSave').onclick = () => { if (S) download(`dieu-joue-aux-des_${S.seed}_an${S.year}.json`, serialize()); };
+$('bLoad').onclick = $('sLoad').onclick = () => $('fileIn').click();
+$('fileIn').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  f.text().then(t => { loadState(JSON.parse(t)); $('mSetup').classList.remove('show'); setSpeed(0); hint('Partie chargée — An ' + S.year); }).catch(err => alert('Impossible de charger : ' + err.message));
+  e.target.value = '';
+};
+$('bPanels').onclick = () => { UI.collapsed = !UI.collapsed; document.body.classList.toggle('collapsed', UI.collapsed); };
+$('bNew').onclick = () => { setSpeed(0); openSetup(); };
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => $(b.dataset.close).classList.remove('show'));
+$('eTxt').onclick = () => download(`chronique_${S.seed}.txt`, chronText(), 'text/plain');
+$('eSave').onclick = () => download(`dieu-joue-aux-des_${S.seed}_an${S.year}.json`, serialize());
+$('eNew').onclick = () => { $('mEnd').classList.remove('show'); openSetup(); };
+
+// ---------- Écran de création ----------
+const SEED_WORDS = ['Aube', 'Genèse', 'Chaos', 'Pangée', 'Éden', 'Abysse', 'Babel', 'Cendre', 'Étoile', 'Brume', 'Orage', 'Lune', 'Ambre', 'Givre', 'Racine', 'Ivoire', 'Écume', 'Soleil'];
+function randomSeed() { return SEED_WORDS[Math.floor(Math.random() * SEED_WORDS.length)] + '-' + Math.floor(Math.random() * 9000 + 1000); }
+function openSetup() {
+  $('sSeed').value = randomSeed();
+  $('setupLaws').innerHTML = lawsHTML('S');
+  for (const l of D.laws) { const inp = $('S_' + l.id); inp.value = S ? S.laws[l.id] : l.v; const up = () => $('Sv_' + l.id).textContent = lawLabel(inp.value); inp.oninput = up; up(); }
+  let has = false; try { has = !!localStorage.getItem('djad_autosave'); } catch (e) { }
+  $('sResume').style.display = has ? '' : 'none';
+  $('mSetup').classList.add('show');
+}
+const upSetup = () => { $('vWater').textContent = Math.round($('sWater').value * 100) + ' %'; $('vCivs').textContent = $('sCivs').value; };
+$('sWater').oninput = $('sCivs').oninput = upSetup;
+$('sReroll').onclick = () => $('sSeed').value = randomSeed();
+$('sGo').onclick = () => {
+  const laws = {}; for (const l of D.laws) laws[l.id] = +$('S_' + l.id).value;
+  newGame($('sSeed').value.trim() || randomSeed(), +$('sSize').value, +$('sWater').value, +$('sCivs').value, laws);
+  UI.sel = null; centerCam(); buildLaws(); rebuildChron();
+  $('mSetup').classList.remove('show'); setSpeed(1);
+};
+$('sResume').onclick = () => {
+  try { loadState(JSON.parse(localStorage.getItem('djad_autosave'))); $('mSetup').classList.remove('show'); setSpeed(0); hint('Partie reprise — An ' + S.year); }
+  catch (e) { alert('Sauvegarde automatique illisible.'); }
+};
+
+// ============================================================
+//  BOUCLE
+// ============================================================
+let last = performance.now(), acc = 0, lastPanel = 0;
+function frame(now) {
+  const dt = Math.min(0.25, (now - last) / 1000); last = now;
+  if (S && !S.ended && UI.speed > 0) {
+    acc += dt * UI.speed; let n = 0;
+    while (acc >= 1 && n < 40) { tick(); acc -= 1; n++; if (S.ended) break; }
+    if (n >= 40) acc = 0;
+  }
+  UI.frac = S && UI.speed > 0 ? clamp(acc, 0, 1) : 1;
+  draw(now);
+  if (S) {
+    $('year').textContent = 'An ' + S.year;
+    const ma = civsAlive().reduce((m, c) => Math.max(m, c.age), 0); $('era').textContent = D.ages[ma];
+    flushChron();
+    if (now - lastPanel > 450 || UI.dirtyPanels) { lastPanel = now; UI.dirtyPanels = false; renderCivList(); renderDetail(); drawTimeline(); }
+  }
+  requestAnimationFrame(frame);
+}
+window.addEventListener('resize', () => { resize(); });
+resize(); buildSpeeds(); buildPowers(); upSetup(); openSetup();
+requestAnimationFrame(frame);
+
+// Outil de test : simule N années d'un coup (console)
+window.__sim = { run(n) { UI.bulk = true; for (let k = 0; k < n && !S.ended; k++) tick(); UI.bulk = false; UI.overlayDirty = true; return S.year; }, get S() { return S; } };
+</script>
+</body>
+</html>

@@ -36,6 +36,7 @@ G.state = (function () {
       tilesBought: 0,
       wave: { index: 0, inEra: 0, timer: G.WAVES.firstDelay, active: false },
       stats: { produced: 0, kills: 0, wavesWon: 0 },
+      gloryV2: true, gloryPaid: 0,   // la gloire de la partie est versée à la fin
       over: false,
     };
     G.RESOURCE_ORDER.forEach(k => (run.res[k] = 0));

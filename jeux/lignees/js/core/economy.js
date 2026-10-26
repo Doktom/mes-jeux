@@ -328,6 +328,7 @@ G.economy = (function () {
     runGroup(plants, () => 1);
     runGroup(others, powerRatio);
     run.buildings.forEach(b => { if (G.BUILDINGS[b.type].energyIn) b._power = powerRatio(b); });
+    powerAlerts();
     const energyRatio = energyNeed > 0 ? Math.min(1, energyProd / energyNeed) : 1;
 
     // 5. Transport : départs des cellules, puis totaux affichés.
@@ -380,6 +381,26 @@ G.economy = (function () {
   }
 
   function maxHp(b) { return G.BUILDINGS[b.type].hp * (1 + G.M.hp) * lv(b).hp; }
+
+  // Alerte : bâtiments qui ont besoin d'électricité et n'en reçoivent pas (hors réseau ou réseau à plat) depuis quelques secondes.
+  function powerAlerts() {
+    if (G.botSim || G.offlineSim || !G.ui) return;
+    const run = G.run;
+    let st = G.pwAlert;
+    if (!st || st.seed !== run.seed) st = G.pwAlert = { seed: run.seed, since: {}, notified: {}, last: -999 };
+    const bad = [], netOf = G.power.networks().netOf;
+    run.buildings.forEach(b => {
+      const none = G.BUILDINGS[b.type].energyIn && !b.paused && !b.ruined && (netOf[b.bid] === undefined || (b._power !== undefined && b._power < 0.05));
+      if (!none) { delete st.since[b.bid]; delete st.notified[b.bid]; return; }
+      if (st.since[b.bid] === undefined) st.since[b.bid] = run.time;
+      if (run.time - st.since[b.bid] > 6 && !st.notified[b.bid]) bad.push(b);
+    });
+    if (!bad.length || run.time - st.last < 25) return;
+    const count = {};
+    bad.forEach(b => { const n = G.BUILDINGS[b.type].name; count[n] = (count[n] || 0) + 1; st.notified[b.bid] = true; });
+    st.last = run.time;
+    G.ui.toast('🔌 Sans électricité : ' + Object.keys(count).map(n => n + (count[n] > 1 ? ' ×' + count[n] : '')).join(', ') + '. Posez-les au contact d\'une centrale ou d\'un relais, ou produisez plus d\'énergie.', 'warn');
+  }
 
   // Taux nets lissés, mis à jour chaque seconde.
   function sampleRates(window) {
