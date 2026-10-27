@@ -9,6 +9,9 @@
   function boot() {
     const saved = G.state.load();
     G.meta = saved && saved.meta ? Object.assign(G.state.newMeta(), saved.meta) : G.state.newMeta();
+    // Thème graphique : celui de la sauvegarde (import compris) s'il diffère de celui du navigateur.
+    if (G.meta.settings && G.meta.settings.theme && G.meta.settings.theme !== G.theme.id) G.theme.apply(G.meta.settings.theme);
+    else G.meta.settings.theme = G.theme.id;
     // V1.4 : les difficultés ont changé de sens (Paisible = sans ennemis, + à +++ à débloquer).
     if (!G.meta.metaV || G.meta.metaV < 2) { G.meta.maxRigueur = G.meta.stats.bestEra >= 2 ? 1 : 0; G.meta.metaV = 2; }
     // V1.5 : une ère (Préhistoire) s'insère au début, les ères existantes sont décalées d'un cran.

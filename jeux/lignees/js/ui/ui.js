@@ -60,7 +60,7 @@ G.ui = (function () {
     const energy = S.energyNeed > 0 || S.energyProd > 0
       ? '<span class="pill ' + (S.energyRatio < 0.99 || S.unpowered ? 'warn' : '') + '" data-tip="Électricité produite / demandée, sur ' + (S.networks || 0) + ' réseau(x). Un bâtiment électrique doit toucher une centrale ou un relais 🗼.' + (S.unpowered ? ' ' + S.unpowered + ' bâtiment(s) non raccordé(s) !' : '') + '">⚡ ' + U.fmt(S.energyProd, 1) + ' / ' + U.fmt(S.energyNeed, 1) + (S.unpowered ? ' · 🔌 ' + S.unpowered : '') + '</span>' : '';
     const html =
-      '<div class="brand">Lignées <small>V1</small></div>' +
+      '<div class="brand">Lignées <small>' + G.theme.tagline + '</small></div>' +
       '<span class="pill era" style="--c:' + era.color + '">' + era.name + '</span>' +
       '<span class="pill ' + (S.workRatio < 0.98 ? 'warn' : '') + '" data-tip="Population / emplois. Si les emplois dépassent la population, tous les bâtiments ralentissent.">👥 ' + U.fmt(S.pop || 0) + ' / ' + U.fmt(S.jobs || 0) + ' emplois</span>' +
       energy + seasonHtml() + waveTxt + timedHtml() +
@@ -969,6 +969,7 @@ G.ui = (function () {
   function settingsModal() {
     const on = G.bot && G.bot.active;
     openModal('settings', '<h2>Paramètres</h2>' +
+      '<h3>Apparence</h3><p class="muted">Le thème graphique change l\'interface et la carte, jamais les règles du jeu.</p>' + themesHtml() +
       '<h3>Mode Bot</h3><p class="muted">Le bot joue votre partie en cours à votre place. Un petit panneau sur la carte permet de choisir la vitesse (×1 à ×20) et de reprendre la main.</p>' +
       '<div class="rig"><button class="rig-btn ' + (on ? 'on' : '') + '" data-action="botStart">🤖 Activer</button>' +
       '<button class="rig-btn ' + (on ? '' : 'on') + '" data-action="botStop">✋ Désactivé</button></div>' +
@@ -985,6 +986,14 @@ G.ui = (function () {
       '<textarea id="save-box" placeholder="Collez une sauvegarde ici pour l\'importer"></textarea>' +
       '<div class="row"><button class="btn" data-action="export">📤 Exporter</button><button class="btn" data-action="import">📥 Importer</button><button class="btn ghost danger" data-action="wipe">🗑️ Tout effacer</button></div>' +
       '<button class="btn primary" data-action="closeModal">Fermer</button>');
+  }
+
+  // Choix du thème graphique : une carte par thème, avec ses couleurs.
+  function themesHtml() {
+    return '<div class="themes">' + G.theme.list().map(t =>
+      '<button class="theme-card ' + (G.theme.id === t.id ? 'on' : '') + '" data-action="theme:' + t.id + '">' +
+      '<span class="swatches">' + t.swatch.map(c => '<i style="background:' + c + '"></i>').join('') + '</span>' +
+      '<b>' + t.name + '</b><small>' + t.desc + '</small>' + (G.theme.id === t.id ? '<em>✔ Thème actuel</em>' : '') + '</button>').join('') + '</div>';
   }
 
   function slotsHtml() {
@@ -1077,7 +1086,7 @@ G.ui = (function () {
       '<div><small>Porteurs occupés</small><b>🚚 ' + carriersBusy + ' / ' + carriersTot + '</b><em>' + cells + ' cellules en transit</em></div>' +
       '<div><small>Savoir</small><b>📜 ' + U.fmt(run.res.savoir) + '</b><em>' + fl(prod.savoir || 0) + '</em></div>' +
       '<div><small>Population (15 min)</small>' + spark((G.hist || []).map(h => h.pop), '#3d6fb6', 150, 34) + '</div>' +
-      '</div><h3>Ressources</h3><div class="dash-table"><table><thead><tr><th>Ressource</th><th>Stock</th><th>Capacité</th><th>Production</th><th>Conso. bâtiments</th><th>Conso. habitants</th><th>Bilan</th><th>En transit</th><th>Réserves / producteurs</th><th>15 dernières min</th></tr></thead><tbody>';
+      '</div><h3>Ressources</h3><div class="dash-table"><table><thead><tr><th>Ressource</th><th>Stock</th><th>Capacité</th><th>Production</th><th>Conso. bâtiments</th><th>Conso. habitants</th><th>Bilan</th><th>En transit</th><th>Réserves / producteurs</th><th>Tendance</th></tr></thead><tbody>';
     for (const r of G.RESOURCE_ORDER) {
       const d = G.RESOURCES[r];
       if (d.uncapped) continue;
@@ -1189,6 +1198,7 @@ G.ui = (function () {
       case 'acceptNone': ui.selected.b.accept = []; break;
       case 'evChoice': { const res = ui.event && G.chronicle.choose(ui.event, +arg); if (res) eventResult(res); break; }
       case 'deliver': G.chronicle.deliver(+arg); break;
+      case 'theme': G.theme.apply(arg); settingsModal(); break;
       case 'cine': G.meta.settings.cine = arg === 'on'; settingsModal(); break;
       case 'lore': G.meta.settings.lore = arg === 'on'; if (arg !== 'on') G.lore.hide(); settingsModal(); break;
       case 'research': G.logic.research(arg); break;

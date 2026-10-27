@@ -5,8 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lignées</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <!-- Thème graphique : celui du dernier choix (Paramètres), sans clignotement au chargement. -->
+  <script>
+    (function () {
+      var t = 'manuscrit';
+      try { t = localStorage.getItem('lignees_theme') || t; } catch (e) { }
+      if (t !== 'manuscrit' && t !== 'vapeur') t = 'manuscrit';
+      document.documentElement.dataset.theme = t;
+      document.write('<link id="theme-css" rel="stylesheet" href="css/themes/' + t + '.css">');
+    })();
+  </script>
 </head>
 <body>
   <div id="app">
@@ -38,6 +47,7 @@
   <script src="js/data/events.js"></script>
   <script src="js/data/achievements.js"></script>
   <script src="js/data/story.js"></script>
+  <script src="js/ui/theme.js"></script>
   <script src="js/core/map.js"></script>
   <script src="js/core/mods.js"></script>
   <script src="js/core/state.js"></script>
