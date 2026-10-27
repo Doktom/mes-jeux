@@ -46,8 +46,8 @@ const JEUX = [
     dossier: "irie-bay",
     titre: "Irie Bay",
     emoji: "🌴",
-    genre: "Ferme chill · île reggae",
+    genre: "Ferme RPG · île reggae",
     couleur: "#2fa84f",
-    commentaire: "Cultive ton yard, élève des poules, pêche au bout de la jetée. Le sound system du village ne s'arrête jamais, et personne ne s'en plaint.",
+    commentaire: "Cultive ton yard, remplis les formulaires absurdes de l'Inspecteur Babylone et réveille une tortue géante qui porte un sound system. Normal.",
   },
 ];

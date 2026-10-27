@@ -88,7 +88,7 @@ kbd{font-family:var(--f-body);font-weight:700;font-size:.85em;border:1.5px solid
 #fishing p{margin:0;font-size:12px;font-weight:700;text-align:center}
 #fish-c{width:110px;height:330px;display:block}
 
-#modal-wrap{position:fixed;inset:0;z-index:6;display:grid;place-items:center;background:rgba(20,24,58,.45);padding-left:var(--gl);padding-right:var(--gr)}
+#modal-wrap{position:fixed;inset:0;z-index:9;display:grid;place-items:center;background:rgba(20,24,58,.45);padding-left:var(--gl);padding-right:var(--gr)}
 #modal{width:min(580px, 100%);max-height:calc(100% - 48px);overflow:auto;padding:20px 20px 16px;box-sizing:border-box}
 #modal h2{font-family:var(--f-display);font-weight:400;font-size:28px;margin:0;line-height:1.1;text-wrap:balance}
 #modal .who{margin:6px 0 0;font-size:15px;line-height:1.45;max-width:62ch}
@@ -146,7 +146,39 @@ kbd{font-family:var(--f-body);font-weight:700;font-size:.85em;border:1.5px solid
 #title .hint{margin:16px 0 0;font-size:14px;color:var(--paper);text-shadow:1px 1px 0 var(--ink);max-width:60ch;line-height:1.5}
 #title .hint kbd{color:var(--ink);text-shadow:none}
 
+.slot .star{position:absolute;left:4px;bottom:4px;width:8px;height:8px;border:1.5px solid var(--ink);transform:rotate(45deg);border-radius:2px}
+.cl-lvl{display:flex;align-items:center;justify-content:flex-end;gap:6px;font-weight:700;font-size:12px;margin-top:3px}
+.cl-lvl .bar{width:62px;min-width:0;height:7px}
+.cl-lvl .bar i{background:var(--gold)}
+#fps{position:absolute;left:50%;transform:translateX(-50%);top:calc(var(--gt) + 50px);font:700 12px var(--f-body);color:var(--paper);text-shadow:1px 1px 0 var(--ink)}
+#tracker hr{border:0;border-top:2px dashed rgba(36,26,46,.2);margin:7px 0}
+.cut{display:grid;gap:8px}
+.cut-who{justify-self:start;font-family:var(--f-display);font-size:17px;color:#fff;background:var(--who);border:2px solid var(--ink);border-radius:8px;padding:5px 10px 3px;box-shadow:2px 2px 0 var(--ink)}
+.cut-text{margin:4px 0 0;font-size:17px;line-height:1.55;max-width:60ch}
+.cut-n{opacity:.6;font-weight:700}
+.needs{display:flex;flex-wrap:wrap;gap:4px 8px;margin-top:5px}
+.need{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;font-weight:700;padding:1px 6px 1px 2px;border-radius:6px;background:rgba(255,255,255,.65)}
+.need img{width:18px;height:18px}
+.need.ko{color:#a3202a}.need.ok{color:#1d7a39}
+.rank{color:var(--gold);font-size:15px;letter-spacing:-1px;text-shadow:1px 1px 0 var(--ink);text-align:center}
+.frag{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink);background:repeating-radial-gradient(circle,#3a3446 0 2px,#241a2e 2px 4px);justify-self:center;opacity:.35}
+.frag.got{background:radial-gradient(circle,#fff6c9 0 18%,#f6c026 19% 60%,#d39a10 61%);opacity:1}
+.slotnum{font-family:var(--f-display);font-size:24px;text-align:center}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:12px 0}
+.menu-grid .btn{padding:12px 14px 10px;font-size:17px}
+.set{display:grid;grid-template-columns:120px minmax(0,1fr) 36px;align-items:center;gap:10px;margin:7px 0;font-weight:700;font-size:14px}
+.set input[type=range]{width:100%;accent-color:var(--green)}
+.set b{text-align:right;font-variant-numeric:tabular-nums}
+.set.chk{grid-template-columns:auto minmax(0,1fr)}
+.set.chk input{width:20px;height:20px;accent-color:var(--green)}
+.set.chk small{display:block;font-weight:400;opacity:.75}
+.set select{font:inherit;padding:6px 8px;border:2px solid var(--ink);border-radius:8px;background:#fff;grid-column:2 / -1}
+.set input:focus-visible,.set select:focus-visible,.code:focus-visible{outline:3px solid var(--sea);outline-offset:2px}
+.tgrid{display:flex;flex-wrap:wrap;gap:6px}
+.code{width:100%;box-sizing:border-box;font:12px ui-monospace,Consolas,monospace;border:2px solid var(--ink);border-radius:8px;padding:6px;margin:4px 0;background:#fff;resize:vertical;-webkit-user-select:text;user-select:text}
 @media (max-width:640px){
+  .set{grid-template-columns:90px minmax(0,1fr) 32px}
+  #top-left{flex-wrap:wrap;max-width:calc(100vw - 170px)}
   #energy{bottom:calc(var(--gb) + var(--slot) + 30px);height:110px}
   #clock{min-width:0;padding:10px 10px 8px}
   .cl-time{font-size:24px}
@@ -171,7 +203,11 @@ kbd{font-family:var(--f-body);font-weight:700;font-size:.85em;border:1.5px solid
     <button id="help-btn" class="chip panel" aria-label="Commandes">?</button>
     <button id="book-btn" class="chip panel" aria-label="Carnet : quêtes, compétences, amis">Carnet</button>
     <button id="bag-btn" class="chip panel" aria-label="Sac à dos">Sac</button>
+    <button id="craft-btn" class="chip panel" aria-label="Artisanat">Artisanat</button>
+    <button id="menu-btn" class="chip panel" aria-label="Menu, sauvegardes et paramètres">Menu</button>
+    <button id="test-btn" class="chip panel" hidden>Test</button>
   </div>
+  <div id="fps" hidden></div>
   <div id="toasts" aria-live="polite"></div>
   <div id="zone"></div>
   <div id="clock" class="panel">
@@ -179,6 +215,7 @@ kbd{font-family:var(--f-body);font-weight:700;font-size:.85em;border:1.5px solid
     <div id="cl-season">Brise</div>
     <div class="cl-time"><span id="cl-sun"></span><span id="cl-t">6h00</span></div>
     <div class="cl-gold"><span class="coin"></span><span id="cl-g">0</span></div>
+    <div class="cl-lvl"><span id="cl-lv">Niv. 1</span><span class="bar"><i id="cl-xp"></i></span></div>
   </div>
   <div id="energy" class="panel plain" title="Énergie"><b>É</b><div id="en-fill"></div></div>
   <div id="tracker" class="panel"></div>
@@ -205,6 +242,7 @@ kbd{font-family:var(--f-body);font-weight:700;font-size:.85em;border:1.5px solid
   <div class="stripe-bar"></div>
   <div class="title-actions">
     <button id="btn-continue" class="btn" hidden>Continuer</button>
+    <button id="btn-load" class="btn" hidden>Charger</button>
     <button id="btn-new" class="btn primary">Nouvelle partie</button>
   </div>
   <p class="hint"><kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> ou flèches pour marcher · <kbd>Espace</kbd> ou clic pour utiliser l'outil · <kbd>E</kbd> pour parler, acheter, dormir · <kbd>C</kbd> carnet · <kbd>B</kbd> sac</p>
@@ -238,7 +276,7 @@ try { await Promise.race([document.fonts.load('48px "Lilita One"'), wait(1500)])
 // Données de jeu
 // =====================================================================
 const MIN_SEC = 0.6;              // 1 minute de jeu = 0,6 s
-const MAX_EN = 100, INV_SIZE = 30;
+const INV_SIZE = 30;
 const SEASONS = ['Brise', 'Soleil', 'Pluies', 'Alizés'];
 const SEASON_DESC = ['Fleurs partout, la terre est douce.', 'Chaleur et grand ciel bleu.', 'Averses, orages et cultures qui boivent.', 'Vent frais et mer agitée.'];
 const WEEK = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.'];
@@ -451,15 +489,18 @@ const P = { x: 11, z: 13.4, face: 0, walk: 0 };
 function defaultInv() {
   const a = new Array(INV_SIZE).fill(null);
   a[0] = { id: 'hoe', q: 1, t: 0 }; a[1] = { id: 'can', q: 1, t: 0 }; a[2] = { id: 'rod', q: 1, t: 0 };
-  a[3] = { id: 's_gombo', q: 10 }; a[4] = { id: 's_patate', q: 4 };
+  a[3] = { id: 'machette', q: 1, t: 0 }; a[4] = { id: 'pioche', q: 1, t: 0 };
+  a[5] = { id: 's_gombo', q: 10 }; a[6] = { id: 's_patate', q: 4 };
   return a;
 }
 function resetState() {
   Object.assign(S, {
-    day: 1, time: 360, gold: 500, energy: MAX_EN, inv: defaultInv(), sel: 0, water: canMax(0), ship: [],
+    day: 1, time: 360, gold: 500, energy: 100, inv: defaultInv(), sel: 0, water: canMax(0), ship: [],
     card: [0, 1], swing: 0, swingDur: 0.3, swingType: null, hold: false, modal: null, title: true, fade: false,
     fish: { phase: null }, zone: '', target: [0, 0], mouse: null, inside: false,
-    xp: { farm: 0, fish: 0, forage: 0, ranch: 0 }, friends: {}, stats: {}, done: [],
+    xp: { farm: 0, fish: 0, forage: 0, ranch: 0, craft: 0 }, friends: {}, stats: {}, done: [],
+    farmLvl: 0, built: { coop: false, barn: false }, building: null, unlocked: { gate: false, pier: false, lighthouse: false },
+    nodes: [], placed: [], talents: {}, story: { ch: 1, frags: [], flags: {}, seen: [], forms: 0 }, slot: 1, godEnergy: false,
     animals: [], shed: { oeuf: 0, oeuf_or: 0, lait: 0, lait_creme: 0 },
     owned: ['hat_none', 'hat_straw', 'shirt_tank', 'gl_none'], eq: { hat: 'hat_straw', shirt: 'shirt_tank', gl: 'gl_none' },
     fishLog: {}, picked: { coco: [], shells: [] }, weather: 'sun', warned: false, pending: [],
@@ -479,6 +520,94 @@ const hasItem = id => S.inv.some(s => s && s.id === id);
 const countItem = id => S.inv.reduce((a, s) => a + (s && s.id === id ? s.q : 0), 0);
 const fmtH = m => { const h = Math.floor(m / 60) % 24, mm = Math.floor(m % 60 / 10) * 10; return `${h}h${String(mm).padStart(2, '0')}`; };
 const isNight = () => S.time >= 1170 || S.time < 345;
+
+// ==== 01b-data.js
+// =====================================================================
+// Données de progression : ressources, artisanat, talents, ferme, zones
+// =====================================================================
+Object.assign(TOOL_NAMES, {
+  machette: ['Machette', 'Machette en fer', 'Machette dorée'],
+  pioche: ['Pioche', 'Pioche en fer', 'Pioche dorée'],
+});
+Object.assign(TOOL_HINT, {
+  machette: ['Coupe branches et broussailles', '+1 bois ou fibre par coup', '+2 bois ou fibre par coup'],
+  pioche: ['Casse les rochers', '+1 pierre par coup, plus de quartz', '+2 pierres par coup, encore plus de quartz'],
+});
+Object.assign(ITEMS, {
+  machette: { name: 'Machette', kind: 'tool' }, pioche: { name: 'Pioche', kind: 'tool' },
+  bois: { name: 'Bois', kind: 'res', sell: 4 }, pierre: { name: 'Pierre', kind: 'res', sell: 3 }, fibre: { name: 'Fibre', kind: 'res', sell: 2 },
+  quartz: { name: 'Quartz rose', kind: 'res', sell: 90 }, planche: { name: 'Planche', kind: 'res', sell: 15 }, corde: { name: 'Corde', kind: 'res', sell: 12 },
+  engrais: { name: 'Engrais coco', kind: 'fert', sell: 10 }, arroseur: { name: 'Arroseur', kind: 'place', sell: 60 },
+  appat: { name: 'Appât', kind: 'bait', sell: 5 }, kit_jetee: { name: 'Kit de jetée', kind: 'res' },
+  jus_ananas: { name: "Jus d'ananas", kind: 'food', sell: 300, food: 60, crafted: true },
+  poisson_grille: { name: 'Poisson grillé', kind: 'food', sell: 170, food: 70, crafted: true },
+  gateau_coco: { name: 'Gâteau coco', kind: 'food', sell: 420, food: 80, crafted: true },
+  soupe: { name: 'Soupe de giraumon', kind: 'food', sell: 520, food: 90, crafted: true },
+});
+for (const id in ITEMS) ITEMS[id].id = id;
+SKILLS.craft = { name: 'Artisanat', perks: ['Chaque niveau débloque des recettes', 'Niv. 2 : arroseur et appât', 'Niv. 3 : kit de jetée et soupe'] };
+SKILLS.forage.perks = ['Machette et pioche : plus de ressources', 'Niv. 2 : plus de coquillages', 'Niv. 3 : noix de coco en double', 'Niv. 5 : quartz plus fréquent'];
+
+const RECIPES = [
+  { id: 'planche', out: 2, need: { bois: 3 }, lvl: 1, tab: 'atelier' },
+  { id: 'corde', out: 1, need: { fibre: 3 }, lvl: 1, tab: 'atelier' },
+  { id: 'engrais', out: 3, need: { fibre: 2, coco: 1 }, lvl: 1, tab: 'atelier', hint: 'À poser sur une case labourée : +1 jour de pousse et meilleure qualité.' },
+  { id: 'appat', out: 5, need: { fibre: 2, coquillage: 1 }, lvl: 2, tab: 'atelier', hint: 'Utilisé tout seul à chaque lancer : touche plus vite, poissons rares plus fréquents.' },
+  { id: 'arroseur', out: 1, need: { planche: 2, pierre: 4, corde: 1 }, lvl: 2, tab: 'atelier', hint: 'À poser dans le champ : arrose les 8 cases autour chaque matin.' },
+  { id: 'kit_jetee', out: 1, need: { planche: 6, corde: 2 }, lvl: 3, tab: 'atelier', hint: 'Répare le bout de la jetée.' },
+  { id: 'jus_ananas', out: 1, need: { ananas: 1, coco: 1 }, lvl: 1, tab: 'cuisine' },
+  { id: 'poisson_grille', out: 1, need: { vivaneau: 1, piment: 1 }, lvl: 1, tab: 'cuisine' },
+  { id: 'gateau_coco', out: 1, need: { coco: 2, oeuf: 1, lait: 1 }, lvl: 2, tab: 'cuisine' },
+  { id: 'soupe', out: 2, need: { giraumon: 1, piment: 1, patate: 1 }, lvl: 3, tab: 'cuisine' },
+];
+const TALENTS = {
+  farm: [{ id: 'pousse', name: 'Pousse turbo', desc: '+6 % par rang : une culture pousse de 2 jours en une nuit' },
+    { id: 'econome', name: 'Main légère', desc: '−10 % par rang d\'énergie pour la houe et l\'arrosoir' },
+    { id: 'qualite', name: 'Œil du jardinier', desc: '+6 % par rang de récoltes argent ou or' }],
+  fish: [{ id: 'patience', name: 'Patience zen', desc: '−12 % par rang d\'attente avant la touche' },
+    { id: 'ligne', name: 'Ligne solide', desc: '+10 px par rang de barre de prise' },
+    { id: 'flair', name: 'Flair marin', desc: '+20 % par rang de poissons rares' }],
+  forage: [{ id: 'cueilleur', name: 'Mains agiles', desc: '+20 % par rang de chance de ressource bonus' },
+    { id: 'bucheron', name: 'Bras de bûcheron', desc: '−15 % par rang d\'énergie pour la machette et la pioche' },
+    { id: 'nez', name: 'Nez fin', desc: '+3 % par rang de trouver du quartz rose' }],
+  ranch: [{ id: 'calin', name: 'Câlins magiques', desc: '+3 de bonheur par caresse et par rang' },
+    { id: 'premium', name: 'Fermier premium', desc: '+6 % par rang de produits premium' },
+    { id: 'gamelle', name: 'Gamelle maline', desc: '20 % par rang d\'économiser le fourrage' }],
+  craft: [{ id: 'recycle', name: 'Recyclage', desc: '10 % par rang de ne pas consommer les ingrédients' },
+    { id: 'serie', name: 'Production en série', desc: '10 % par rang de fabriquer un exemplaire bonus' },
+    { id: 'marchand', name: 'Marchand', desc: '+5 % par rang au prix des plats et objets fabriqués' }],
+};
+const QUAL = [{ name: '', mult: 1 }, { name: 'argent', mult: 1.25, col: '#c9d3df' }, { name: 'or', mult: 1.5, col: '#f6c026' }];
+// Champ cultivable selon le niveau de la ferme : [i0, j0, i1, j1]
+const FARM_RECTS = [[12, 14, 21, 21], [12, 13, 27, 28], [5, 13, 30, 36], [5, 13, 32, 42]];
+const FARM_UPG = [null,
+  { gold: 500, need: { bois: 20 }, pl: 2 },
+  { gold: 1500, need: { bois: 40, pierre: 20 }, pl: 4 },
+  { gold: 4000, need: { bois: 60, pierre: 40, planche: 10 }, pl: 7 }];
+const BUILDS = {
+  coop: { name: 'Poulailler', gold: 800, need: { bois: 30, pierre: 15, corde: 2 }, pl: 3, ch: 2 },
+  barn: { name: 'Étable', gold: 2500, need: { bois: 60, pierre: 30, planche: 10, corde: 4 }, pl: 6, ch: 2, after: 'coop' },
+};
+const LOCKS = {
+  gate: { name: 'Portillon de la plage', desc: 'Le portillon sud de ton yard est coincé par la rouille et les lianes.', need: { corde: 2, planche: 5 }, box: [18, 44.85, 21, 45.15] },
+  pier: { name: 'Bout de la jetée', desc: 'Les planches du bout de la jetée sont pourries. Personne n\'ose y aller.', need: { kit_jetee: 1 }, box: [61.9, 51.6, 65.1, 52.4] },
+  lighthouse: { name: 'Porte du phare', desc: 'Une barrière grise devant la porte : « Propriété du Ministère des Formulaires. Accès sur permis uniquement. »', flag: 'permis', box: [87.8, 48.85, 89.2, 49.35] },
+};
+const DEBRIS = {
+  branche: { name: 'Branches', tool: 'machette', hp: 1, drop: ['bois', 1, 3], en: 2 },
+  broussaille: { name: 'Broussailles', tool: 'machette', hp: 1, drop: ['fibre', 1, 3], en: 1 },
+  souche: { name: 'Souche', tool: 'machette', hp: 3, drop: ['bois', 3, 5], en: 3 },
+  rocher: { name: 'Rocher', tool: 'pioche', hp: 2, drop: ['pierre', 2, 4], en: 3 },
+};
+const MAX_PL = 30;
+SHOPS.boutique.buys = ['quartz', 'coquillage']; SHOPS.cafe.buys.push('food');
+// Quêtes de progression supplémentaires, et animaux après la construction des bâtiments
+QUESTS.unshift({ id: 'debris', title: 'Débroussaillage', desc: 'Dégage 8 débris avec la machette et la pioche.', stat: 'debris', n: 8, gold: 60 });
+QUESTS.splice(QUESTS.findIndex(q => q.id === 'sell500'), 0,
+  { id: 'craft', title: 'Bricoleur du dimanche', desc: "Fabrique 3 objets à l'atelier (touche K).", stat: 'crafted', n: 3, gold: 80 },
+  { id: 'farmup', title: "Le yard s'agrandit", desc: 'Agrandis ton champ une première fois (panneau près de la case).', stat: 'farmup', n: 1, gold: 150 });
+QUESTS.find(q => q.id === 'coop').req = () => S.built.coop;
+QUESTS.find(q => q.id === 'cow').req = () => S.built.barn;
 
 // ==== 02-icons.js
 // =====================================================================
@@ -591,6 +720,54 @@ function icon(id, tier = 0) {
     x.beginPath(); x.roundRect(10, 24, 44, 30, 8); fs('#e8c657');
     x.save(); x.strokeStyle = 'rgba(120,80,10,.6)'; x.lineWidth = 2; for (const k of [20, 28, 36, 44]) { x.beginPath(); x.moveTo(k, 28); x.lineTo(k + 4, 50); x.stroke(); } x.restore();
     x.save(); x.strokeStyle = '#e2362f'; x.lineWidth = 4; x.beginPath(); x.moveTo(10, 38); x.lineTo(54, 38); x.stroke(); x.restore();
+  } else if (id === 'machette') {
+    stick(14, 54, 26, 42, 6, wood);
+    x.beginPath(); x.moveTo(24, 40); x.quadraticCurveTo(44, 10, 58, 6); x.quadraticCurveTo(52, 26, 30, 46); x.closePath(); fs(metal); shine(46, 18, 4);
+  } else if (id === 'pioche') {
+    stick(16, 56, 40, 20, 5, wood);
+    x.beginPath(); x.moveTo(14, 22); x.quadraticCurveTo(38, 4, 60, 22); x.lineTo(54, 26); x.quadraticCurveTo(38, 14, 22, 28); x.closePath(); fs(metal);
+  } else if (id === 'bois') {
+    for (const [y, l] of [[44, 0], [30, 6], [16, 2]]) { x.beginPath(); x.roundRect(8 + l, y, 44, 14, 7); fs('#a8774e'); ell(52 + l, y + 7, 5, 7, '#e8c79a'); }
+  } else if (id === 'pierre') {
+    x.beginPath(); x.moveTo(10, 46); x.lineTo(16, 24); x.lineTo(34, 14); x.lineTo(52, 22); x.lineTo(56, 44); x.lineTo(38, 54); x.closePath(); fs('#a9a39b'); shine(26, 26, 5);
+  } else if (id === 'fibre') {
+    x.save(); x.strokeStyle = INK; x.lineWidth = 7; for (const a of [-0.5, -0.2, 0.1, 0.4]) { x.beginPath(); x.moveTo(32, 58); x.quadraticCurveTo(32 + a * 30, 30, 32 + a * 50, 8); x.stroke(); } x.strokeStyle = '#8fc04a'; x.lineWidth = 3.5; for (const a of [-0.5, -0.2, 0.1, 0.4]) { x.beginPath(); x.moveTo(32, 58); x.quadraticCurveTo(32 + a * 30, 30, 32 + a * 50, 8); x.stroke(); } x.restore();
+    x.beginPath(); x.roundRect(24, 40, 16, 8, 3); fs('#e2362f');
+  } else if (id === 'quartz') {
+    x.beginPath(); x.moveTo(32, 6); x.lineTo(48, 24); x.lineTo(42, 56); x.lineTo(22, 56); x.lineTo(16, 24); x.closePath(); fs('#ff9fc0');
+    x.save(); x.strokeStyle = 'rgba(255,255,255,.7)'; x.lineWidth = 2.5; x.beginPath(); x.moveTo(32, 10); x.lineTo(30, 50); x.stroke(); x.restore();
+  } else if (id === 'planche') {
+    for (const y of [16, 30, 44]) { x.beginPath(); x.roundRect(6, y, 52, 11, 3); fs('#d39a5f'); }
+    dots([[14, 21], [50, 21], [14, 35], [50, 35], [14, 49], [50, 49]], '#5b3a2a', 1.8);
+  } else if (id === 'corde') {
+    x.save(); x.strokeStyle = INK; x.lineWidth = 10; x.beginPath(); x.arc(32, 34, 18, 0.2, Math.PI * 1.9); x.stroke(); x.strokeStyle = '#e8c79a'; x.lineWidth = 6; x.stroke(); x.restore();
+    x.save(); x.strokeStyle = INK; x.lineWidth = 6; x.beginPath(); x.arc(32, 34, 8, 0, Math.PI * 2); x.stroke(); x.strokeStyle = '#d6b07a'; x.lineWidth = 3; x.stroke(); x.restore();
+  } else if (id === 'engrais') {
+    x.beginPath(); x.moveTo(14, 18); x.lineTo(50, 18); x.lineTo(54, 56); x.lineTo(10, 56); x.closePath(); fs('#8a5a3a');
+    ell(32, 18, 18, 5, '#5b3a2a'); ell(32, 40, 9, 9, '#6a4426'); x.beginPath(); x.moveTo(32, 30); x.lineTo(40, 22); x.lineTo(42, 32); x.closePath(); fs('#2fa84f');
+  } else if (id === 'arroseur') {
+    x.beginPath(); x.roundRect(20, 46, 24, 10, 3); fs('#8a5a3a'); stick(32, 46, 32, 22, 4, '#7fa5c4');
+    x.beginPath(); x.roundRect(14, 16, 36, 8, 4); fs('#2fb6a7');
+    x.save(); x.strokeStyle = '#17a9c7'; x.lineWidth = 3; for (const a of [-1, 1]) { x.beginPath(); x.moveTo(32 + a * 18, 20); x.quadraticCurveTo(32 + a * 30, 18, 32 + a * 30, 34); x.stroke(); } x.restore();
+  } else if (id === 'appat') {
+    x.beginPath(); x.roundRect(12, 22, 40, 32, 6); fs('#c9a46a'); x.beginPath(); x.roundRect(10, 16, 44, 10, 4); fs('#e2362f');
+    x.save(); x.strokeStyle = '#ff7aa0'; x.lineWidth = 5; x.beginPath(); x.moveTo(20, 40); x.quadraticCurveTo(30, 30, 38, 42); x.quadraticCurveTo(44, 50, 50, 36); x.stroke(); x.restore();
+  } else if (id === 'kit_jetee') {
+    for (const [y, r] of [[34, -0.2], [26, 0.15]]) { x.save(); x.translate(32, y); x.rotate(r); x.beginPath(); x.roundRect(-26, -6, 52, 12, 3); fs('#d39a5f'); x.restore(); }
+    x.save(); x.strokeStyle = INK; x.lineWidth = 7; x.beginPath(); x.moveTo(16, 50); x.lineTo(48, 18); x.stroke(); x.strokeStyle = '#e8c79a'; x.lineWidth = 3.5; x.stroke(); x.restore();
+    x.beginPath(); x.roundRect(36, 40, 18, 16, 3); fs('#aeb8c6');
+  } else if (id === 'jus_ananas') {
+    x.beginPath(); x.moveTo(16, 18); x.lineTo(48, 18); x.lineTo(44, 58); x.lineTo(20, 58); x.closePath(); fs('#f6c026'); x.save(); x.fillStyle = 'rgba(255,255,255,.5)'; x.fillRect(22, 24, 6, 26); x.restore();
+    stick(38, 18, 46, 4, 3, '#2fa84f'); ell(24, 16, 8, 4, '#2fa84f', -0.4);
+  } else if (id === 'poisson_grille') {
+    ell(32, 44, 26, 10, '#fbf6ec'); ell(30, 38, 18, 9, '#c26a2e'); x.beginPath(); x.moveTo(46, 38); x.lineTo(58, 30); x.lineTo(58, 46); x.closePath(); fs('#c26a2e');
+    x.save(); x.strokeStyle = '#5a2c0e'; x.lineWidth = 2.5; for (const k of [22, 30, 38]) { x.beginPath(); x.moveTo(k, 31); x.lineTo(k + 4, 45); x.stroke(); } x.restore(); ell(48, 50, 4, 3, '#e2362f');
+  } else if (id === 'gateau_coco') {
+    x.beginPath(); x.roundRect(10, 30, 44, 24, 6); fs('#f4e3c3'); x.beginPath(); x.roundRect(8, 24, 48, 12, 6); fs('#fffaf0');
+    dots([[16, 28], [24, 31], [34, 28], [44, 31], [50, 28]], '#c9a46a', 1.8); ell(32, 18, 6, 6, '#e2362f'); stick(32, 12, 36, 6, 2, '#2fa84f');
+  } else if (id === 'soupe') {
+    x.beginPath(); x.moveTo(8, 30); x.lineTo(56, 30); x.quadraticCurveTo(54, 58, 32, 58); x.quadraticCurveTo(10, 58, 8, 30); fs('#17a9c7'); ell(32, 30, 24, 6, '#f0902a');
+    dots([[24, 30], [36, 29], [42, 31]], '#2fa84f', 2.4); x.save(); x.strokeStyle = 'rgba(255,255,255,.7)'; x.lineWidth = 2.5; for (const k of [24, 34, 44]) { x.beginPath(); x.moveTo(k, 22); x.quadraticCurveTo(k - 4, 16, k, 10); x.stroke(); } x.restore();
   } else if (id.startsWith('hat_') || id.startsWith('shirt_') || id.startsWith('gl_')) {
     drawCosm(x, id, { fs, ell, shine, stick, INK });
   } else {
@@ -1427,6 +1604,7 @@ function makeCoop(x0, z0) {
   signBoard(g, 'Poulailler', cx, 2.7, fz + 0.3, 2.0, 0.55);
   solidBox(x0, z0, x0 + w + 1.2, fz + 0.1); reserve(x0 - 0.5, z0 - 0.5, x0 + w + 1.5, fz + 2.2);
   fadeable(g, x0 - 0.4, z0 - 3.4, x0 + w + 0.4, z0 + 0.8);
+  return g;
 }
 function makeBarn(x0, z0) {
   const g = new THREE.Group(); scene.add(g);
@@ -1445,6 +1623,7 @@ function makeBarn(x0, z0) {
   signBoard(g, 'Étable', x0 + 1.3, 2.7, fz + 0.2, 1.6, 0.5);
   solidBox(x0, z0, x0 + w, fz + 0.1); solidBox(x0 + w + 0.2, fz - 0.1, x0 + w + 1.5, fz + 0.9); reserve(x0 - 0.5, z0 - 0.5, x0 + w + 1.8, fz + 2.2);
   fadeable(g, x0 - 0.4, z0 - 3.4, x0 + w + 0.4, z0 + 0.8);
+  return g;
 }
 
 function makeStage() {
@@ -1516,7 +1695,8 @@ function buildWorld() {
   postB.flush(); railB.flush();
   signBoard(scene, 'Ton yard', 35.6, 1.3, 22.7, 1.9, 0.52);
   part(scene, G.box, '#5b3a2a', [0.1, 1.0, 0.1], [35.6, 0.5, 22.62]); solidBox(35.4, 22.5, 35.8, 22.8);
-  makeCoop(18, 4.6); makeBarn(25.5, 4.3);
+  BUILD_G.coop = { g: makeCoop(18, 4.6), site: makeSite(18, 4.6, 5.2, 3, 'Chantier : poulailler') };
+  BUILD_G.barn = { g: makeBarn(25.5, 4.3), site: makeSite(25.5, 4.3, 6.5, 4.3, 'Chantier : étable') };
   reserve(16.5, 3.5, 34, 12.8);
 
   // Épouvantail rasta et drapeau
@@ -1526,6 +1706,8 @@ function buildWorld() {
   part(scene, G.cyl, '#e2362f', [0.27, 0.35, 0.18], [6.6, 1.05, 14.4]);
   solidBox(6.4, 14.2, 6.8, 14.6);
   flagPole(5.4, 12.2, 3.8);
+  signBoard(scene, 'Agrandir', 15.6, 1.15, 12.97, 1.5, 0.42);
+  part(scene, G.box, '#5b3a2a', [0.08, 0.95, 0.08], [15.6, 0.47, 12.92]); solidBox(15.45, 12.8, 15.75, 13.05);
 
   // Pont sur la rivière
   const plankB = batch(G.box, 900), pierPost = batch(G.cyl6, 240);
@@ -1731,7 +1913,7 @@ function scatterNature() {
   });
   // décor fixe de la ferme
   addBush(5.6, 11.2); addBush(32.6, 11); addBush(5.9, 40.6);
-  addMango(15.8, 14.6, 1.1);
+  addMango(7.9, 13.5, 1.1);
   for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
     const k = id(i, j), t = tiles[k], x = i + 0.25 + rnd() * 0.5, z = j + 0.25 + rnd() * 0.5;
     if (t === GRASS) {
@@ -1913,6 +2095,7 @@ function makeCharacter(o) {
   if (o.pattern === 'flower') for (const [x, y, z, c] of [[-0.12, 0.62, 0.19, '#ff7ac8'], [0.1, 0.52, 0.2, '#f6c026'], [0.0, 0.66, 0.2, '#fff'], [-0.06, 0.45, 0.2, '#e2362f'], [0.14, 0.68, 0.17, '#ff7ac8']]) part(body, G.ico0, c, [0.04, 0.04, 0.02], [x, y, z]);
   if (o.pattern === 'surf') part(body, G.box, '#fff', [0.46, 0.05, 0.02], [0, 0.55, 0.2]);
   if (o.apron) part(body, G.box, o.apron, [0.34, 0.4, 0.04], [0, 0.48, 0.2]);
+  if (o.tie) part(body, G.box, o.tie, [0.07, 0.3, 0.03], [0, 0.56, 0.205]);
   const arms = [];
   for (const s of [-1, 1]) {
     const a = new THREE.Group(); a.position.set(s * 0.3, 0.72, 0); body.add(a);
@@ -1949,6 +2132,7 @@ function makeCharacter(o) {
   if (o.hat === 'bandana') { part(head, G.sph, '#e2362f', [0.268, 0.19, 0.265], [0, 0.08, -0.02]); part(head, G.box, '#e2362f', [0.12, 0.12, 0.05], [0, 0.07, -0.26], [0, 0, 0.7]); }
   if (o.hat === 'wrap') { RASTA.forEach((c, k) => part(head, G.cyl, c, [0.28 - k * 0.025, 0.085, 0.28 - k * 0.025], [0, 0.1 + k * 0.08, -0.02], [0.08 * (k % 2 ? 1 : -1), 0, 0])); part(head, G.sph, '#e2362f', [0.09, 0.09, 0.09], [0, 0.35, -0.02]); }
   if (o.hat === 'crown') for (let k = 0; k < 9; k++) { const a = k / 9 * Math.PI * 2; part(head, G.ico0, ['#ff7ac8', '#f6c026', '#fff', '#e2362f'][k % 4], [0.065, 0.065, 0.065], [Math.cos(a) * 0.25, 0.16, Math.sin(a) * 0.25]); }
+  if (o.hat === 'melon') { part(head, G.sph, '#241a2e', [0.24, 0.15, 0.24], [0, 0.17, 0]); part(head, G.cyl, '#241a2e', [0.33, 0.025, 0.33], [0, 0.15, 0]); }
   if (o.glasses === 'round') { for (const s of [-1, 1]) part(head, G.cyl, '#241a2e', [0.07, 0.025, 0.07], [s * 0.095, 0.01, 0.245], [Math.PI / 2, 0, 0]); part(head, G.box, '#241a2e', [0.06, 0.015, 0.015], [0, 0.02, 0.25]); }
   if (o.glasses === 'aviator') { for (const s of [-1, 1]) part(head, G.cyl, '#e2362f', [0.085, 0.025, 0.07], [s * 0.1, 0.0, 0.245], [Math.PI / 2, 0, 0]); part(head, G.box, '#f6c026', [0.06, 0.015, 0.015], [0, 0.02, 0.25]); }
   const socket = new THREE.Group(); socket.position.y = -0.34; arms[1].add(socket);
@@ -1973,6 +2157,8 @@ function makeTools(socket) {
   t.can = new THREE.Group(); const cc = ['#2fb6a7', '#7fa5c4', '#f6c026'][tier('can')]; part(t.can, G.cyl, cc, [0.15, 0.24, 0.15], [0, -0.16, 0.06]); part(t.can, G.cyl6, cc, [0.025, 0.28, 0.025], [0, -0.16, 0.25], [1.0, 0, 0]);
   t.rod = new THREE.Group(); part(t.rod, G.cyl6, ['#c99a5a', '#4fb0a8', '#f6c026'][tier('rod')], [0.022, 1.7, 0.022], [0, -0.8, 0]); part(t.rod, G.cyl, '#8d96a3', [0.05, 0.05, 0.05], [0.06, -0.12, 0], [0, 0, Math.PI / 2]);
   t.seed = new THREE.Group(); part(t.seed, G.sph, '#d8c08a', [0.1, 0.12, 0.1], [0, -0.06, 0]);
+  t.machette = new THREE.Group(); part(t.machette, G.cyl6, '#5b3a2a', [0.03, 0.25, 0.03], [0, -0.1, 0]); part(t.machette, G.box, metal[tier('machette')], [0.07, 0.55, 0.02], [0, -0.48, 0.02]);
+  t.pioche = new THREE.Group(); part(t.pioche, G.cyl6, '#b07a48', [0.03, 0.9, 0.03], [0, -0.38, 0]); part(t.pioche, G.box, metal[tier('pioche')], [0.05, 0.05, 0.52], [0, -0.82, 0]);
   for (const k in t) { t[k].visible = false; socket.add(t[k]); }
   return t;
 }
@@ -1990,7 +2176,7 @@ function buildNPCs() {
   for (const d of NPC_DEFS) {
     const c = makeCharacter(d.look); scene.add(c.g);
     if (d.scale) c.g.scale.setScalar(d.scale);
-    const n = { ...d, ...c, x: 0, z: 0, path: null, pi: 0, hidden: true, cur: null, walk: 0, talkT: 0, face: 0, pause: 0, homeSpot: d.shop ? `${d.id}_home` : (d.id === 'ivy' || d.id === 'delroy' ? 'ivy_home' : 'ivy_home') };
+    const n = { ...d, ...c, x: 0, z: 0, path: null, pi: 0, hidden: true, cur: null, walk: 0, talkT: 0, face: 0, pause: 0, homeSpot: d.shop ? `${d.id}_home` : d.id === 'inspecteur' ? 'insp_home' : 'ivy_home' };
     c.g.visible = false; npcs.push(n);
   }
 }
@@ -1998,6 +2184,8 @@ function npcWanted(n) {
   let spot = n.sched[0][1];
   for (const [t, s] of n.sched) if (S.time >= t) spot = s;
   if (!n.shop && wet(S.weather) && S.time < 1200) spot = n.homeSpot;
+  if (n.id === 'inspecteur' && S.story.ch < 3) spot = 'insp_home';
+  if (spot === 'pier_end' && !S.unlocked.pier) spot = 'pier_a';
   return spot;
 }
 function placeNPC(n, spot) {
@@ -2105,27 +2293,28 @@ const keys = {};
 let highlight2 = null;
 
 // ---------- Inventaire
-function addItem(itemId, n = 1, t = 0) {
+function addItem(itemId, n = 1, t = 0, qa = 0) {
   const it = ITEMS[itemId];
   if (it.kind !== 'tool') {
-    const st = S.inv.find(s => s && s.id === itemId);
+    const st = S.inv.find(s => s && s.id === itemId && (s.qa || 0) === qa);
     if (st) { st.q += n; renderHotbar(); return true; }
   }
   const e = S.inv.indexOf(null); if (e < 0) return false;
-  S.inv[e] = it.kind === 'tool' ? { id: itemId, q: 1, t } : { id: itemId, q: n };
+  S.inv[e] = it.kind === 'tool' ? { id: itemId, q: 1, t } : qa ? { id: itemId, q: n, qa } : { id: itemId, q: n };
   renderHotbar(); return true;
 }
 function takeFrom(slot, n = 1) { const s = S.inv[slot]; if (!s) return; s.q -= n; if (s.q <= 0) S.inv[slot] = null; renderHotbar(); }
 function takeItem(id, n) { let left = n; for (let k = 0; k < S.inv.length && left > 0; k++) { const s = S.inv[k]; if (s && s.id === id) { const m = Math.min(left, s.q); takeFrom(k, m); left -= m; } } return left === 0; }
 function freeSlots() { return S.inv.filter(s => !s).length; }
-const farmCost = base => Math.max(0.5, base * (1 - 0.06 * (lvl('farm') - 1)));
-function spend(e) { if (S.energy < e) { toast("Plus assez d'énergie… va t'allonger au hamac."); return false; } S.energy = Math.max(0, S.energy - e); return true; }
+const farmCost = base => Math.max(0.5, base * (1 - 0.06 * (lvl('farm') - 1)) * (1 - 0.1 * tal('econome')));
+function spend(e) { if (S.godEnergy) return true; if (S.energy < e) { toast("Plus assez d'énergie… va t'allonger au hamac."); return false; } S.energy = Math.max(0, S.energy - e); return true; }
 function addGold(n, earned) { S.gold += n; if (earned) bump('earned', n); }
 
 // ---------- Compétences
 function xpGain(sk, n) {
-  const before = lvl(sk); S.xp[sk] += n; const after = lvl(sk);
-  if (after > before) { toast(`${SKILLS[sk].name} niveau ${after} !`, true); sfx('level'); S.pending.push(`${SKILLS[sk].name} niveau ${after}`); checkQuests(); }
+  const before = lvl(sk), pb = plvl(); S.xp[sk] = (S.xp[sk] || 0) + n; const after = lvl(sk), pa = plvl();
+  if (after > before) { toast(`${SKILLS[sk].name} niveau ${after} ! +1 point de talent (carnet)`, true); sfx('level'); S.pending.push(`${SKILLS[sk].name} niveau ${after}`); checkQuests(); }
+  if (pa > pb) { toast(`Niveau de joueur ${pa} ! Énergie max : ${maxEn()}`, true); S.energy = Math.min(maxEn(), S.energy + 6); S.pending.push(`Niveau de joueur ${pa}`); }
 }
 
 // ---------- Quêtes
@@ -2142,13 +2331,13 @@ function completeQuest(q) {
   let msg = `Quête terminée : ${q.title} (+${q.gold} g)`;
   if (q.item) { if (!addItem(q.item[0], q.item[1])) msg += ' (sac plein, objet perdu)'; else msg += ` · +${q.item[1]} ${ITEMS[q.item[0]].name}`; }
   if (q.friend) { friend(q.deliver[0]).pts += q.friend; }
-  toast(msg, true); sfx('quest'); renderTracker();
+  toast(msg, true); sfx('quest'); renderTracker(); onQuestDone(q);
 }
 let questLock = false;
 function checkQuests() {
   if (questLock) return; questLock = true;
   for (const q of QUESTS) if (!q.deliver && questActive(q) && qProgress(q) >= q.n) completeQuest(q);
-  questLock = false; renderTracker();
+  questLock = false; renderTracker(); checkStory();
 }
 
 // ---------- Amitiés
@@ -2175,7 +2364,7 @@ function giveGift(n, slot) {
 }
 const shopBonus = key => hearts(SHOPS[key].npc) >= 5;
 const priceBuy = (key, base) => Math.round(base * (shopBonus(key) ? 0.9 : 1));
-const priceSell = (key, id) => Math.round(ITEMS[id].sell * (shopBonus(key) ? 1.1 : 1));
+const priceSell = (key, id, qa) => Math.round(sellOf(id, qa) * (shopBonus(key) ? 1.1 : 1));
 
 // ---------- Cultures
 const soilDry = toon('#a9543a'), soilWet = toon('#6b3226');
@@ -2232,23 +2421,24 @@ function refreshPlot(k) {
   if (p.cropMesh) { scene.remove(p.cropMesh); p.cropMesh = null; }
   if (p.crop) { p.cropMesh = buildCrop(p.crop.type, cropStage(p.crop)); p.cropMesh.position.set(i + 0.5, 0.07, j + 0.5); p.cropMesh.rotation.y = hash2(i, j) * 6.28; scene.add(p.cropMesh); }
 }
-function till(k) {
+function till(k, fromSave) {
   plots.set(k, { watered: wet(S.weather), crop: null, soil: null, cropMesh: null });
-  const dec = tileDecor.get(k); if (dec) { for (const [b, n] of dec) b.hide(n); tileDecor.delete(k); }
+  const dec = tileDecor.get(k); if (dec) { for (const [b, n] of dec) b.hide(n); tileDecor.delete(k); if (!fromSave && rnd() < 0.5) addItem('fibre', 1); }
   refreshPlot(k);
 }
 function clearPlots() { for (const p of plots.values()) { if (p.soil) scene.remove(p.soil); if (p.cropMesh) scene.remove(p.cropMesh); } plots.clear(); }
 function canTill(i, j) {
-  if (!inField(i, j) || tiles[id(i, j)] !== GRASS || plots.has(id(i, j))) return false;
+  if (!inFarm(i, j) || tiles[id(i, j)] !== GRASS || plots.has(id(i, j)) || nodeAt(id(i, j)) || placedAt(id(i, j))) return false;
   for (const b of boxes) if (b[0] < i + 0.9 && b[2] > i + 0.1 && b[1] < j + 0.9 && b[3] > j + 0.1) return false;
   return true;
 }
 function harvest(k) {
   const p = plots.get(k), def = CROPS[p.crop.type];
-  if (!addItem(def.item, 1)) { toast('Ton sac est plein.'); return; }
-  let bonus = '';
-  if (lvl('farm') >= 5 && rnd() < 0.18) { addItem(def.item, 1); bonus = ' ×2'; }
-  if (def.regrow) p.crop.age = def.days - def.regrow; else p.crop = null;
+  const qa = rollQuality(p.fert ? 0.15 : 0);
+  if (!addItem(def.item, 1, 0, qa)) { toast('Ton sac est plein.'); return; }
+  let bonus = qa ? ` (${QUAL[qa].name})` : '';
+  if (lvl('farm') >= 5 && rnd() < 0.18) { addItem(def.item, 1, 0, qa); bonus += ' ×2'; }
+  if (def.regrow) p.crop.age = def.days - def.regrow; else { p.crop = null; p.fert = false; }
   refreshPlot(k); sfx('harvest'); floater(`+1 ${ITEMS[def.item].name}${bonus}`, def.item);
   xpGain('farm', 3 + Math.round(ITEMS[def.item].sell / 12)); bump('harvested');
 }
@@ -2272,12 +2462,13 @@ function useItem() {
   const slot = S.inv[S.sel]; if (!slot) return;
   const it = ITEMS[slot.id], tier = slot.t || 0;
   faceTarget();
+  if (useExtra(slot, it, tier, ti, tj, k, p)) return;
   if (slot.id === 'hoe') {
     if (!spend(farmCost(2))) return;
     anim('hoe', 0.34); let n = 0;
     for (const [i, j] of lineTiles(ti, tj, tierLine(tier))) if (canTill(i, j)) { till(id(i, j)); n++; }
     if (n) { sfx('hoe'); bump('tilled', n); xpGain('farm', n); }
-    else { sfx('thud'); if (!inField(ti, tj) && tiles[k] === GRASS) toast('Tu ne peux labourer que dans le champ de ton yard.'); }
+    else { sfx('thud'); if (inField(ti, tj) && !inFarm(ti, tj) && tiles[k] === GRASS) toast('Zone en friche : agrandis ton champ (panneau « Agrandir » près de la case).'); else if (!inField(ti, tj) && tiles[k] === GRASS) toast('Tu ne peux labourer que dans le champ de ton yard.'); }
   } else if (slot.id === 'can') {
     if (waterAt(ti, tj)) { S.water = canMax(tier); anim('can', 0.35); sfx('splash'); toast('Arrosoir rempli.'); renderHotbar(); return; }
     const tl = lineTiles(ti, tj, tierLine(tier)).filter(([i, j]) => inMap(i, j) && plots.has(id(i, j)) && !plots.get(id(i, j)).watered);
@@ -2300,8 +2491,8 @@ function useItem() {
 function eat() {
   if (busy() || S.fish.phase) return;
   const s = S.inv[S.sel]; if (!s || !ITEMS[s.id].food) { toast('Sélectionne un aliment pour le manger.'); return; }
-  if (S.energy >= MAX_EN) { toast("Tu n'as pas faim."); return; }
-  const f = ITEMS[s.id].food; S.energy = Math.min(MAX_EN, S.energy + f); takeFrom(S.sel, 1); sfx('eat'); floater(`+${f} énergie`);
+  if (S.energy >= maxEn()) { toast("Tu n'as pas faim."); return; }
+  const f = ITEMS[s.id].food; S.energy = Math.min(maxEn(), S.energy + f); takeFrom(S.sel, 1); sfx('eat'); floater(`+${f} énergie`);
 }
 
 // ---------- Interactions (E)
@@ -2312,8 +2503,14 @@ const interactables = [
   { x: 71, z: 45.1, r: 1.7, label: 'Poissonnerie du Port', act: () => openShop('poisson') },
   { x: 79, z: 19.9, r: 1.7, label: 'Dread & Style', act: () => openShop('boutique') },
   { x: 80, z: 37.0, r: 1.8, label: 'Chez Zion', act: () => openShop('cafe') },
-  { x: 20, z: 8.9, r: 1.8, label: 'Poulailler', act: () => openAnimals('poule') },
-  { x: 28.75, z: 9.6, r: 2.0, label: 'Étable', act: () => openAnimals('vache') },
+  { x: 20, z: 8.9, r: 1.8, label: 'Poulailler', act: () => S.built.coop ? openAnimals('poule') : openBuild('coop') },
+  { x: 28.75, z: 9.6, r: 2.0, label: 'Étable', act: () => S.built.barn ? openAnimals('vache') : openBuild('barn') },
+  { x: 15.6, z: 13.4, r: 1.4, label: 'Agrandir le yard', act: () => openFarmUp() },
+  { x: 19.5, z: 44.6, r: 1.6, label: 'Portillon de la plage', ok: () => !S.unlocked.gate, act: () => openLock('gate') },
+  { x: 63.5, z: 51.2, r: 1.6, label: 'Bout de la jetée', ok: () => !S.unlocked.pier, act: () => openLock('pier') },
+  { x: 88.5, z: 49.7, r: 1.5, label: 'Porte du phare', ok: () => !S.unlocked.lighthouse, act: () => openLock('lighthouse') },
+  { x: 88.5, z: 49.7, r: 1.5, label: 'Monter en haut du phare', ok: () => S.unlocked.lighthouse, act: () => climbLighthouse() },
+  { x: 63.5, z: 24.5, r: 2.8, label: "Poser le Vinyle d'Or", ok: () => S.story.frags.length >= 7 && !S.story.flags.awake, act: () => finale() },
 ];
 function nearestInteract() {
   let best = null, bd = 99;
@@ -2365,18 +2562,19 @@ function feedAll(type) {
   if (!list.length) { toast('Tout le monde a déjà mangé.'); return; }
   const have = countItem('fourrage'), n = Math.min(have, list.length);
   if (!n) { toast('Il te faut du fourrage (Graines Irie).'); return; }
-  takeItem('fourrage', n); for (let k = 0; k < n; k++) { list[k].fed = true; list[k].happy = Math.min(100, list[k].happy + 4); }
+  let used = 0; for (let k = 0; k < n; k++) { list[k].fed = true; list[k].happy = Math.min(100, list[k].happy + 4); if (!(rnd() < tal('gamelle') * 0.2)) used++; }
+  takeItem('fourrage', used);
   sfx('eat'); toast(`${n} animal${n > 1 ? 'aux nourris' : ' nourri'}.`.replace('animalaux', 'animaux'));
   xpGain('ranch', 2 * n);
 }
 function petAnimal(a) {
   if (a.pet) { toast(`${a.name} a déjà eu sa caresse du jour.`); return; }
-  a.pet = true; a.happy = Math.min(100, a.happy + 8 + lvl('ranch')); sfx(a.type === 'poule' ? 'cluck' : 'moo'); floater(`${a.name} est content !`); xpGain('ranch', 2); anim('pick', 0.3);
+  a.pet = true; a.happy = Math.min(100, a.happy + 8 + lvl('ranch') + 3 * tal('calin')); sfx(a.type === 'poule' ? 'cluck' : 'moo'); floater(`${a.name} est content !`); xpGain('ranch', 2); anim('pick', 0.3);
 }
 function collectShed(type) {
   const keys2 = type === 'poule' ? ['oeuf', 'oeuf_or'] : ['lait', 'lait_creme'];
   let got = 0;
-  for (const k of keys2) { while (S.shed[k] > 0 && addItem(k, 1)) { S.shed[k]--; got++; bump(type === 'poule' ? 'eggs' : 'milk'); xpGain('ranch', 4); } }
+  for (const k of keys2) { while (S.shed[k] > 0 && addItem(k, 1)) { S.shed[k]--; got++; bump(type === 'poule' ? 'eggs' : 'milk'); if (k === 'oeuf_or') bump('golden_eggs'); xpGain('ranch', 4); } }
   if (got) { sfx('harvest'); toast(`Tu récupères ${got} produit${got > 1 ? 's' : ''}.`); } else toast(S.shed[keys2[0]] + S.shed[keys2[1]] ? 'Ton sac est plein.' : 'Rien à ramasser pour le moment.');
 }
 
@@ -2389,8 +2587,9 @@ function startCast() {
   for (const d of [3, 4, 2, 1]) { const i = pi + dx * d, j = pj + dz * d; if (waterAt(i, j) && inMap(i, j)) { tgt = [i, j]; break; } }
   if (!tgt) { toast("Vise l'eau pour lancer ta ligne."); return; }
   if (!spend(3)) return;
+  const bait = countItem('appat') > 0; if (bait) takeItem('appat', 1);
   const k = id(tgt[0], tgt[1]);
-  S.fish = { phase: 'cast', t: 0, to: new THREE.Vector3(tgt[0] + 0.5, -0.24, tgt[1] + 0.5), from: new THREE.Vector3(), type: tiles[k] === RIVER ? 'river' : 'sea', pier: tgt[1] >= 55 };
+  S.fish = { phase: 'cast', t: 0, to: new THREE.Vector3(tgt[0] + 0.5, -0.24, tgt[1] + 0.5), from: new THREE.Vector3(), type: tiles[k] === RIVER ? 'river' : 'sea', pier: tgt[1] >= 55, bait };
   tools.rodTip(S.fish.from); bobber.visible = true; fishLine.visible = true; anim('cast', 0.45); sfx('cast');
 }
 function endFishing(msg) {
@@ -2398,7 +2597,7 @@ function endFishing(msg) {
   if (msg) toast(msg);
 }
 function pickFish(f) {
-  const night = isNight(), rareBoost = (lvl('fish') >= 5 ? 0.4 : 0) + (toolTier('rod') >= 2 ? 0.4 : 0) + 1;
+  const night = isNight(), rareBoost = (lvl('fish') >= 5 ? 0.4 : 0) + (toolTier('rod') >= 2 ? 0.4 : 0) + 1 + 0.2 * tal('flair') + (f.bait ? 0.5 : 0);
   const list = FISH_TABLE[f.type].filter(e => !e[2] || (e[2] === 'night' && night) || (e[2] === 'pier' && f.pier));
   const w = e => e[1] * (e[1] < 20 ? rareBoost * (f.pier ? 1.6 : 1) : 1);
   let tot = 0; for (const e of list) tot += w(e);
@@ -2409,7 +2608,7 @@ function pickFish(f) {
 function startMinigame() {
   const fid = pickFish(S.fish), def = ITEMS[fid];
   S.fish.phase = 'game'; bang.hidden = true;
-  const TR = 300, barH = 70 + 7 * (lvl('fish') - 1) + [0, 22, 40][toolTier('rod')];
+  const TR = 300, barH = 70 + 7 * (lvl('fish') - 1) + [0, 22, 40][toolTier('rod')] + 10 * tal('ligne');
   mg = { fid, d: def.diff, TR, barH, barY: TR - barH, barV: 0, fy: TR * 0.7, ft: TR * 0.5, ftT: 0, prog: 0.3 + (lvl('fish') >= 3 ? 0.08 : 0) };
   fishImg = new Image(); fishImg.src = icon(fid);
   fishUI.hidden = false; sfx('bite');
@@ -2428,7 +2627,8 @@ function updateMinigame(dt) {
   m.prog += (inside ? 0.27 : -0.2 * (0.6 + m.d / 110)) * dt;
   if (m.prog >= 1) {
     const def = ITEMS[m.fid], cm = Math.round(lerp(def.cm[0], def.cm[1], rnd()));
-    if (addItem(m.fid, 1)) {
+    const fq = rnd() < 0.04 * lvl('fish') ? (rnd() < 0.3 ? 2 : 1) : 0;
+    if (addItem(m.fid, 1, 0, fq)) {
       sfx('catch'); floater(`${def.name} · ${cm} cm`, m.fid); toast(`Tu as pêché : ${def.name} (${cm} cm) !`);
       const L = S.fishLog[m.fid] || (S.fishLog[m.fid] = { n: 0, max: 0 }); L.n++; L.max = Math.max(L.max, cm);
       xpGain('fish', 5 + Math.round(def.diff / 2)); bump('caught');
@@ -2459,7 +2659,7 @@ function updateFishing(dt) {
   if (f.phase === 'cast') {
     f.t += dt; const u = Math.min(1, f.t / 0.45);
     bobber.position.lerpVectors(f.from, f.to, u); bobber.position.y += Math.sin(u * Math.PI) * 1.6;
-    if (u >= 1) { f.phase = 'wait'; f.wait = (1.5 + rnd() * 5) * (wet(S.weather) ? 0.7 : 1) * (lvl('fish') >= 3 ? 0.8 : 1) * [1, 0.85, 0.7][toolTier('rod')]; sfx('splash'); }
+    if (u >= 1) { f.phase = 'wait'; f.wait = (1.5 + rnd() * 5) * (wet(S.weather) ? 0.7 : 1) * (lvl('fish') >= 3 ? 0.8 : 1) * [1, 0.85, 0.7][toolTier('rod')] * (1 - 0.12 * tal('patience')) * (f.bait ? 0.6 : 1); sfx('splash'); }
   } else if (f.phase === 'wait') {
     bobber.position.copy(f.to); bobber.position.y += Math.sin(tp * 3) * 0.02;
     f.wait -= dt; if (f.wait <= 0) { f.phase = 'bite'; f.bite = 0.95; bang.hidden = false; sfx('bite'); }
@@ -2478,46 +2678,55 @@ function updateFishing(dt) {
 }
 
 // ---------- Nuit, sommeil, sauvegarde
-const SAVE_KEY = 'irie-bay-v2';
 function serialize(full) {
-  const d = { v: 2, day: S.day, gold: S.gold, energy: S.energy, inv: S.inv, water: S.water, ship: S.ship,
-    plots: [...plots.entries()].map(([k, p]) => [k, p.watered ? 1 : 0, p.crop ? p.crop.type : 0, p.crop ? p.crop.age : 0]),
-    xp: S.xp, friends: S.friends, stats: S.stats, done: S.done, animals: S.animals, shed: S.shed, owned: S.owned, eq: S.eq, fishLog: S.fishLog, picked: S.picked, seq: animalSeq };
+  const d = { v: 3, day: S.day, gold: S.gold, energy: S.energy, inv: S.inv, water: S.water, ship: S.ship,
+    plots: [...plots.entries()].map(([k, p]) => [k, p.watered ? 1 : 0, p.crop ? p.crop.type : 0, p.crop ? p.crop.age : 0, p.fert ? 1 : 0]),
+    xp: S.xp, friends: S.friends, stats: S.stats, done: S.done, animals: S.animals, shed: S.shed, owned: S.owned, eq: S.eq, fishLog: S.fishLog, picked: S.picked, seq: animalSeq,
+    farmLvl: S.farmLvl, built: S.built, building: S.building, unlocked: S.unlocked, nodes: S.nodes, placed: S.placed, talents: S.talents, story: S.story };
   if (full) Object.assign(d, { time: S.time, x: P.x, z: P.z, sel: S.sel });
   return d;
 }
 function applySave(d) {
   resetState(); S.title = false;
-  const keep = ['day', 'gold', 'energy', 'water', 'ship', 'xp', 'friends', 'stats', 'done', 'animals', 'shed', 'owned', 'eq', 'fishLog', 'picked'];
+  const keep = ['day', 'gold', 'energy', 'water', 'ship', 'friends', 'stats', 'done', 'animals', 'shed', 'owned', 'eq', 'fishLog', 'picked', 'farmLvl', 'building', 'nodes', 'placed', 'talents'];
   for (const k of keep) if (d[k] !== undefined) S[k] = d[k];
+  for (const k of ['xp', 'built', 'unlocked']) if (d[k]) S[k] = { ...S[k], ...d[k] };
+  if (d.story) S.story = { ...S.story, ...d.story, flags: { ...d.story.flags } };
   S.inv = Array.isArray(d.inv) && d.inv.length === INV_SIZE ? d.inv : defaultInv();
   S.time = d.time ?? 360; S.sel = d.sel ?? 0; S.warned = S.time >= 1440; S.weather = weatherFor(S.day); animalSeq = d.seq || 1;
   P.x = d.x ?? 11; P.z = d.z ?? 13.4;
   clearPlots();
-  for (const [k, w, type, age] of d.plots || []) {
-    till(k); const p = plots.get(k); p.watered = !!w; if (type && CROPS[type]) p.crop = { type, age }; refreshPlot(k);
+  for (const [k, w, type, age, fe] of d.plots || []) {
+    till(k, true); const p = plots.get(k); p.watered = !!w; p.fert = !!fe; if (type && CROPS[type]) p.crop = { type, age }; refreshPlot(k);
   }
   S.water = Math.min(S.water, canMax(toolTier('can')));
-  buildPlayer(); syncAnimalMeshes(); refreshForage(); placeAllNPCs(); renderHotbar(); renderTracker();
+  for (const id2 of ['machette', 'pioche']) if (!hasItem(id2)) addItem(id2, 1);
+  buildPlayer(); syncAnimalMeshes(); refreshForage(); placeAllNPCs(); rebuildNodes(); rebuildPlaced(); refreshBuildings(); refreshLocks(); rebuildStakes(); renderHotbar(); renderTracker();
 }
-function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(serialize(false))); } catch (e) {} }
-function loadSave() { try { const s = localStorage.getItem(SAVE_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+function save() { writeSlot(S.slot, { ...serialize(false), savedAt: Date.now() }); }
+function loadSave() { const n = lastSlot(); return n ? readSlot(n) : null; }
 
 async function sleepNow(passedOut) {
   if (S.fade) return;
   closeModal(); endFishing();
   S.fade = true; $('#fade').classList.add('on'); await wait(750);
   const res = { grown: 0, earned: 0, dead: 0, eggs: 0, milk: 0, lost: 0, passedOut, ups: S.pending.splice(0), season: null, shipped: S.ship.slice() };
-  for (const [k, p] of plots) { if (p.crop && p.watered && p.crop.age < CROPS[p.crop.type].days) { p.crop.age++; res.grown++; } p.watered = false; }
+  for (const [k, p] of plots) {
+    if (p.crop && p.watered && p.crop.age < CROPS[p.crop.type].days) {
+      p.crop.age++; res.grown++;
+      if ((p.fert && rnd() < 0.25) || rnd() < tal('pousse') * 0.06) p.crop.age = Math.min(CROPS[p.crop.type].days, p.crop.age + 1);
+    }
+    p.watered = false;
+  }
   for (const a of S.animals) {
     if (a.fed) {
-      const prem = (a.happy >= 80 ? 0.3 : 0.06) + (lvl('ranch') >= 3 ? 0.1 : 0);
+      const prem = (a.happy >= 80 ? 0.3 : 0.06) + (lvl('ranch') >= 3 ? 0.1 : 0) + 0.06 * tal('premium');
       if (a.type === 'poule') { S.shed[rnd() < prem ? 'oeuf_or' : 'oeuf']++; res.eggs++; } else { S.shed[rnd() < prem ? 'lait_creme' : 'lait']++; res.milk++; }
     } else a.happy = Math.max(0, a.happy - 12);
     if (a.fed && !a.pet) a.happy = Math.max(0, a.happy - 2);
     a.fed = false; a.pet = false;
   }
-  for (const [it, q] of S.ship) res.earned += ITEMS[it].sell * q; S.ship = []; addGold(res.earned, true);
+  for (const [it, q, qa] of S.ship) res.earned += sellOf(it, qa) * q; S.ship = []; addGold(res.earned, true);
   if (passedOut) { res.lost = Math.min(500, Math.floor(S.gold * 0.1)); S.gold -= res.lost; }
   const oldSeason = seasonOf(S.day); S.day++; const ns = seasonOf(S.day);
   if (ns !== oldSeason) {
@@ -2526,12 +2735,401 @@ async function sleepNow(passedOut) {
   }
   S.weather = weatherFor(S.day);
   if (wet(S.weather)) for (const p of plots.values()) p.watered = true;
-  S.time = 360; S.warned = false; S.energy = passedOut ? Math.round(MAX_EN * 0.6) : MAX_EN; S.picked = { coco: [], shells: [] };
+  runSprinklers();
+  if (S.building) { S.built[S.building] = true; res.built = S.building; S.building = null; refreshBuildings(); }
+  dailyNodes();
+  S.time = 360; S.warned = false; S.energy = passedOut ? Math.round(maxEn() * 0.6) : maxEn(); S.picked = { coco: [], shells: [] };
   P.x = 9.7; P.z = 7.2; P.face = Math.PI / 2; S.card = [1, 0];
   for (const k of plots.keys()) refreshPlot(k);
   refreshForage(); placeAllNPCs(); checkQuests(); save();
   S.fade = false; $('#fade').classList.remove('on');
   openDayCard(res);
+}
+
+// ==== 09b-progress.js
+// =====================================================================
+// Progression RPG : niveau, talents, qualité, débris, artisanat,
+// agrandissement de la ferme, bâtiments à construire, zones verrouillées
+// =====================================================================
+const totalXP = () => Object.values(S.xp).reduce((a, b) => a + b, 0);
+const plXP = l => 45 * (l - 1) * (l - 1);
+const plvl = () => Math.min(MAX_PL, 1 + Math.floor(Math.sqrt(totalXP() / 45)));
+function maxEn() { return 100 + 6 * (plvl() - 1); }
+const tal = tid => S.talents[tid] || 0;
+function talentPoints() { let p = 0; for (const sk in SKILLS) p += lvl(sk) - 1; for (const k in S.talents) p -= S.talents[k]; return p; }
+function learnTalent(tid) { if (talentPoints() <= 0 || tal(tid) >= 3) return; S.talents[tid] = tal(tid) + 1; sfx('level'); }
+function rollQuality(bonus = 0) {
+  const r = rnd(), g = 0.02 + 0.02 * (lvl('farm') - 1) + bonus * 0.4 + tal('qualite') * 0.03, s = 0.1 + 0.04 * (lvl('farm') - 1) + bonus + tal('qualite') * 0.06;
+  return r < g ? 2 : r < g + s ? 1 : 0;
+}
+const sellOf = (itemId, qa = 0) => Math.round((ITEMS[itemId].sell || 0) * QUAL[qa || 0].mult * (ITEMS[itemId].crafted ? 1 + 0.05 * tal('marchand') : 1) * (S.story.flags.awake ? 1.1 : 1));
+const fieldRect = () => FARM_RECTS[S.farmLvl];
+const inFarm = (i, j) => { const r = fieldRect(); return i >= r[0] && i <= r[2] && j >= r[1] && j <= r[3]; };
+
+// ---------- Débris et ressources (branches, broussailles, souches, rochers)
+const nodeMeshes = new Map();
+const NODE_SPOTS = { farm: [], wild: [], beach: [] };
+function nodeMesh(type) {
+  const g = new THREE.Group();
+  if (type === 'branche') { for (let k = 0; k < 3; k++) part(g, G.cyl6, '#8a5a3a', [0.05, 0.85, 0.05], [(k - 1) * 0.12, 0.06, 0], [Math.PI / 2, 0, (k - 1) * 0.6]); part(g, G.ico0, '#3da84a', [0.14, 0.08, 0.14], [0.25, 0.08, 0.1]); }
+  else if (type === 'broussaille') { part(g, G.ico, '#2f8a3c', [0.38, 0.26, 0.38], [0, 0.18, 0]); part(g, G.ico, '#3da84a', [0.26, 0.2, 0.26], [0.2, 0.22, 0.12]); for (let k = 0; k < 3; k++) part(g, G.cone4, '#58b448', [0.05, 0.4, 0.05], [(k - 1) * 0.15, 0.25, -0.15]); }
+  else if (type === 'souche') { part(g, G.cyl, '#8a5a3a', [0.32, 0.36, 0.32], [0, 0.18, 0]); part(g, G.cyl, '#e8c79a', [0.27, 0.02, 0.27], [0, 0.37, 0]); for (let k = 0; k < 4; k++) part(g, G.cyl6, '#7a4b2e', [0.07, 0.4, 0.07], [Math.cos(k * 1.57) * 0.32, 0.05, Math.sin(k * 1.57) * 0.32], [Math.sin(k * 1.57) * 1.2, 0, -Math.cos(k * 1.57) * 1.2]); }
+  else if (type === 'rocher') { part(g, G.rock, '#a9a39b', [0.4, 0.3, 0.36], [0, 0.2, 0]); part(g, G.rock, '#948e88', [0.2, 0.16, 0.2], [0.3, 0.1, 0.18]); }
+  return g;
+}
+const nodeAt = k => S.nodes.find(n => n.k === k);
+function spawnNodeMesh(n) {
+  const i = n.k % W, j = (n.k / W) | 0, m = nodeMesh(n.type);
+  m.position.set(i + 0.5, 0, j + 0.5); m.rotation.y = hash2(i, j) * 6.28; scene.add(m); nodeMeshes.set(n.k, m);
+  const dec = tileDecor.get(n.k); if (dec) { for (const [b, q] of dec) b.hide(q); tileDecor.delete(n.k); }
+}
+function addNode(k, type) { if (nodeAt(k) || plots.has(k) || placedAt(k)) return; const n = { k, type, hp: DEBRIS[type].hp }; S.nodes.push(n); spawnNodeMesh(n); }
+function clearNodeMeshes() { for (const m of nodeMeshes.values()) scene.remove(m); nodeMeshes.clear(); }
+function rebuildNodes() { clearNodeMeshes(); for (const n of S.nodes) spawnNodeMesh(n); }
+function initNodeSpots() {
+  const R = FARM_RECTS[3];
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    const k = id(i, j), t = tiles[k];
+    if (t === GRASS && i >= R[0] && i <= R[2] && j >= R[1] && j <= R[3] && !occ[k]) NODE_SPOTS.farm.push(k);
+    else if (t === GRASS && !used[k] && i > 3 && j > 3 && i < W - 4 && !(i >= 16 && i <= 34 && j <= 12)) NODE_SPOTS.wild.push(k);
+    else if (t === SAND && !occ[k] && !isWater(tileAt(i, j + 1)) && !(i >= 58 && i <= 68) && !(i >= 84)) NODE_SPOTS.beach.push(k);
+  }
+}
+// Nouvelle partie : la vieille ferme de Tonton Dub est envahie
+function seedFarmDebris() {
+  S.nodes = []; clearNodeMeshes();
+  const R0 = FARM_RECTS[0];
+  for (const k of NODE_SPOTS.farm) {
+    const i = k % W, j = (k / W) | 0, start = i >= R0[0] && i <= R0[2] && j >= R0[1] && j <= R0[3];
+    const r = hash2(i * 1.3, j * 2.1);
+    if (r < (start ? 0.06 : 0.17)) addNode(k, r < 0.03 ? 'souche' : r < 0.07 ? 'rocher' : r < 0.12 ? 'broussaille' : 'branche');
+  }
+}
+function dailyNodes() {
+  const cap = 140; let n = 0;
+  const pickFrom = (list, type, count) => { for (let q = 0; q < count * 4 && n < count; q++) { const k = list[(dayRand(S.day, q * 7.3 + type.length) * list.length) | 0]; if (k != null && !nodeAt(k) && S.nodes.length < cap) { addNode(k, type); n++; } } n = 0; };
+  pickFrom(NODE_SPOTS.wild, 'branche', 5); pickFrom(NODE_SPOTS.wild, 'broussaille', 4); pickFrom(NODE_SPOTS.beach, 'rocher', 3);
+  const R = fieldRect(); pickFrom(NODE_SPOTS.farm.filter(k => { const i = k % W, j = (k / W) | 0; return !(i >= R[0] && i <= R[2] && j >= R[1] && j <= R[3]); }), 'broussaille', 2);
+}
+function hitNode(n, slot) {
+  const d = DEBRIS[n.type], tier = slot.t || 0;
+  if (d.tool !== slot.id) { toast(`${d.name} : il faut la ${d.tool === 'machette' ? 'machette' : 'pioche'}.`); return; }
+  if (!spend(d.en * (1 - 0.15 * tal('bucheron')))) return;
+  anim('hoe', 0.32); n.hp -= 1 + tier; sfx(d.tool === 'pioche' ? 'thud' : 'hoe');
+  const m = nodeMeshes.get(n.k); if (m) { m.scale.setScalar(0.85); setTimeout(() => m.scale.setScalar(1), 90); }
+  if (n.hp > 0) return;
+  const [res, a, b] = d.drop; let q = a + Math.floor(rnd() * (b - a + 1)) + tier + (rnd() < tal('cueilleur') * 0.2 ? 1 : 0);
+  const got = [[res, q]];
+  if (n.type === 'rocher' && rnd() < 0.04 + 0.03 * tal('nez') + 0.03 * tier + (lvl('forage') >= 5 ? 0.04 : 0)) got.push(['quartz', 1]);
+  if (n.type === 'broussaille' && rnd() < 0.3) got.push(['bois', 1]);
+  for (const [r2, q2] of got) if (!addItem(r2, q2)) toast('Ton sac est plein.');
+  floater(got.map(([r2, q2]) => `+${q2} ${ITEMS[r2].name}`).join(' · '), got[got.length - 1][0]);
+  S.nodes.splice(S.nodes.indexOf(n), 1); if (m) scene.remove(m); nodeMeshes.delete(n.k);
+  xpGain('forage', 4 + d.hp); bump('debris');
+}
+
+// ---------- Objets posés (arroseurs)
+const placedMeshes = new Map();
+const placedAt = k => S.placed.find(p => p.k === k);
+function sprinklerMesh() {
+  const g = new THREE.Group();
+  part(g, G.box, '#8a5a3a', [0.4, 0.12, 0.4], [0, 0.06, 0]); part(g, G.cyl6, '#7fa5c4', [0.05, 0.4, 0.05], [0, 0.3, 0]);
+  const head = new THREE.Group(); head.position.y = 0.52; g.add(head);
+  part(head, G.box, '#2fb6a7', [0.36, 0.05, 0.05], [0, 0, 0]); part(head, G.sph, '#f6c026', [0.06, 0.06, 0.06], [0, 0.04, 0]);
+  g.userData.head = head; return g;
+}
+function spawnPlaced(p) { const i = p.k % W, j = (p.k / W) | 0, m = sprinklerMesh(); m.position.set(i + 0.5, 0, j + 0.5); scene.add(m); placedMeshes.set(p.k, m); }
+function rebuildPlaced() { for (const m of placedMeshes.values()) scene.remove(m); placedMeshes.clear(); for (const p of S.placed) spawnPlaced(p); }
+function runSprinklers() {
+  for (const p of S.placed) { const i = p.k % W, j = (p.k / W) | 0; for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) { const pl = plots.get(id(i + di, j + dj)); if (pl) pl.watered = true; } }
+}
+
+// Outils et objets supplémentaires (renvoie true si l'action est traitée)
+function useExtra(slot, it, tier, ti, tj, k, p) {
+  const n = nodeAt(k);
+  if (slot.id === 'machette' || slot.id === 'pioche') {
+    if (n) { hitNode(n, slot); return true; }
+    if (slot.id === 'pioche' && placedAt(k)) { const pl = placedAt(k); S.placed.splice(S.placed.indexOf(pl), 1); scene.remove(placedMeshes.get(k)); placedMeshes.delete(k); addItem('arroseur', 1); sfx('thud'); return true; }
+    if (slot.id === 'pioche' && p && !p.crop) { scene.remove(p.soil); plots.delete(k); sfx('thud'); return true; }
+    anim('hoe', 0.3); sfx('thud'); return true;
+  }
+  if (n && (slot.id === 'hoe' || it.kind === 'seed')) { toast(`Dégage d'abord ${DEBRIS[n.type].name.toLowerCase()} avec la ${DEBRIS[n.type].tool}.`); return true; }
+  if (it.kind === 'fert') {
+    if (!p) { toast("Pose l'engrais sur une case labourée."); return true; }
+    if (p.fert) { toast('Cette case a déjà de l\'engrais.'); return true; }
+    p.fert = true; takeFrom(S.sel, 1); refreshPlot(k); anim('seed', 0.25); sfx('plant'); return true;
+  }
+  if (it.kind === 'place') {
+    if (!inFarm(ti, tj) || p || n || placedAt(k) || tiles[k] !== GRASS) { toast("Pose l'arroseur sur une case libre de ton champ."); return true; }
+    const pl = { k, type: 'arroseur' }; S.placed.push(pl); spawnPlaced(pl); takeFrom(S.sel, 1); sfx('plant'); xpGain('craft', 3); return true;
+  }
+  return false;
+}
+
+// ---------- Artisanat
+const recipeOk = r => lvl('craft') >= r.lvl;
+const canCraft = (r, n = 1) => recipeOk(r) && Object.entries(r.need).every(([i2, q]) => countItem(i2) >= q * n);
+function craft(rid, n = 1) {
+  const r = RECIPES.find(x => x.id === rid); if (!canCraft(r, n)) return;
+  if (r.tab === 'cuisine' && !S.inside) { toast('La cuisine se fait chez toi, près du réchaud.'); return; }
+  let made = 0;
+  for (let q = 0; q < n; q++) {
+    if (!(rnd() < tal('recycle') * 0.1)) for (const [i2, c] of Object.entries(r.need)) takeItem(i2, c);
+    const out = r.out + (rnd() < tal('serie') * 0.1 ? 1 : 0);
+    if (!addItem(r.id, out)) { toast('Ton sac est plein.'); break; }
+    made += out; xpGain('craft', 4 + Object.values(r.need).reduce((a, b) => a + b, 0) * 2); bump('crafted', 1);
+  }
+  if (made) { sfx('harvest'); toast(`Fabriqué : ${made} × ${ITEMS[r.id].name}`); }
+}
+
+// ---------- Agrandir la ferme
+let stakesG = null;
+function rebuildStakes() {
+  if (stakesG) scene.remove(stakesG);
+  stakesG = new THREE.Group(); scene.add(stakesG);
+  const [i0, j0, i1, j1] = fieldRect(), x0 = i0 - 0.05, z0 = j0 - 0.05, x1 = i1 + 1.05, z1 = j1 + 1.05;
+  const post = (x, z, k) => { part(stakesG, G.cyl6, '#8a5a3a', [0.04, 0.5, 0.04], [x, 0.25, z]); part(stakesG, G.ico0, RASTA[k % 3], [0.06, 0.06, 0.06], [x, 0.52, z]); };
+  const rope = (ax, az, bx, bz) => { const len = Math.hypot(bx - ax, bz - az); const m = part(stakesG, G.box, '#e8c79a', [len, 0.025, 0.025], [(ax + bx) / 2, 0.38, (az + bz) / 2]); m.rotation.y = -Math.atan2(bz - az, bx - ax); m.castShadow = false; };
+  let k = 0;
+  for (let x = x0; x <= x1 + 0.01; x += Math.max(1, (x1 - x0) / Math.round((x1 - x0) / 2))) { post(x, z0, k++); post(x, z1, k++); }
+  for (let z = z0; z <= z1 + 0.01; z += Math.max(1, (z1 - z0) / Math.round((z1 - z0) / 2))) { post(x0, z, k++); post(x1, z, k++); }
+  rope(x0, z0, x1, z0); rope(x0, z1, x1, z1); rope(x0, z0, x0, z1); rope(x1, z0, x1, z1);
+}
+function farmUpgradeOk() {
+  const u = FARM_UPG[S.farmLvl + 1]; if (!u) return { ok: false, why: 'Ton yard est déjà au maximum.' };
+  if (plvl() < u.pl) return { ok: false, why: `Il faut le niveau ${u.pl}.` };
+  if (S.gold < u.gold) return { ok: false, why: `Il te manque ${u.gold - S.gold} g.` };
+  for (const [i2, q] of Object.entries(u.need)) if (countItem(i2) < q) return { ok: false, why: `Il te manque ${q - countItem(i2)} ${ITEMS[i2].name.toLowerCase()}.` };
+  return { ok: true };
+}
+function upgradeFarm() {
+  if (!farmUpgradeOk().ok) return;
+  const u = FARM_UPG[S.farmLvl + 1]; S.gold -= u.gold; for (const [i2, q] of Object.entries(u.need)) takeItem(i2, q);
+  S.farmLvl++; rebuildStakes(); sfx('quest'); toast(`Ton champ s'agrandit ! (${fieldSize()} cases cultivables)`, true); bump('farmup');
+}
+const fieldSize = () => { const r = fieldRect(); return (r[2] - r[0] + 1) * (r[3] - r[1] + 1); };
+
+// ---------- Construire le poulailler et l'étable
+const BUILD_G = {};
+function makeSite(x0, z0, w, d, label) {
+  const g = new THREE.Group(); scene.add(g);
+  part(g, G.box, '#b3a79a', [w, 0.18, d], [x0 + w / 2, 0.09, z0 + d / 2]);
+  for (const [sx, sz] of [[0, 0], [1, 0], [0, 1], [1, 1]]) part(g, G.cyl6, '#c9a45a', [0.06, 2.2, 0.06], [x0 + 0.2 + sx * (w - 0.4), 1.1, z0 + 0.2 + sz * (d - 0.4)]);
+  part(g, G.box, '#c9a45a', [w - 0.2, 0.06, 0.06], [x0 + w / 2, 1.6, z0 + 0.2]); part(g, G.box, '#c9a45a', [w - 0.2, 0.06, 0.06], [x0 + w / 2, 1.6, z0 + d - 0.2]);
+  for (let k = 0; k < 4; k++) part(g, G.box, '#b07a48', [1.4, 0.1, 0.25], [x0 + 0.9 + (k % 2) * 0.2, 0.25 + k * 0.1, z0 + d - 0.6], [0, k * 0.2, 0]);
+  part(g, G.rock, '#a9a39b', [0.35, 0.3, 0.35], [x0 + w - 0.8, 0.25, z0 + d - 0.6]);
+  signBoard(g, label, x0 + w / 2, 1.0, z0 + d + 0.15, 1.9, 0.5);
+  return g;
+}
+function refreshBuildings() { for (const k of ['coop', 'barn']) { if (!BUILD_G[k]) continue; BUILD_G[k].g.visible = S.built[k]; BUILD_G[k].site.visible = !S.built[k]; } }
+function buildOk(type) {
+  const b = BUILDS[type];
+  if (S.built[type]) return { ok: false, why: 'Déjà construit.' };
+  if (S.building) return { ok: false, why: 'Un chantier est déjà en cours.' };
+  if (S.story.ch < b.ch) return { ok: false, why: 'Débloqué au chapitre 2 de la légende.' };
+  if (b.after && !S.built[b.after]) return { ok: false, why: `Construis d'abord le ${BUILDS[b.after].name.toLowerCase()}.` };
+  if (plvl() < b.pl) return { ok: false, why: `Il faut le niveau ${b.pl}.` };
+  if (S.gold < b.gold) return { ok: false, why: `Il te manque ${b.gold - S.gold} g.` };
+  for (const [i2, q] of Object.entries(b.need)) if (countItem(i2) < q) return { ok: false, why: `Il te manque ${q - countItem(i2)} ${ITEMS[i2].name.toLowerCase()}.` };
+  return { ok: true };
+}
+function startBuild(type) {
+  if (!buildOk(type).ok) return;
+  const b = BUILDS[type]; S.gold -= b.gold; for (const [i2, q] of Object.entries(b.need)) takeItem(i2, q);
+  S.building = type; sfx('quest'); toast(`Chantier lancé : ${b.name}. Les potes de Zion bossent cette nuit !`, true);
+}
+
+// ---------- Zones verrouillées (portillon, jetée, phare)
+const lockState = {};
+function lockMesh(key) {
+  const g = new THREE.Group(); scene.add(g); const L = LOCKS[key], [x0, z0, x1, z1] = L.box, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, w = x1 - x0;
+  if (key === 'gate') { part(g, G.box, '#7a5136', [w, 0.9, 0.08], [cx, 0.45, cz]); for (let k = 0; k < 6; k++) part(g, G.ico, '#2f8a3c', [0.3, 0.22, 0.2], [x0 + 0.3 + k * 0.5, 0.3 + (k % 3) * 0.2, cz + 0.05]); }
+  else if (key === 'pier') { for (const s of [-1, 1]) part(g, G.box, '#6b4a2a', [w + 0.4, 0.12, 0.12], [cx, 0.55, cz], [0, 0, s * 0.35]); part(g, G.box, '#e2362f', [0.9, 0.4, 0.04], [cx, 1.0, cz + 0.08]); }
+  else { part(g, G.box, '#8b93a8', [w, 0.12, 0.1], [cx, 0.8, cz]); part(g, G.box, '#8b93a8', [w, 0.12, 0.1], [cx, 0.45, cz]); for (const s of [-1, 1]) part(g, G.box, '#5b6270', [0.12, 1.1, 0.12], [cx + s * w / 2, 0.55, cz]); signBoard(g, 'Ministère', cx, 1.35, cz + 0.1, 1.6, 0.45); }
+  return g;
+}
+function initLocks() { for (const key in LOCKS) { const b = LOCKS[key].box.slice(); lockState[key] = { g: lockMesh(key), box: b }; } refreshLocks(); }
+function refreshLocks() {
+  let changed = false;
+  for (const key in LOCKS) {
+    const st = lockState[key], open = S.unlocked[key], has = boxes.includes(st.box);
+    st.g.visible = !open;
+    if (open && has) { boxes.splice(boxes.indexOf(st.box), 1); changed = true; }
+    if (!open && !has) { boxes.push(st.box); changed = true; }
+  }
+  if (changed && walk) buildWalk();
+}
+function lockOk(key) {
+  const L = LOCKS[key]; if (S.unlocked[key]) return { ok: false, why: 'Déjà ouvert.' };
+  if (L.flag) return S.story.flags[L.flag] ? { ok: true } : { ok: false, why: 'Il faut un permis du Ministère des Formulaires.' };
+  for (const [i2, q] of Object.entries(L.need)) if (countItem(i2) < q) return { ok: false, why: `Il te manque ${q - countItem(i2)} ${ITEMS[i2].name.toLowerCase()}.` };
+  return { ok: true };
+}
+function unlock(key) {
+  if (!lockOk(key).ok) return; const L = LOCKS[key];
+  if (L.need) for (const [i2, q] of Object.entries(L.need)) takeItem(i2, q);
+  S.unlocked[key] = true; refreshLocks(); sfx('quest'); toast(`${L.name} : ouvert !`, true); xpGain('craft', 20); checkStory();
+}
+
+// ==== 09c-story.js
+// =====================================================================
+// La légende de RastaBabylone : chapitres, éclats, Inspecteur, tortue
+// =====================================================================
+const LORE = [
+  "Il y a très longtemps, RastaBabylone, une tortue géante, nageait autour d'Irie Bay avec le Grand Sound System sur le dos. Sa basse était si profonde que les noix de coco tombaient vers le haut et que les cultures poussaient en une nuit.",
+  "Puis le Ministère des Formulaires débarqua, en costume gris. Il déclara la basse « non conforme », confisqua le Vinyle d'Or et le brisa en sept éclats qu'il sema aux quatre coins de l'île. La tortue, vexée, alla bouder au fond de la baie. Elle y dort encore.",
+  "Une comptine dit où chercher : « Un dans la terre, un dans la mer, un au comptoir, un dans un nid, un au bout de la jetée, un dans la poche d'un gamin, et le dernier tout là-haut. »",
+  "Le Ministère existe toujours. Son dernier inspecteur arrive par le bateau du mardi. On dit qu'il a un cœur, rangé quelque part dans un classeur.",
+  "Quand les sept éclats seront réunis, il faudra poser le Vinyle d'Or sur la platine de la place, une nuit sans orage, et monter le son.",
+];
+const CHAPTERS = [null,
+  { title: "L'héritage de Tonton Dub", goal: 'Récolte 3 légumes et rencontre 3 villageois.', lore: 1,
+    prog: () => [Math.min(3, stat('harvested')) + Math.min(3, metCount()), 6] },
+  { title: 'Les Éclats du Vinyle', goal: "Retrouve 3 éclats du Vinyle d'Or. Le poulailler peut maintenant être construit.", lore: 3,
+    prog: () => [Math.min(3, S.story.frags.length), 3] },
+  { title: 'Le Ministère des Formulaires', goal: "Remplis les 3 formulaires de l'Inspecteur Babylone (sur la place, 10h-16h).", lore: 4,
+    prog: () => [S.story.forms, 3] },
+  { title: 'Le Grand Réveil', goal: "Réunis les 7 éclats, puis pose le Vinyle d'Or sur la platine de la place, la nuit.", lore: 5,
+    prog: () => [S.story.frags.length, 7] },
+  { title: 'Épilogue : bonnes ondes', goal: 'RastaBabylone veille sur la baie. Tes ventes rapportent 10 % de plus. Le reste, c\'est du bonus.', lore: 5,
+    prog: () => [1, 1] },
+];
+const FRAGS = [
+  { id: 'f1', name: 'Éclat des Racines', hint: 'Dans la terre : dégage 12 débris de ton yard.', ok: () => stat('debris') >= 12,
+    cut: [['Narrateur', "Ta lame fait « tiiing » contre quelque chose de dur. Entre deux racines dépasse un morceau de vinyle doré. L'Éclat des Racines !"]] },
+  { id: 'f2', name: 'Éclat des Marées', hint: 'Dans la mer : pêche 8 poissons, Winston a quelque chose pour toi.', ok: () => stat('caught') >= 8,
+    cut: [['Capitaine Winston', "Tiens, regarde ce que j'ai trouvé dans le ventre d'un mérou, l'an dernier. Ça brille comme toi quand tu ramènes un poisson. Garde-le."]] },
+  { id: 'f3', name: 'Éclat du Comptoir', hint: 'Au comptoir : deviens ami avec Zion (4 cœurs).', ok: () => hearts('zion') >= 4,
+    cut: [['Zion', "Ce truc ? Je m'en servais comme dessous de verre depuis dix ans. Si c'est un morceau de légende, il est à toi, bredda. Respect."]] },
+  { id: 'f4', name: 'Éclat du Nid', hint: 'Dans un nid : construis le poulailler et ramasse un œuf doré.', ok: () => stat('golden_eggs') >= 1,
+    cut: [['Narrateur', "Sous l'œuf doré, au fond du nid, il y a un éclat tout chaud. La poule a l'air très fière d'elle. Elle ne dira pas d'où il vient."]] },
+  { id: 'f5', name: 'Éclat de la Jetée', hint: 'Au bout de la jetée : répare les planches pourries.', ok: () => S.unlocked.pier,
+    cut: [['Narrateur', "En posant la dernière planche neuve, tu vois briller quelque chose entre deux poteaux. L'Éclat de la Jetée t'attendait depuis trois siècles."]] },
+  { id: 'f6', name: 'Éclat du Gamin', hint: "Dans la poche d'un gamin : 3 cœurs avec Delroy.", ok: () => hearts('delroy') >= 3,
+    cut: [['Delroy', "Mon coquillage brillant ? Bon... d'accord, c'est toi. Mais tu me laisses le regarder de temps en temps, promis ?"]] },
+  { id: 'f7', name: 'Éclat du Phare', hint: 'Tout là-haut : monte en haut du phare (il faut un permis).', ok: () => S.story.flags.lighthouseTop,
+    cut: [['Narrateur', "Tout en haut du phare, posé sur la lentille, le dernier éclat t'attendait. D'ici, on voit toute la baie... et une énorme ombre qui ronfle sous l'eau."]] },
+];
+const CUTS = {
+  intro: [
+    ['Lettre de Tonton Dub', "Salut toi ! Si tu lis ça, c'est que je suis parti en tournée cosmique. Le yard est à toi : une case, un champ plein de broussailles et une machette qui coupe à peu près."],
+    ['Lettre de Tonton Dub', "Ici, on raconte la légende de RastaBabylone, une tortue géante qui portait le Grand Sound System sur son dos. Sa basse faisait tomber les noix de coco vers le haut."],
+    ['Lettre de Tonton Dub', "Un jour, le Ministère des Formulaires a déclaré la basse « non conforme ». Ils ont brisé le Vinyle d'Or en sept éclats. Depuis, la tortue boude au fond de la baie."],
+    ['Lettre de Tonton Dub', "Je compte sur toi. Dégage le champ, plante des trucs, fais-toi des amis. Et si tu trouves un éclat qui brille, tu sauras quoi faire. Respect. PS : ne signe RIEN de gris."],
+  ],
+  ch2: [
+    ['Mama Ivy', "Alors c'est toi qui as repris le yard de Dub ! Il t'a parlé de RastaBabylone, j'imagine. Ce vieux fou a passé sa vie à chercher ces éclats."],
+    ['Mama Ivy', "Ma grand-mère chantait : « Un dans la terre, un dans la mer, un au comptoir, un dans un nid, un au bout de la jetée, un dans la poche d'un gamin, et le dernier tout là-haut. »"],
+    ['Mama Ivy', "Et construis-toi un poulailler, va. Une ferme sans poules, c'est comme un sound system sans basse."],
+  ],
+  ch3: [
+    ['Inspecteur Babylone', "Bonjour. Inspecteur Babylone, Ministère des Formulaires, service des Vibrations Non Autorisées. On me signale une recrudescence de bonne humeur sur cette île."],
+    ['Inspecteur Babylone', "Vos recherches d'éclats nécessitent trois formulaires. En triple exemplaire. À l'encre grise. Je serai sur la place de 10h à 16h, sauf quand je n'y suis pas."],
+    ['Zion', "(tout bas) Fais-lui ses papiers, bredda. Il a la clé du phare. Et je l'ai déjà vu taper du pied en rythme, quand il croit que personne ne regarde."],
+  ],
+  permis: [
+    ['Inspecteur Babylone', "Formulaire Z-0 reçu, tamponné, re-tamponné. Voici votre permis de visite du phare. Ce gâteau était... conforme. Très conforme."],
+    ['Inspecteur Babylone', "(il esquisse un pas de danse, puis se fige) Je n'ai rien fait. Circulez."],
+  ],
+  ch4: [
+    ['Capitaine Winston', "Tu y es presque, hein ? Quand tu auras les sept éclats, pose le Vinyle d'Or sur la grande platine de la place, une nuit sans orage. Et tiens bien ton chapeau."],
+  ],
+  finale: [
+    ['Narrateur', "Tu poses le Vinyle d'Or sur la grande platine. Les enceintes toussent, crachotent... puis la première note de basse fait trembler tous les cocotiers de l'île."],
+    ['Narrateur', "Au loin, la mer se bombe. Une carapace couverte de palmiers sort lentement de l'eau. RastaBabylone ouvre un œil, puis l'autre, et bâille en mi bémol."],
+    ['RastaBabylone', "Mmmh... quelle sieste. Trois cents ans ? Pfff. Bon. Qui a mis ce morceau ? Excellent choix."],
+    ['Inspecteur Babylone', "Ceci est hautement irrégulier. Je vais devoir... je vais devoir... (il retire sa cravate) ...je vais devoir danser."],
+    ['RastaBabylone', "Merci, petit fermier. Tant que la musique jouera, l'île aura de bonnes ondes, et les marchands seront de bonne humeur : tes ventes rapportent 10 % de plus. Irie !"],
+  ],
+};
+
+// Inspecteur Babylone : un villageois de plus, en costume gris
+NPC_DEFS.push({ id: 'inspecteur', name: 'Inspecteur Babylone', scale: 1.02,
+  look: { skin: '#e6c3a0', hair: '#3a3a3a', hairStyle: 'short', hat: 'melon', glasses: 'round', shirt: '#7b8494', pants: '#5b6270', tie: '#8a1f2a' },
+  sched: [[360, 'insp_home'], [600, 'plaza_d'], [960, 'insp_home']],
+  loves: ['gateau_coco', 'planche'], likes: ['corde', 'pierre', 'jus_coco', 'jus_ananas'], hates: ['ganja', 'piment'],
+  lines: {
+    low: ["Votre chapeau n'est pas au format A4. Je le note.", "Saviez-vous que sourire sans autorisation est passible d'une amende de trois tampons ?"],
+    mid: ["Hmf. Votre champ est... aligné. J'apprécie l'alignement.", "Le formulaire, c'est la paix intérieure. Avec des cases."],
+    high: ["Entre nous... cette musique, là. Elle n'est pas si non conforme.", "Si vous voyez Zion, ne lui dites pas que je connais toutes les paroles."] },
+  rain: ["La pluie mouille les formulaires. C'est un drame administratif."] });
+NPC_BY_ID.inspecteur = NPC_DEFS[NPC_DEFS.length - 1];
+SPOTS.insp_home = [63.5, 45.6]; SPOTS.plaza_d = [63.5, 29.7];
+QUESTS.push(
+  { id: 'formA', title: 'Formulaire A-38', desc: "« Attestation de non-vibration » : livre 5 planches à l'Inspecteur Babylone.", deliver: ['inspecteur', 'planche', 5], gold: 150, friend: 30, req: () => S.story.ch >= 3, story: true },
+  { id: 'formB', title: 'Formulaire B-52', desc: "« Déclaration de noix conforme » : livre 6 noix de coco à l'Inspecteur.", deliver: ['inspecteur', 'coco', 6], gold: 200, friend: 30, req: () => S.done.includes('formA'), story: true },
+  { id: 'formC', title: 'Formulaire Z-0', desc: "« Certificat de calme absolu » : livre 1 gâteau coco (œuf, lait, coco) à l'Inspecteur.", deliver: ['inspecteur', 'gateau_coco', 1], gold: 400, friend: 60, req: () => S.done.includes('formB'), story: true },
+);
+const metCount = () => Object.values(S.friends).filter(f => f.met).length;
+const hasFrag = fid => S.story.frags.includes(fid);
+
+// File de scènes : une scène attend si une fenêtre est déjà ouverte
+const cutQueue = [];
+function cutscene(lines, onEnd) { cutQueue.push({ lines, onEnd }); if (!S.modal && !S.title) nextCut(); }
+function nextCut() { const c = cutQueue.shift(); if (!c) return; openModal('cut', { cut: c, idx: 0 }); }
+function onQuestDone(q) {
+  if (!q.id.startsWith('form')) return;
+  S.story.forms = ['formA', 'formB', 'formC'].filter(x => S.done.includes(x)).length;
+  if (q.id === 'formC') { S.story.flags.permis = true; cutscene(CUTS.permis); toast('Tu as le permis du phare : la porte peut être ouverte.', true); }
+  checkStory();
+}
+let storyLock = false;
+function checkStory() {
+  if (storyLock || S.title) return; storyLock = true;
+  const st = S.story;
+  if (st.ch === 1 && stat('harvested') >= 3 && metCount() >= 3) { st.ch = 2; cutscene(CUTS.ch2); toast("Chapitre 2 : les Éclats du Vinyle. Le poulailler peut être construit.", true); }
+  if (st.ch >= 2) for (const f of FRAGS) if (!hasFrag(f.id) && f.ok()) {
+    st.frags.push(f.id); cutscene(f.cut); toast(`Éclat trouvé : ${f.name} (${st.frags.length}/7)`, true); sfx('level'); xpGain('forage', 30);
+  }
+  if (st.ch === 2 && st.frags.length >= 3) { st.ch = 3; cutscene(CUTS.ch3); toast("Chapitre 3 : le Ministère des Formulaires.", true); }
+  if (st.ch === 3 && st.flags.permis) { st.ch = 4; cutscene(CUTS.ch4); toast('Chapitre 4 : le Grand Réveil.', true); }
+  storyLock = false; renderTracker();
+}
+function storyObjective() {
+  const c = CHAPTERS[S.story.ch]; if (!c || S.story.flags.awake) return null;
+  const [a, b] = c.prog(); return { title: `Chapitre ${S.story.ch} · ${c.title}`, desc: c.goal, a, b };
+}
+
+// Le phare et le grand final
+function climbLighthouse() {
+  if (S.story.flags.lighthouseTop) { toast('La vue est toujours aussi belle. La grosse ombre ronfle toujours.'); return; }
+  S.story.flags.lighthouseTop = true; sfx('quest'); checkStory();
+}
+let turtle = null, turtleRise = 0;
+function makeTurtle() {
+  const g = new THREE.Group(); g.position.set(74, -4, 57.2); scene.add(g);
+  part(g, G.ico, '#2f8a3c', [4.2, 1.5, 3.3], [0, 0, 0]);
+  for (const [x, z, s] of [[0, 0, 1.3], [1.9, 0.6, 0.9], [-1.9, 0.5, 0.9], [1.2, -1.6, 0.8], [-1.2, -1.6, 0.8], [0.4, 1.9, 0.8], [-0.6, 1.9, 0.7]]) part(g, G.ico0, '#3f9d57', [s, 0.35, s], [x, 1.2, z]);
+  part(g, G.cyl, '#c9a45a', [4.1, 0.25, 3.2], [0, -0.1, 0]);
+  const head = part(g, G.sph, '#7fbf5a', [1.1, 0.9, 1.2], [0, 0.3, -3.7]);
+  for (const s of [-1, 1]) { part(g, G.sph, '#ffffff', [0.22, 0.25, 0.1], [s * 0.45, 0.65, -4.7]); part(g, G.sph, '#241a2e', [0.1, 0.12, 0.05], [s * 0.45, 0.65, -4.78]); }
+  for (const [x, z, r] of [[2.8, -1.6, 0.6], [-2.8, -1.6, -0.6], [2.6, 1.8, -0.5], [-2.6, 1.8, 0.5]]) part(g, G.sph, '#7fbf5a', [1.3, 0.2, 0.6], [x, -0.2, z], [0, r, 0]);
+  part(g, G.cyl, '#fbe7a8', [1.8, 0.4, 1.8], [0, 1.55, 0.2]);
+  for (const [x, z, h] of [[-0.7, 0.4, 2.6], [0.8, -0.2, 2.1]]) {
+    part(g, G.cyl6, '#a8774e', [0.1, h, 0.1], [x, 1.6 + h / 2, z]);
+    for (let k = 0; k < 6; k++) part(g, G.sph, '#34a844', [0.9, 0.06, 0.25], [x + Math.cos(k * 1.05) * 0.7, 1.6 + h, z + Math.sin(k * 1.05) * 0.7], [0, -k * 1.05, -0.3]);
+  }
+  for (const s of [-1, 1]) { part(g, G.box, '#1d1a24', [0.6, 0.9, 0.5], [s * 1.0, 2.2, 0.9]); part(g, G.cyl, '#e2362f', [0.18, 0.04, 0.18], [s * 1.0, 2.25, 1.16], [Math.PI / 2, 0, 0]); }
+  g.visible = false; g.userData.head = head; return g;
+}
+function finale() {
+  if (S.story.flags.awake) { toast('RastaBabylone fait la sieste, le ventre au soleil.'); return; }
+  if (!(S.time >= 1200 || S.time < 300)) { toast('Attends la nuit pour poser le Vinyle d\'Or (après 20h).'); return; }
+  if (S.weather === 'storm') { toast("Pas sous l'orage : le vinyle a horreur de l'eau."); return; }
+  cutscene(CUTS.finale, () => {
+    S.story.flags.awake = true; S.story.ch = 5; turtle.visible = true; turtleRise = 0.001; AU.tempo = 84;
+    addGold(3000, false); toast("RastaBabylone est réveillée ! +3000 g et +10 % sur toutes tes ventes.", true); sfx('quest'); save(); renderTracker();
+  });
+}
+function updateTurtle(dt, tsec) {
+  if (!turtle) return;
+  turtle.visible = !!S.story.flags.awake;
+  if (!turtle.visible) return;
+  if (turtleRise > 0 && turtleRise < 1) turtleRise = Math.min(1, turtleRise + dt / 7);
+  const base = turtleRise > 0 && turtleRise < 1 ? lerp(-4, -0.4, turtleRise * turtleRise * (3 - 2 * turtleRise)) : -0.4;
+  turtle.position.y = base + Math.sin(tsec * 0.6) * 0.12;
+  turtle.rotation.z = Math.sin(tsec * 0.4) * 0.02;
+  turtle.userData.head.position.y = 0.3 + Math.sin(tsec * 1.3) * 0.08;
 }
 
 // ==== 10-ui.js
@@ -2540,9 +3138,10 @@ async function sleepNow(passedOut) {
 // =====================================================================
 const hotbarEl = $('#hotbar');
 function slotHTML(s, k, extra = '') {
-  const lab = s ? itemName(s) : 'Vide';
+  const lab = s ? itemName(s) + (s.qa ? ` (${QUAL[s.qa].name})` : '') : 'Vide';
   let inner = s ? `<img src="${icon(s.id, s.t || 0)}" alt="">` : '';
   if (s && ITEMS[s.id].kind !== 'tool' && s.q > 1) inner += `<span class="q">${s.q}</span>`;
+  if (s && s.qa) inner += `<span class="star" style="background:${QUAL[s.qa].col}"></span>`;
   if (s && s.id === 'can' && k < 10) inner += `<span class="gauge"><i style="width:${S.water / canMax(s.t || 0) * 100}%"></i></span>`;
   return { lab, inner };
 }
@@ -2578,12 +3177,15 @@ function floater(text, iconId) {
 let zoneT = 0;
 function showZone(name) { const z = $('#zone'); z.textContent = name; z.classList.add('on'); zoneT = 2.6; }
 function renderTracker() {
-  const el = $('#tracker'); const q = activeQuests()[0];
-  if (!q || S.title) { el.classList.remove('on'); return; }
+  const el = $('#tracker'), so = storyObjective();
+  const q = activeQuests().sort((a, b) => (b.story ? 1 : 0) - (a.story ? 1 : 0))[0];
+  if ((!q && !so) || S.title) { el.classList.remove('on'); return; }
+  const soH = so ? `<b>${so.title}</b>${so.desc}<div class="tbar"><i style="width:${so.a / so.b * 100}%"></i></div><small>${so.a} / ${so.b}</small>` : '';
+  if (!q) { el.innerHTML = soH; el.classList.add('on'); return; }
   let prog = '', pct = 0;
   if (q.deliver) { const [, it, n] = q.deliver; prog = `${Math.min(countItem(it), n)} / ${n} ${ITEMS[it].name}`; pct = Math.min(1, countItem(it) / n); }
   else { const v = Math.min(qProgress(q), q.n); prog = `${v} / ${q.n}`; pct = v / q.n; }
-  el.innerHTML = `<b>${q.title}</b>${q.deliver ? `Livre à ${NPC_BY_ID[q.deliver[0]].name}.` : q.desc}<div class="tbar"><i style="width:${pct * 100}%"></i></div><small>${prog}</small>`;
+  el.innerHTML = soH + (soH ? '<hr>' : '') + `<b>${q.title}</b>${q.deliver ? `Livre à ${NPC_BY_ID[q.deliver[0]].name}.` : q.desc}<div class="tbar"><i style="width:${pct * 100}%"></i></div><small>${prog}</small>`;
   el.classList.add('on');
 }
 
@@ -2591,10 +3193,10 @@ function renderTracker() {
 const modalWrap = $('#modal-wrap'), modal = $('#modal');
 const MODAL = { kind: null, tab: null, key: null, npc: null, line: '', msg: '', type: null, res: null, pick: -1 };
 function openModal(kind, extra = {}) { Object.assign(MODAL, { tab: null, msg: '', pick: -1 }, extra); S.modal = kind; MODAL.kind = kind.split(':')[0]; modalWrap.hidden = false; S.hold = false; renderModal(); const f = modal.querySelector('[data-focus]') || modal.querySelector('button'); f && f.focus(); }
-function closeModal() { if (!S.modal) return; const k = S.modal; S.modal = null; modalWrap.hidden = true; canvas.focus(); renderTracker(); if (k === 'day' && S.day === 2) toast("Astuce : arrose tes cultures chaque jour (la pluie le fait pour toi).") ; }
+function closeModal() { if (!S.modal) return; const k = S.modal; S.modal = null; modalWrap.hidden = true; canvas.focus(); renderTracker(); if (cutQueue.length) setTimeout(nextCut, 60); if (k === 'day' && S.day === 2) toast("Astuce : arrose tes cultures chaque jour (la pluie le fait pour toi).") ; }
 modalWrap.addEventListener('click', e => { if (e.target === modalWrap) closeModal(); });
 const money = () => `<span class="money"><span class="coin"></span>${S.gold.toLocaleString('fr-FR')} g</span>`;
-const sellable = kinds => S.inv.map((s, k) => [s, k]).filter(([s]) => s && kinds.includes(ITEMS[s.id].kind) && ITEMS[s.id].sell);
+const sellable = kinds => S.inv.map((s, k) => [s, k]).filter(([s]) => s && (kinds.includes(ITEMS[s.id].kind) || kinds.includes(s.id)) && ITEMS[s.id].sell);
 const tabsHTML = (tabs, cur) => `<div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button class="tab" role="tab" data-tab="${k}" aria-selected="${cur === k}">${l}</button>`).join('')}</div>`;
 const rowHTML = (ic, name, desc, price, acts, on) => `<div class="row${on ? ' on' : ''}"><img src="${ic}" alt=""><div class="nm"><b>${name}</b><small>${desc}</small></div><span class="price">${price === '' || price == null ? '' : `<span class="coin"></span>${price} g`}</span><div class="acts">${acts}</div></div>`;
 const foot = (extra = '') => `<div class="mfoot">${money()}<span style="display:flex;gap:8px">${extra}<button class="btn" data-close data-focus>Fermer</button></span></div>`;
@@ -2603,6 +3205,7 @@ function renderModal() {
   if (k === 'shop') html = shopHTML(); else if (k === 'bin') html = binHTML(); else if (k === 'sleep') html = sleepHTML();
   else if (k === 'day') html = dayHTML(); else if (k === 'help') html = helpHTML(); else if (k === 'npc') html = npcHTML(NPC_BY_ID[MODAL.npc], true);
   else if (k === 'animals') html = animalsHTML(); else if (k === 'book') html = bookHTML(); else if (k === 'bag') html = bagHTML();
+  else html = extraModalHTML(k);
   const st = modal.scrollTop; modal.innerHTML = html; modal.scrollTop = st;
 }
 
@@ -2620,7 +3223,7 @@ function seedDesc(it) {
 function shopHTML() {
   const key = MODAL.key, sh = SHOPS[key], n = NPC_BY_ID[sh.npc], tab = MODAL.tab;
   const tabs = { graines: [['buy', 'Acheter'], ['sell', 'Vendre'], ['talk', 'Discuter']], poisson: [['sell', 'Vendre'], ['upg', 'Améliorer'], ['talk', 'Discuter']],
-    cafe: [['buy', 'Menu'], ['sell', 'Vendre'], ['talk', 'Discuter']], boutique: [['buy', 'Acheter'], ['wear', 'Garde-robe'], ['talk', 'Discuter']] }[key];
+    cafe: [['buy', 'Menu'], ['sell', 'Vendre'], ['talk', 'Discuter']], boutique: [['buy', 'Acheter'], ['wear', 'Garde-robe'], ['sell', 'Vendre'], ['talk', 'Discuter']] }[key];
   let rows = '';
   if (tab === 'talk') return `<h2>${sh.name}</h2>` + tabsHTML(tabs, tab) + npcInner(n) + foot();
   if (key === 'graines' && tab === 'buy') {
@@ -2647,7 +3250,7 @@ function shopHTML() {
       }
     }
   } else if (key === 'poisson' && tab === 'upg') {
-    for (const tid of ['hoe', 'can', 'rod']) {
+    for (const tid of ['hoe', 'can', 'rod', 'machette', 'pioche']) {
       const t = toolTier(tid), nxt = t + 1;
       if (nxt > 2) { rows += rowHTML(icon(tid, t), TOOL_NAMES[tid][t], TOOL_HINT[tid][t] + ' · niveau maximum', '', '', true); continue; }
       const cost = Math.round(UPGRADE_COST[nxt] * (shopBonus(key) ? 0.9 : 1));
@@ -2655,21 +3258,21 @@ function shopHTML() {
     }
   } else {
     for (const [s, k2] of sellable(sh.buys)) {
-      const it = ITEMS[s.id], pr = priceSell(key, s.id);
-      rows += rowHTML(icon(s.id), it.name, `${s.q} en stock`, pr, `<button class="btn sm" data-sell="${k2}">Vendre</button>${s.q > 1 ? `<button class="btn sm" data-sellall="${k2}">Tout</button>` : ''}`);
+      const it = ITEMS[s.id], pr = priceSell(key, s.id, s.qa);
+      rows += rowHTML(icon(s.id), it.name + (s.qa ? ` · ${QUAL[s.qa].name}` : ''), `${s.q} en stock`, pr, `<button class="btn sm" data-sell="${k2}">Vendre</button>${s.q > 1 ? `<button class="btn sm" data-sellall="${k2}">Tout</button>` : ''}`);
     }
-    if (!rows) rows = `<p class="empty">${{ graines: 'Tante Pearl rachète tes légumes et fruits. Tu n\'en as pas sur toi.', poisson: 'Winston rachète le poisson. Va lancer ta ligne !', cafe: 'Zion rachète les herbes, œufs, laits et trouvailles de plage.' }[key]}</p>`;
+    if (!rows) rows = `<p class="empty">${{ graines: 'Tante Pearl rachète tes légumes et fruits. Tu n\'en as pas sur toi.', poisson: 'Winston rachète le poisson. Va lancer ta ligne !', cafe: 'Zion rachète les herbes, œufs, laits, plats et trouvailles de plage.', boutique: 'Desta rachète le quartz rose et les coquillages pour ses bijoux.' }[key]}</p>`;
   }
   return `<h2>${sh.name}</h2><p class="who"><b>${sh.keeper}</b> ${heartsRow(hearts(sh.npc))}<br>« ${sh.hello} »</p>` + tabsHTML(tabs, tab) + `<div class="list">${rows}</div>` + foot();
 }
 function binHTML() {
   let rows = '';
-  for (const [s, k] of sellable(['crop', 'fish', 'herb', 'forage', 'product', 'food'])) {
+  for (const [s, k] of sellable(['crop', 'fish', 'herb', 'forage', 'product', 'food', 'res', 'fert', 'bait', 'place'])) {
     const it = ITEMS[s.id];
-    rows += rowHTML(icon(s.id), it.name, `${s.q} sur toi`, it.sell, `<button class="btn sm" data-ship="${k}">Déposer</button>${s.q > 1 ? `<button class="btn sm" data-shipall="${k}">Tout</button>` : ''}`);
+    rows += rowHTML(icon(s.id), it.name + (s.qa ? ` · ${QUAL[s.qa].name}` : ''), `${s.q} sur toi`, sellOf(s.id, s.qa), `<button class="btn sm" data-ship="${k}">Déposer</button>${s.q > 1 ? `<button class="btn sm" data-shipall="${k}">Tout</button>` : ''}`);
   }
   if (!rows) rows = `<p class="empty">Rien à expédier. Dépose ici tes récoltes, poissons, œufs : ils sont payés le lendemain matin, au prix de base.</p>`;
-  const n = S.ship.reduce((a, [, q]) => a + q, 0), v = S.ship.reduce((a, [i, q]) => a + ITEMS[i].sell * q, 0);
+  const n = S.ship.reduce((a, [, q]) => a + q, 0), v = S.ship.reduce((a, [i, q, qa]) => a + sellOf(i, qa) * q, 0);
   return `<h2>Coffre d'expédition</h2><p class="who">Le transporteur passe chaque nuit. ${n ? `Dans le coffre : <b>${n} objet${n > 1 ? 's' : ''}</b>, soit ${v} g demain matin.` : 'Le coffre est vide.'}</p><div class="list" style="margin-top:12px">${rows}</div>` + foot();
 }
 function sleepHTML() {
@@ -2689,6 +3292,7 @@ function dayHTML() {
   if (r.grown) lines += `<li>${r.grown} culture${r.grown > 1 ? 's ont' : ' a'} poussé cette nuit.</li>`;
   if (r.eggs) lines += `<li>${r.eggs} œuf${r.eggs > 1 ? 's' : ''} t'attendent au poulailler.</li>`;
   if (r.milk) lines += `<li>${r.milk} bidon${r.milk > 1 ? 's' : ''} de lait à l'étable.</li>`;
+  if (r.built) lines += `<li><b>${BUILDS[r.built].name} construit !</b> Les potes de Zion ont bossé toute la nuit.</li>`;
   for (const u of r.ups) lines += `<li>${u} !</li>`;
   if (wet(S.weather)) lines += `<li>La pluie a arrosé tes cultures.</li>`;
   if (rainbowFor(S.day)) lines += `<li>Un arc-en-ciel est apparu au-dessus de la rivière.</li>`;
@@ -2707,7 +3311,10 @@ function helpHTML() {
     <dt><kbd>B</kbd></dt><dd>Sac à dos (30 emplacements) : clique deux cases pour les échanger</dd>
     <dt><kbd>C</kbd></dt><dd>Carnet : quêtes, compétences, amis, poissons</dd>
     <dt><kbd>F</kbd></dt><dd>Manger l'aliment sélectionné (rend de l'énergie)</dd>
+    <dt><kbd>K</kbd></dt><dd>Artisanat : atelier et cuisine</dd>
+    <dt><kbd>Échap</kbd></dt><dd>Menu : sauvegardes, paramètres, son, mode Test</dd>
     <dt><kbd>M</kbd></dt><dd>Couper ou remettre le son</dd>
+    <dt>Machette, pioche</dt><dd>Dégage branches, broussailles, souches et rochers : bois, fibre et pierre pour l'artisanat.</dd>
     <dt>Pêche</dt><dd>Vise l'eau, attends le <b>!</b>, appuie, puis maintiens <kbd>Espace</kbd> pour garder le poisson dans la barre verte.</dd>
     <dt>Saisons</dt><dd>28 jours chacune. Chaque graine pousse dans ses saisons seulement. La pluie arrose les cultures.</dd>
     <dt>Journée</dt><dd>Les boutiques ferment en fin d'après-midi. Dors avant 2h du matin, sinon tu t'écroules.</dd>
@@ -2757,9 +3364,9 @@ function animalsHTML() {
 }
 
 // Carnet : quêtes, compétences, amis, poissons
-function openBook(tab = 'quests') { openModal('book', { tab }); }
+function openBook(tab = 'legend') { openModal('book', { tab }); }
 function bookHTML() {
-  const tab = MODAL.tab, tabs = [['quests', 'Quêtes'], ['skills', 'Compétences'], ['friends', 'Amis'], ['fish', 'Poissons']];
+  const tab = MODAL.tab, tabs = [['legend', 'Légende'], ['quests', 'Quêtes'], ['skills', 'Compétences'], ['talents', `Talents${talentPoints() > 0 ? ` (${talentPoints()})` : ''}`], ['friends', 'Amis'], ['fish', 'Poissons']];
   let body = '';
   if (tab === 'quests') {
     const act = activeQuests();
@@ -2777,7 +3384,9 @@ function bookHTML() {
     }).join('');
   } else if (tab === 'friends') {
     body = npcs.map(n => { const f = friend(n.id); return `<div class="skill"><b>${n.name}${n.shop ? ` <small>· ${SHOPS[n.shop].name}</small>` : ''}</b><span style="justify-self:end">${f.met ? heartsRow(hearts(n.id)) : '<small>Pas encore rencontré</small>'}</span><small>${f.met && hearts(n.id) >= 2 ? tasteNames(n) : 'Parle-lui et offre-lui des cadeaux.'}</small></div>`; }).join('');
-  } else {
+  } else if (tab === 'talents') body = talentsHTML();
+  else if (tab === 'legend') body = legendHTML();
+  else {
     body = `<div class="list">${Object.entries(ITEMS).filter(([, it]) => it.kind === 'fish').map(([fid, it]) => {
       const L = S.fishLog[fid];
       return `<div class="row${L ? ' on' : ''}"><img src="${icon(fid)}" alt="" style="${L ? '' : 'filter:brightness(0) opacity(.35)'}"><div class="nm"><b>${L ? it.name : '???'}</b><small>${L ? `${L.n} pêché${L.n > 1 ? 's' : ''} · record ${L.max} cm` : 'Pas encore pêché'}</small></div><span class="price">${L ? `<span class="coin"></span>${it.sell} g` : ''}</span><span></span></div>`;
@@ -2827,12 +3436,12 @@ modal.addEventListener('click', e => {
   }
   if (d.sell || d.sellall) {
     const k = +(d.sell || d.sellall), s = S.inv[k]; if (!s) return;
-    const n = d.sellall ? s.q : 1, gain = priceSell(MODAL.key, s.id) * n; addGold(gain, true); takeFrom(k, n); sfx('coin'); renderModal(); return;
+    const n = d.sellall ? s.q : 1, gain = priceSell(MODAL.key, s.id, s.qa) * n; addGold(gain, true); takeFrom(k, n); sfx('coin'); renderModal(); return;
   }
   if (d.ship || d.shipall) {
     const k = +(d.ship || d.shipall), s = S.inv[k]; if (!s) return;
-    const n = d.shipall ? s.q : 1, ex = S.ship.find(e2 => e2[0] === s.id);
-    if (ex) ex[1] += n; else S.ship.push([s.id, n]);
+    const n = d.shipall ? s.q : 1, ex = S.ship.find(e2 => e2[0] === s.id && (e2[2] || 0) === (s.qa || 0));
+    if (ex) ex[1] += n; else S.ship.push([s.id, n, s.qa || 0]);
     takeFrom(k, n); sfx('plant'); renderModal(); return;
   }
   if (d.gift) {
@@ -2869,20 +3478,262 @@ function updateHUD(ripe) {
   else if (S.fish.phase === 'bite') pr = 'Espace · Ferrer !';
   else if (S.fish.phase === 'game') pr = 'Maintiens Espace pour monter la barre';
   else if (ripe) pr = 'Espace ou E · Récolter';
+  else if (!busy() && nodeAt(targetKey())) { const dd = DEBRIS[nodeAt(targetKey()).type]; pr = `Espace · ${dd.name} (${dd.tool})`; }
   else if (it) pr = `E · ${it.label}`;
   const pe = $('#prompt'); if (pe.textContent !== pr) { pe.textContent = pr; pe.classList.toggle('on', !!pr); }
-  const h = `${S.day}|${Math.floor(S.time / 10)}|${S.gold}|${Math.round(S.energy)}|${S.weather}`;
+  const h = `${S.day}|${Math.floor(S.time / 10)}|${S.gold}|${Math.round(S.energy)}|${S.weather}|${totalXP()}`;
   if (h === lastHud.k) return; lastHud.k = h;
   $('#cl-wd').textContent = WEEK[(S.day - 1) % 7]; $('#cl-d').textContent = dom(S.day);
   $('#cl-season').textContent = SEASONS[seasonOf(S.day)];
   $('#cl-t').textContent = fmtH(S.time); $('#cl-g').textContent = S.gold.toLocaleString('fr-FR') + ' g';
   $('#cl-sun').style.background = S.time >= 1170 || S.time < 330 ? '#c9d3ff' : '#f6c026';
+  const pl = plvl(); $('#cl-lv').textContent = `Niv. ${pl}`;
+  $('#cl-xp').style.width = (pl >= MAX_PL ? 100 : (totalXP() - plXP(pl)) / (plXP(pl + 1) - plXP(pl)) * 100) + '%';
   $('#cl-wx').innerHTML = WX_SVG[S.weather]; $('#cl-wx').setAttribute('aria-label', WX_NAMES[S.weather]);
-  const ef = $('#en-fill'); ef.style.height = (S.energy / MAX_EN * 100) + '%'; ef.style.background = S.energy < 25 ? '#e2362f' : S.energy < 50 ? '#f6c026' : '#2fa84f';
+  const ef = $('#en-fill'); ef.style.height = (S.energy / maxEn() * 100) + '%'; ef.style.background = S.energy < 25 ? '#e2362f' : S.energy < 50 ? '#f6c026' : '#2fa84f';
 }
 $('#help-btn').addEventListener('click', () => { if (!S.title && !S.modal) openHelp(); });
 $('#book-btn').addEventListener('click', () => { if (!S.title && !S.modal) openBook(); });
 $('#bag-btn').addEventListener('click', () => { if (!S.title && !S.modal) openBag(); });
+
+// ==== 10c-ui2.js
+// =====================================================================
+// Interface : scènes, atelier, chantiers, verrous, talents, légende
+// =====================================================================
+const SPEAKER_COL = { 'Lettre de Tonton Dub': '#f6c026', 'Mama Ivy': '#8a4fd6', 'Inspecteur Babylone': '#7b8494', 'Zion': '#2fa84f', 'Capitaine Winston': '#17a9c7', 'Delroy': '#e2362f', 'RastaBabylone': '#3f9d57', 'Narrateur': '#241a2e' };
+function extraModalHTML(k) {
+  if (k === 'cut') return cutHTML(); if (k === 'craft') return craftHTML(); if (k === 'build') return buildHTML();
+  if (k === 'lock') return lockHTML(); if (k === 'farmup') return farmupHTML(); if (k === 'menu') return menuHTML();
+  return '';
+}
+function cutHTML() {
+  if (!MODAL.cut) return '';
+  const c = MODAL.cut, [who, text] = c.lines[MODAL.idx], last = MODAL.idx >= c.lines.length - 1;
+  return `<div class="cut"><span class="cut-who" style="--who:${SPEAKER_COL[who] || '#e2362f'}">${who}</span><p class="cut-text">${text}</p>
+  <div class="mfoot"><small class="cut-n">${MODAL.idx + 1} / ${c.lines.length}</small><button class="btn primary" data-cutnext data-focus>${last ? 'Terminer' : 'Suite'}</button></div></div>`;
+}
+function cutNext() {
+  const c = MODAL.cut; if (!c) return;
+  if (MODAL.idx < c.lines.length - 1) { MODAL.idx++; renderModal(); modal.querySelector('[data-focus]')?.focus(); return; }
+  MODAL.cut = null; closeModal(); if (c.onEnd) c.onEnd();
+}
+const needList = need => Object.entries(need).map(([i2, q]) => { const h = countItem(i2), ok = h >= q; return `<span class="need ${ok ? 'ok' : 'ko'}"><img src="${icon(i2)}" alt="">${q} ${ITEMS[i2].name} <small>(${h})</small></span>`; }).join('');
+function openCraft(tab = 'atelier') { openModal('craft', { tab }); }
+function craftHTML() {
+  const tab = MODAL.tab;
+  const rows = RECIPES.filter(r => r.tab === tab).map(r => {
+    const it = ITEMS[r.id], lock = !recipeOk(r), ok1 = canCraft(r, 1), ok5 = canCraft(r, 5);
+    const desc = lock ? `Artisanat niveau ${r.lvl}` : `${r.hint ? r.hint + ' ' : ''}${it.food ? `Rend ${it.food} d'énergie. ` : ''}${it.sell ? `Se vend ${sellOf(r.id)} g.` : ''}`;
+    return `<div class="row${ok1 ? ' on' : ''}"><img src="${icon(r.id)}" alt=""><div class="nm"><b>${it.name}${r.out > 1 ? ` ×${r.out}` : ''}</b><small>${desc}</small><div class="needs">${needList(r.need)}</div></div><span class="price"></span>
+      <div class="acts"><button class="btn sm" data-craft="${r.id}:1" ${ok1 ? '' : 'disabled'}>${lock ? 'Verrouillé' : 'Fabriquer'}</button><button class="btn sm" data-craft="${r.id}:5" ${ok5 ? '' : 'disabled'}>×5</button></div></div>`;
+  }).join('');
+  const note = tab === 'cuisine' ? `<p class="who">${S.inside ? 'Le réchaud est chaud. Bon appétit !' : '<b>La cuisine se fait chez toi.</b> Rentre dans ta case pour cuisiner.'}</p>` : `<p class="who">Fabrique avec le bois, la pierre et la fibre que tu ramasses en dégageant les débris (machette et pioche).</p>`;
+  return `<h2>Artisanat <small style="font-size:15px">· niveau ${lvl('craft')}</small></h2>${tabsHTML([['atelier', 'Atelier'], ['cuisine', 'Cuisine']], tab)}${note}<div class="list">${rows}</div>${foot()}`;
+}
+function openBuild(type) { openModal('build', { type }); }
+function buildHTML() {
+  const type = MODAL.type, b = BUILDS[type], st = buildOk(type);
+  const reqs = [[`Chapitre ${b.ch} de la légende`, S.story.ch >= b.ch], [`Niveau de joueur ${b.pl}`, plvl() >= b.pl], ...(b.after ? [[`${BUILDS[b.after].name} construit`, S.built[b.after]]] : []), [`${b.gold} g`, S.gold >= b.gold]];
+  const busy = S.building === type ? `<p class="who"><b>Chantier en cours :</b> le ${b.name.toLowerCase()} sera prêt demain matin.</p>` : '';
+  return `<h2>${b.name} · chantier</h2><p class="who">Une dalle, quelques poteaux et beaucoup de bonne volonté. Les potes de Zion construisent pendant la nuit si tu apportes le matériel.</p>
+  <ul class="daylines">${reqs.map(([t, ok]) => `<li>${ok ? '✔' : '✘'} ${t}</li>`).join('')}</ul><div class="needs">${needList(b.need)}</div>${busy}
+  <div class="mfoot">${money()}<span style="display:flex;gap:8px"><button class="btn" data-close>Fermer</button><button class="btn primary" data-build="${type}" ${st.ok ? '' : 'disabled'} data-focus>Lancer le chantier</button></span></div>${st.ok || S.building === type ? '' : `<p class="who"><small>${st.why}</small></p>`}`;
+}
+function openLock(key) { openModal('lock', { key }); }
+function lockHTML() {
+  const key = MODAL.key, L = LOCKS[key], st = lockOk(key);
+  return `<h2>${L.name}</h2><p class="who">${L.desc}</p>${L.need ? `<div class="needs">${needList(L.need)}</div>` : `<p class="who">${S.story.flags.permis ? '✔ Tu as le permis du Ministère.' : '✘ Il te faut le permis du Ministère des Formulaires.'}</p>`}
+  <div class="mfoot">${money()}<span style="display:flex;gap:8px"><button class="btn" data-close>Fermer</button><button class="btn primary" data-unlock="${key}" ${st.ok ? '' : 'disabled'} data-focus>${L.need ? 'Réparer' : 'Montrer le permis'}</button></span></div>`;
+}
+function openFarmUp() { openModal('farmup'); }
+function farmupHTML() {
+  const u = FARM_UPG[S.farmLvl + 1], st = farmUpgradeOk(), r = fieldRect();
+  if (!u) return `<h2>Ton yard</h2><p class="who">Ton champ fait déjà ${fieldSize()} cases, le maximum. Tonton Dub serait fier.</p>${foot()}`;
+  const nr = FARM_RECTS[S.farmLvl + 1], next = (nr[2] - nr[0] + 1) * (nr[3] - nr[1] + 1);
+  return `<h2>Agrandir le yard</h2><p class="who">Champ actuel : <b>${fieldSize()} cases</b> (niveau ${S.farmLvl + 1}/4). Prochain palier : <b>${next} cases</b>. Les débris restés dans la nouvelle zone devront être dégagés.</p>
+  <ul class="daylines"><li>${plvl() >= u.pl ? '✔' : '✘'} Niveau de joueur ${u.pl}</li><li>${S.gold >= u.gold ? '✔' : '✘'} ${u.gold} g</li></ul><div class="needs">${needList(u.need)}</div>
+  <div class="mfoot">${money()}<span style="display:flex;gap:8px"><button class="btn" data-close>Fermer</button><button class="btn primary" data-farmup ${st.ok ? '' : 'disabled'} data-focus>Agrandir</button></span></div>${st.ok ? '' : `<p class="who"><small>${st.why}</small></p>`}`;
+}
+function talentsHTML() {
+  const pts = talentPoints();
+  let h = `<p class="who">Niveau de joueur <b>${plvl()}</b> · énergie max ${maxEn()} · <b>${pts}</b> point${pts > 1 ? 's' : ''} de talent à dépenser (1 par niveau de compétence).</p>`;
+  for (const [sk, list] of Object.entries(TALENTS)) {
+    h += `<div class="sect">${SKILLS[sk].name} · niv. ${lvl(sk)}</div>`;
+    h += list.map(t => `<div class="row${tal(t.id) ? ' on' : ''}"><span class="rank">${'★'.repeat(tal(t.id))}${'☆'.repeat(3 - tal(t.id))}</span><div class="nm"><b>${t.name}</b><small>${t.desc}</small></div><span></span><div class="acts"><button class="btn sm" data-tal="${t.id}" ${pts > 0 && tal(t.id) < 3 ? '' : 'disabled'}>+1</button></div></div>`).join('');
+  }
+  return h;
+}
+function legendHTML() {
+  const st = S.story, c = CHAPTERS[Math.min(st.ch, 5)];
+  let h = `<p class="who"><b>Chapitre ${Math.min(st.ch, 5)} · ${c.title}</b><br>${c.goal}</p>`;
+  h += `<div class="sect">Les sept éclats (${st.frags.length}/7)</div><div class="list">`;
+  h += FRAGS.map(f => { const got = hasFrag(f.id); return `<div class="row${got ? ' on' : ''}"><span class="frag ${got ? 'got' : ''}"></span><div class="nm"><b>${got ? f.name : '???'}</b><small>${f.hint}</small></div><span></span><span>${got ? '✔' : ''}</span></div>`; }).join('') + '</div>';
+  h += `<div class="sect">La légende</div>` + LORE.slice(0, c.lore).map(t => `<p class="who">${t}</p>`).join('');
+  return h;
+}
+modal.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || b.disabled) return;
+  const d = b.dataset;
+  if ('cutnext' in d) { cutNext(); return; }
+  if (d.craft) { const [rid, n] = d.craft.split(':'); craft(rid, +n); renderModal(); renderHotbar(); return; }
+  if (d.build) { startBuild(d.build); renderModal(); return; }
+  if (d.unlock) { unlock(d.unlock); closeModal(); return; }
+  if ('farmup' in d) { upgradeFarm(); renderModal(); return; }
+  if (d.tal) { learnTalent(d.tal); renderModal(); return; }
+});
+
+// ==== 10d-menu.js
+// =====================================================================
+// Menu : pause, sauvegardes, paramètres, mode Test
+// =====================================================================
+const SET_KEY = 'irie-settings';
+const SET = { music: 0.7, sfx: 0.8, amb: 0.7, mute: false, quality: 'auto', fps: false, test: false, speed: 1 };
+try { Object.assign(SET, JSON.parse(localStorage.getItem(SET_KEY) || '{}')); } catch (e) {}
+function saveSettings() { try { localStorage.setItem(SET_KEY, JSON.stringify(SET)); } catch (e) {} }
+function applySettings() {
+  muted = SET.mute;
+  if (AU.master) AU.master.gain.setTargetAtTime(muted ? 0 : 0.9, AC.currentTime, 0.05);
+  if (AU.sfx) AU.sfx.gain.value = SET.sfx;
+  if (SET.quality === 'high') { QUALITY.reflect = true; if (PR !== QUALITY.pr) { PR = QUALITY.pr; resize(); } }
+  if (SET.quality === 'low') { QUALITY.reflect = false; if (PR !== 1) { PR = 1; resize(); } }
+  $('#fps').hidden = !SET.fps; $('#test-btn').hidden = !SET.test;
+  if (!SET.test) { S.godEnergy = false; SET.speed = 1; }
+}
+
+// ---------- Emplacements de sauvegarde
+const SLOT_KEY = n => `irie-bay-s${n}`, LAST_KEY = 'irie-last';
+function readSlot(n) { try { const s = localStorage.getItem(SLOT_KEY(n)); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+function writeSlot(n, data) {
+  try { localStorage.setItem(SLOT_KEY(n), JSON.stringify(data)); localStorage.setItem(LAST_KEY, String(n)); return true; }
+  catch (e) { toast('Sauvegarde impossible : le stockage du navigateur est bloqué ou plein.'); return false; }
+}
+function deleteSlot(n) { try { localStorage.removeItem(SLOT_KEY(n)); } catch (e) {} }
+function lastSlot() { try { return +(localStorage.getItem(LAST_KEY) || 0); } catch (e) { return 0; } }
+function migrateLegacy() { try { const old = localStorage.getItem('irie-bay-v2'); if (old && !readSlot(1)) { localStorage.setItem(SLOT_KEY(1), old); localStorage.setItem(LAST_KEY, '1'); } } catch (e) {} }
+function slotMeta(d) {
+  if (!d) return 'Emplacement vide';
+  const xp = Object.values(d.xp || {}).reduce((a, b) => a + b, 0), pl = Math.min(MAX_PL, 1 + Math.floor(Math.sqrt(xp / 45)));
+  const when = d.savedAt ? ' · ' + new Date(d.savedAt).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+  return `${SEASONS[seasonOf(d.day)]} jour ${dom(d.day)} · ${(d.gold || 0).toLocaleString('fr-FR')} g · niveau ${pl} · chapitre ${(d.story && d.story.ch) || 1}${when}`;
+}
+function saveNow() { if (S.title) return; if (writeSlot(S.slot, { ...serialize(true), savedAt: Date.now() })) toast(`Partie sauvegardée (emplacement ${S.slot}).`, true); }
+const enc = o => btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+const dec = t => JSON.parse(decodeURIComponent(escape(atob(t.trim()))));
+
+function openMenu(tab = 'main', mode = null) { openModal('menu', { tab, mode, confirm: 0, exp: 0 }); }
+function menuHTML() {
+  const tab = MODAL.tab, ingame = !S.title;
+  const tabs = [['main', 'Menu'], ['saves', 'Sauvegardes'], ['settings', 'Paramètres'], ['help', 'Commandes']];
+  if (SET.test && ingame) tabs.push(['test', 'Mode Test']);
+  let body = '';
+  if (tab === 'main') {
+    body = `<div class="menu-grid">
+      ${ingame ? '<button class="btn primary" data-m="resume" data-focus>Reprendre</button><button class="btn" data-m="save">Sauvegarder</button>' : ''}
+      <button class="btn" data-m="tab:saves">Sauvegardes</button><button class="btn" data-m="tab:settings">Paramètres</button><button class="btn" data-m="tab:help">Commandes</button>
+      <button class="btn" data-m="mute">${SET.mute ? 'Remettre le son' : 'Couper le son'}</button>
+      ${SET.test && ingame ? '<button class="btn" data-m="tab:test">Mode Test</button>' : ''}
+      ${ingame ? '<button class="btn" data-m="title">Écran titre</button>' : ''}</div>
+      ${ingame ? `<p class="who"><small>Emplacement ${S.slot}. La partie est aussi sauvegardée automatiquement chaque fois que tu dors.</small></p>` : ''}`;
+  } else if (tab === 'saves') {
+    const mode = MODAL.mode;
+    body = `<p class="who">${mode === 'new' ? 'Choisis un emplacement pour ta nouvelle partie.' : mode === 'load' ? 'Choisis la partie à reprendre.' : 'Trois emplacements, stockés dans ce navigateur.'}</p><div class="list">`;
+    for (let n = 1; n <= 3; n++) {
+      const d = readSlot(n), cur = ingame && S.slot === n, conf = MODAL.confirm === n;
+      let acts = '';
+      if (mode === 'new') acts = d && !conf ? `<button class="btn sm" data-m="ask:${n}">Écraser</button>` : `<button class="btn sm primary" data-m="new:${n}">${d ? 'Confirmer' : 'Commencer ici'}</button>`;
+      else {
+        if (d) acts += `<button class="btn sm" data-m="load:${n}">Charger</button>`;
+        if (ingame) acts += `<button class="btn sm" data-m="saveto:${n}">Sauver ici</button>`;
+        if (d) acts += `<button class="btn sm" data-m="exp:${n}">Exporter</button>` + (conf ? `<button class="btn sm" data-m="del:${n}">Confirmer</button>` : `<button class="btn sm" data-m="ask:${n}">Supprimer</button>`);
+      }
+      body += `<div class="row${cur ? ' on' : ''}"><span class="slotnum">${n}</span><div class="nm"><b>Emplacement ${n}${cur ? ' · en cours' : ''}</b><small>${slotMeta(d)}</small></div><span></span><div class="acts">${acts}</div></div>`;
+    }
+    body += '</div>';
+    if (MODAL.exp) body += `<div class="sect">Code de la sauvegarde ${MODAL.exp}</div><textarea id="exp-txt" class="code" readonly rows="3">${enc(readSlot(MODAL.exp))}</textarea><button class="btn sm" data-m="copy">Copier</button>`;
+    if (mode !== 'new') body += `<div class="sect">Importer un code</div><textarea id="imp-txt" class="code" rows="3" placeholder="Colle ici un code exporté"></textarea>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${[1, 2, 3].map(n => `<button class="btn sm" data-m="imp:${n}">Importer dans ${n}</button>`).join('')}</div>`;
+  } else if (tab === 'settings') {
+    const sl = (k, lab) => `<label class="set"><span>${lab}</span><input type="range" min="0" max="100" value="${Math.round(SET[k] * 100)}" data-set="${k}" id="set-${k}"><b>${Math.round(SET[k] * 100)}</b></label>`;
+    const ck = (k, lab, sub) => `<label class="set chk"><input type="checkbox" data-set="${k}" id="set-${k}" ${SET[k] ? 'checked' : ''}><span>${lab}${sub ? `<small>${sub}</small>` : ''}</span></label>`;
+    body = `<div class="sect">Son</div>${ck('mute', 'Couper tout le son')}${sl('music', 'Musique')}${sl('sfx', 'Bruitages')}${sl('amb', 'Ambiance')}
+      <div class="sect">Graphismes</div><label class="set"><span>Qualité</span><select data-set="quality" id="set-quality">
+      ${[['auto', 'Automatique'], ['high', 'Haute (reflets)'], ['low', 'Basse (fluide)']].map(([v, l]) => `<option value="${v}" ${SET.quality === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+      ${ck('fps', 'Afficher les images par seconde')}
+      <div class="sect">Avancé</div>${ck('test', 'Mode Test', 'Ajoute un onglet pour tester le jeu : argent, saisons, météo, déblocages, téléportation.')}`;
+  } else if (tab === 'help') {
+    body = helpHTML().replace(/^<h2>Commandes<\/h2>/, '').replace(/<div class="mfoot">[\s\S]*$/, '');
+  } else if (tab === 'test') {
+    const b = (a, l) => `<button class="btn sm" data-t="${a}">${l}</button>`;
+    body = `<p class="who">Outils de test. Ils modifient la partie en cours ; sauvegarde à part si tu veux garder ta vraie partie.</p>
+      <div class="sect">Ressources</div><div class="tgrid">${b('gold', '+10 000 g')}${b('mats', 'Matériaux et produits')}${b('energy', S.godEnergy ? 'Énergie infinie : oui' : 'Énergie infinie : non')}${b('levels', '+1 niveau partout')}</div>
+      <div class="sect">Temps</div><div class="tgrid">${b('hour', '+3 heures')}${b('day', 'Jour suivant')}${b('season', 'Saison suivante')}${b('grow', 'Tout fait pousser')}${[1, 5, 20].map(s => b('speed:' + s, `Vitesse ×${s}${SET.speed === s ? ' ✔' : ''}`)).join('')}</div>
+      <div class="sect">Météo</div><div class="tgrid">${['sun', 'cloud', 'rain', 'storm'].map(w => b('w:' + w, WX_NAMES[w])).join('')}</div>
+      <div class="sect">Progression</div><div class="tgrid">${b('unlock', 'Tout débloquer')}${b('chapter', 'Chapitre suivant')}${b('frags', 'Donner les 7 éclats')}${b('night', 'Aller à 21h')}</div>
+      <div class="sect">Téléportation</div><div class="tgrid">${[['farm', 'Yard'], ['village', 'Place'], ['cafe', 'Café'], ['beach', 'Plage'], ['pier', 'Jetée'], ['light', 'Phare']].map(([k, l]) => b('tp:' + k, l)).join('')}</div>`;
+  }
+  return `<h2>${S.title ? 'Irie Bay' : 'Pause'}</h2>` + tabsHTML(tabs, tab) + body + `<div class="mfoot">${ingame ? money() : '<span></span>'}<button class="btn" data-close>Fermer</button></div>`;
+}
+const TP = { farm: [11, 14.5], village: [63.5, 28], cafe: [80, 38.2], beach: [57, 48], pier: [63.5, 50.5], light: [86.5, 46.5] };
+function testAction(a) {
+  const [k, v] = a.split(':');
+  if (k === 'gold') S.gold += 10000;
+  else if (k === 'mats') for (const [i2, q] of [['bois', 60], ['pierre', 60], ['fibre', 60], ['planche', 20], ['corde', 10], ['fourrage', 20], ['engrais', 10], ['appat', 20], ['coco', 10], ['oeuf', 3], ['lait', 3], ['piment', 3], ['ananas', 2]]) addItem(i2, q);
+  else if (k === 'energy') { S.godEnergy = !S.godEnergy; S.energy = maxEn(); }
+  else if (k === 'levels') for (const sk in S.xp) { const l = lvl(sk); if (l < 10) S.xp[sk] = XP_T[l]; }
+  else if (k === 'hour') S.time = Math.min(1550, S.time + 180);
+  else if (k === 'night') S.time = 1260;
+  else if (k === 'day') { closeModal(); sleepNow(false); return; }
+  else if (k === 'season') { S.day = (seasonOf(S.day) + 1) * 28 + Math.floor((S.day - 1) / 112) * 112; closeModal(); sleepNow(false); return; }
+  else if (k === 'grow') { for (const [pk, p] of plots) if (p.crop) { p.crop.age = CROPS[p.crop.type].days; refreshPlot(pk); } }
+  else if (k === 'speed') SET.speed = +v;
+  else if (k === 'w') S.weather = v;
+  else if (k === 'unlock') { for (const key in S.unlocked) S.unlocked[key] = true; S.built.coop = S.built.barn = true; S.farmLvl = 3; S.story.flags.permis = true; if (S.story.ch < 2) S.story.ch = 2; refreshLocks(); refreshBuildings(); rebuildStakes(); }
+  else if (k === 'chapter') { if (S.story.ch < 5) { S.story.ch++; if (S.story.ch >= 4) S.story.flags.permis = true; } }
+  else if (k === 'frags') { S.story.frags = FRAGS.map(f => f.id); S.story.flags.lighthouseTop = true; S.story.flags.permis = true; if (S.story.ch < 4) S.story.ch = 4; }
+  else if (k === 'tp') { [P.x, P.z] = TP[v]; closeModal(); return; }
+  renderHotbar(); renderTracker(); if (S.modal) renderModal();
+}
+modal.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || b.disabled) return;
+  const d = b.dataset;
+  if (d.t) { testAction(d.t); return; }
+  if (!d.m) return;
+  const [a, v] = d.m.split(':'), n = +v;
+  if (a === 'resume') closeModal();
+  else if (a === 'save') { saveNow(); renderModal(); }
+  else if (a === 'tab') { MODAL.tab = v; MODAL.confirm = 0; MODAL.exp = 0; renderModal(); }
+  else if (a === 'mute') { setMuted(!SET.mute); renderModal(); }
+  else if (a === 'title') { saveNow(); location.reload(); }
+  else if (a === 'ask') { MODAL.confirm = n; renderModal(); }
+  else if (a === 'del') { deleteSlot(n); MODAL.confirm = 0; renderModal(); refreshTitleButtons(); }
+  else if (a === 'saveto') { S.slot = n; saveNow(); renderModal(); }
+  else if (a === 'exp') { MODAL.exp = n; renderModal(); }
+  else if (a === 'copy') { const t = $('#exp-txt'); navigator.clipboard?.writeText(t.value).then(() => toast('Code copié.'), () => { t.select(); }); }
+  else if (a === 'imp') {
+    try { const data = dec($('#imp-txt').value); if (!data || !data.day) throw 0; writeSlot(n, data); toast(`Code importé dans l'emplacement ${n}.`, true); renderModal(); refreshTitleButtons(); }
+    catch (er) { toast("Ce code n'est pas une sauvegarde valide d'Irie Bay."); }
+  }
+  else if (a === 'load') { const data = readSlot(n); if (!data) return; closeModal(); audio(); startGame(data, n); }
+  else if (a === 'new') { closeModal(); audio(); startGame(null, n); }
+});
+modal.addEventListener('input', e => {
+  const el = e.target, k = el.dataset && el.dataset.set; if (!k) return;
+  if (el.type === 'range') { SET[k] = el.value / 100; const lab = el.parentElement.querySelector('b'); if (lab) lab.textContent = el.value; }
+  else if (el.type === 'checkbox') SET[k] = el.checked;
+  else SET[k] = el.value;
+  saveSettings(); applySettings();
+  if (k === 'test' || k === 'mute' || k === 'quality') renderModal();
+});
+function refreshTitleButtons() {
+  const last = lastSlot(), data = last ? readSlot(last) : null, b = $('#btn-continue');
+  b.hidden = !data; if (data) { b.textContent = `Continuer · ${SEASONS[seasonOf(data.day)]} jour ${dom(data.day)}`; b.onclick = () => { audio(); startGame(data, last); }; }
+  $('#btn-load').hidden = ![1, 2, 3].some(n => readSlot(n));
+}
+let fpsAcc = 0, fpsN = 0;
+function updateFPS(rawDt) {
+  if (!SET.fps) return; fpsAcc += rawDt; fpsN++;
+  if (fpsAcc >= 0.5) { $('#fps').textContent = `${Math.round(fpsN / fpsAcc)} i/s${QUALITY.reflect ? '' : ' · sans reflets'}`; fpsAcc = 0; fpsN = 0; }
+}
 
 // ==== 11-audio.js
 // =====================================================================
@@ -2890,7 +3741,6 @@ $('#bag-btn').addEventListener('click', () => { if (!S.title && !S.modal) openBa
 // =====================================================================
 let AC = null, muted = false, noiseBuf = null;
 const AU = { master: null, sfx: null, music: null, lp: null, rev: null, amb: {}, on: false, next: 0, step: 0, bar: 0, beats: [], pulse: 0, timer: 0, tempo: 76, birdT: 2, cricketT: 1, sources: [[63.5, 24.5, 20], [80, 33, 16], [11, 9, 9]] };
-try { muted = localStorage.getItem('ib-mute') === '1'; } catch (e) {}
 function audio() {
   try {
     if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); initAudioGraph(); }
@@ -2910,7 +3760,7 @@ function loopNoise(type, freq, q = 0.7) {
 function initAudioGraph() {
   noiseBuf = mkNoise();
   AU.master = AC.createGain(); AU.master.gain.value = muted ? 0 : 0.9; AU.master.connect(AC.destination);
-  AU.sfx = AC.createGain(); AU.sfx.gain.value = 1; AU.sfx.connect(AU.master);
+  AU.sfx = AC.createGain(); AU.sfx.gain.value = SET.sfx; AU.sfx.connect(AU.master);
   AU.music = AC.createGain(); AU.music.gain.value = 0.3;
   AU.lp = AC.createBiquadFilter(); AU.lp.type = 'lowpass'; AU.lp.frequency.value = 3200; AU.lp.Q.value = 0.4;
   AU.music.connect(AU.lp); AU.lp.connect(AU.master);
@@ -2924,7 +3774,7 @@ function initAudioGraph() {
   AU.on = true; AU.next = AC.currentTime + 0.2; AU.step = 0; AU.bar = 0;
   AU.timer = setInterval(musicTick, 25);
 }
-function setMuted(m) { muted = m; try { localStorage.setItem('ib-mute', m ? '1' : '0'); } catch (e) {} if (AU.master) AU.master.gain.setTargetAtTime(m ? 0 : 0.9, AC.currentTime, 0.05); }
+function setMuted(m) { muted = m; SET.mute = m; saveSettings(); if (AU.master) AU.master.gain.setTargetAtTime(m ? 0 : 0.9, AC.currentTime, 0.05); }
 
 const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
 const CHORDS = [
@@ -2995,13 +3845,14 @@ function updateAudio(dt, tsec) {
   let near = 0; for (const [x, z, r] of AU.sources) near = Math.max(near, 1 - Math.hypot(P.x - x, P.z - z) / r);
   near = clamp(near, 0, 1);
   const inH = S.inside ? 0.12 : 0;
-  set(AU.music.gain, (0.16 + 0.6 * near + inH) * (S.title ? 1.1 : 1), 0.5); set(AU.lp.frequency, 1400 + near * 14000 + (ENV.rain > 0.3 ? 0 : 1200), 0.5);
+  set(AU.music.gain, (0.16 + 0.6 * near + inH) * (S.title ? 1.1 : 1) * SET.music * 1.4, 0.5); set(AU.lp.frequency, 1400 + near * 14000 + (ENV.rain > 0.3 ? 0 : 1200), 0.5);
   // ambiances
   const cz = coastZ(clamp(Math.floor(P.x), 0, W - 1)), dSea = Math.max(0, cz - P.z), dRiv = Math.abs(P.x - riverX(Math.floor(P.z)));
-  set(AU.amb.ocean.g.gain, Math.pow(clamp(1 - dSea / 24, 0, 1), 1.5) * 0.2 + 0.015);
-  set(AU.amb.river.g.gain, clamp(1 - dRiv / 12, 0, 1) * 0.07);
-  set(AU.amb.rain.g.gain, ENV.rain * (S.inside ? 0.05 : 0.14));
-  set(AU.amb.wind.g.gain, 0.02 + WIND.uWind.value * 0.03 + ENV.storm * 0.05);
+  const A = SET.amb * 1.4;
+  set(AU.amb.ocean.g.gain, (Math.pow(clamp(1 - dSea / 24, 0, 1), 1.5) * 0.2 + 0.015) * A);
+  set(AU.amb.river.g.gain, clamp(1 - dRiv / 12, 0, 1) * 0.07 * A);
+  set(AU.amb.rain.g.gain, ENV.rain * (S.inside ? 0.05 : 0.14) * A);
+  set(AU.amb.wind.g.gain, (0.02 + WIND.uWind.value * 0.03 + ENV.storm * 0.05) * A);
   // oiseaux le jour, grillons la nuit
   if (!S.modal && !S.title) {
     AU.birdT -= dt; AU.cricketT -= dt;
@@ -3135,8 +3986,9 @@ function actionDown() {
 }
 function actionUp() { S.hold = false; }
 addEventListener('keydown', e => {
-  if (S.title) return;
+  if (S.title) { if (S.modal && e.code === 'Escape') { e.preventDefault(); closeModal(); } return; }
   if (e.code === 'Tab') return;
+  if (S.modal === 'cut') { if (['Escape', 'KeyE', 'Space', 'Enter'].includes(e.code)) { e.preventDefault(); if (!e.repeat) cutNext(); } return; }
   if (S.modal) {
     if (e.code === 'Escape' || (e.code === 'KeyE' && S.modal !== 'day')) { e.preventDefault(); closeModal(); }
     if (S.modal === 'day' && (e.code === 'Space' || e.code === 'Enter')) { e.preventDefault(); closeModal(); }
@@ -3153,7 +4005,8 @@ addEventListener('keydown', e => {
   else if (kk === 'h' || e.key === '?') openHelp();
   else if (kk === 'c' || kk === 'j') openBook();
   else if (kk === 'b' || e.code === 'KeyI') openBag();
-  else if (e.code === 'Escape') openHelp();
+  else if (kk === 'k') openCraft();
+  else if (e.code === 'Escape') openMenu();
   if (e.code.startsWith('Arrow')) e.preventDefault();
 });
 addEventListener('keyup', e => { keys[e.code] = false; if (e.code === 'Space') actionUp(); });
@@ -3230,7 +4083,7 @@ function updatePlayer(dt, tsec) {
   } else if (S.fish.phase) ar = -2.1 + (S.fish.phase === 'game' ? Math.sin(tsec * 18) * 0.06 : 0);
   player.armR.rotation.x = ar;
   const s = S.inv[S.sel]; const show = S.fish.phase ? 'rod' : s ? (ITEMS[s.id].kind === 'seed' ? 'seed' : s.id) : null;
-  for (const k of ['hoe', 'can', 'rod', 'seed']) tools[k].visible = k === show && (k !== 'seed' || S.swing > 0);
+  for (const k of ['hoe', 'can', 'rod', 'seed', 'machette', 'pioche']) tools[k].visible = k === show && (k !== 'seed' || S.swing > 0);
   if (tools.can.visible) tools.can.rotation.x = S.swingType === 'can' && S.swing > 0 ? -0.9 : 0;
   const inside = P.x > 7 && P.x < 15 && P.z > 5 && P.z < 12;
   const behind = P.x > 6.5 && P.x < 15.5 && P.z > 2.5 && P.z <= 5.2;
@@ -3261,11 +4114,11 @@ function loop(now) {
   const rawDt = (now - prev) / 1000, dt = Math.min(0.05, rawDt); prev = now;
   const tsec = now / 1000;
   // qualité adaptative : coupe les reflets puis baisse la résolution si ça rame
-  perf.acc += rawDt; perf.n++;
+  perf.acc += rawDt; perf.n++; updateFPS(rawDt); if (SET.quality !== 'auto') { perf.acc = 0; perf.n = 0; }
   if (perf.n >= 90) { const avg = perf.acc / perf.n; perf.acc = 0; perf.n = 0; if (avg > 0.034) { if (++perf.bad >= 2) { perf.bad = 0; if (QUALITY.reflect) QUALITY.reflect = false; else if (PR > 1.1) { PR = 1; resize(); } } } else perf.bad = 0; }
   waterMesh.material.uniforms.uTime.value = tsec;
   if (!busy()) {
-    S.time += dt / MIN_SEC;
+    S.time += dt / MIN_SEC * (SET.test ? SET.speed : 1);
     if (S.time >= 1440 && !S.warned) { S.warned = true; toast("Il est minuit… pense à aller dormir."); }
     if (S.time >= 1560) { S.time = 1560; sleepNow(true); }
   }
@@ -3296,6 +4149,8 @@ function loop(now) {
   beam.rotation.y = tsec * 0.6;
   for (const f of flags) f.g.rotation.y = Math.sin(tsec * 2.2 + f.ph) * 0.3 * (0.4 + WIND.uWind.value * 0.6);
   if (stageObjs.disc) stageObjs.disc.rotation.y += dt * 1.2;
+  for (const m of placedMeshes.values()) m.userData.head.rotation.y += dt * 3;
+  updateTurtle(dt, tsec);
   const pulse = (AC && AC.state === 'running' && !muted && AU.on) ? AU.pulse : beatFallback(tsec);
   for (const sp of speakers) sp.m.scale.set(sp.sx * (1 + pulse * 0.14), sp.sx * (1 + pulse * 0.14), sp.sz * (1 + pulse * 0.7));
   for (const f of fades) {
@@ -3311,6 +4166,7 @@ function loop(now) {
 // =====================================================================
 resize();
 buildWorld(); initNature();
+initNodeSpots(); initLocks(); turtle = makeTurtle(); rebuildStakes(); refreshBuildings();
 buildPlayer(); buildNPCs(); buildWalk(); placeAllNPCs(); refreshForage();
 bobber = new THREE.Group(); part(bobber, G.sph, '#e2362f', [0.08, 0.06, 0.08], [0, 0.03, 0]); part(bobber, G.sph, '#ffffff', [0.075, 0.05, 0.075], [0, -0.02, 0]); bobber.visible = false; scene.add(bobber);
 fishLine = new THREE.Line(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(new Array(39).fill(0), 3)), new THREE.LineBasicMaterial({ color: '#f6f1e6' }));
@@ -3323,26 +4179,32 @@ fishLine.frustumCulled = false; fishLine.layers.set(1); fishLine.visible = false
   highlight.rotation.x = -Math.PI / 2; highlight.visible = false; highlight.layers.set(1); highlight.renderOrder = 5; scene.add(highlight);
 }
 addEventListener('resize', resize);
+$('#menu-btn').addEventListener('click', () => { if (!S.title && !S.modal) openMenu(); });
+$('#craft-btn').addEventListener('click', () => { if (!S.title && !S.modal) openCraft(); });
+$('#test-btn').addEventListener('click', () => { if (!S.title && !S.modal) openMenu('test'); });
 renderHotbar();
 camera.position.set(30, CAM_Y - 2, 26 + CAM_Z - 1); camLook.set(30, 0, 26); camera.lookAt(camLook);
 
-function startGame(data) {
-  if (data) applySave(data); else applySave({ plots: [] });
+function startGame(data, slot = 1) {
+  cutQueue.length = 0;
+  if (data) applySave(data); else { applySave({ plots: [] }); seedFarmDebris(); }
+  S.slot = slot; try { localStorage.setItem(LAST_KEY, String(slot)); } catch (e) {}
   S.title = false; $('#title').hidden = true; $('#hud').hidden = false; if (matchMedia('(pointer: coarse)').matches) $('#touch').hidden = false;
   S.zone = zoneOf(P.x, P.z); S.weather = weatherFor(S.day);
   camera.position.set(clamp(P.x, 10, W - 10), CAM_Y, clamp(P.z, 8, 58) + CAM_Z); camLook.set(clamp(P.x, 10, W - 10), 0.5, clamp(P.z, 8, 58));
   renderHotbar(); renderTracker(); canvas.focus(); showZone(S.zone);
-  if (!data) setTimeout(() => toast("Bienvenue à Irie Bay ! Laboure le champ avec la houe, sème, arrose. Tante Pearl vend des graines au village, à l'est.", true), 600);
+  if (!data) { save(); setTimeout(() => cutscene(CUTS.intro, () => toast("Dégage le champ avec la machette et la pioche, puis laboure, sème, arrose. Tante Pearl vend des graines au village, à l'est.", true)), 500); }
+  else checkStory();
 }
 function boot(hot) {
-  const saved = loadSave();
-  if (saved) { const b = $('#btn-continue'); b.hidden = false; b.textContent = `Continuer · ${SEASONS[seasonOf(saved.day)]} jour ${dom(saved.day)}`; b.onclick = () => { audio(); startGame(saved); }; }
-  $('#btn-new').onclick = () => { audio(); startGame(null); };
-  if (hot && hot.state) startGame(hot.state);
-  if (location.hash === '#debug') window.IB = { placeAllNPCs, AU, getAC: () => AC, walk, blocked, boxes, W, H, S, P, ENV, QUALITY, npcs, forage, plots, shellSpots, THREE, camera, scene, startGame, sleepNow, weatherFor, findPath, SPOTS, animalMeshes, openShop, openBook, openBag, openNPC, openAnimals, buyAnimal, toast, spawnAnimalMesh, syncAnimalMeshes, setW: w => { S.weather = w; }, completeQuest, QUESTS };
+  migrateLegacy(); applySettings(); refreshTitleButtons();
+  $('#btn-new').onclick = () => { audio(); openMenu('saves', 'new'); };
+  $('#btn-load').onclick = () => { audio(); openMenu('saves', 'load'); };
+  if (hot && hot.state) startGame(hot.state, hot.slot || lastSlot() || 1);
+  if (location.hash === '#debug') window.IB = { SET, testAction, checkStory, plvl, craft, addItem, nodeAt, cutQueue, readSlot, placeAllNPCs, AU, getAC: () => AC, walk, blocked, boxes, W, H, S, P, ENV, QUALITY, npcs, forage, plots, shellSpots, THREE, camera, scene, startGame, sleepNow, weatherFor, findPath, SPOTS, animalMeshes, openShop, openBook, openBag, openNPC, openAnimals, buyAnimal, toast, spawnAnimalMesh, syncAnimalMeshes, setW: w => { S.weather = w; }, completeQuest, QUESTS };
   requestAnimationFrame(t => { prev = t; loop(t); });
 }
-window.claude?.hot?.snapshot?.(() => ({ state: S.title ? null : serialize(true) }));
+window.claude?.hot?.snapshot?.(() => ({ state: S.title ? null : serialize(true), slot: S.slot }));
 window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
 
 </script>
